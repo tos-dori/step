@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>스텝 v0.6.11</title>
+  <style>
+    :root{--bg:#f7f2e8;--card:#fffefa;--ink:#181614;--muted:#746b60;--line:#e4d6c3;--soft:#f6efe4;--warm:#fff1d6;--accent:#d97706;--accent-dark:#8a4b0f;--success:#15803d;--success-soft:#ecfdf3;--incomplete:#f59e0b;--blocked:#ef4444;--pending:#d6cec2;--view:#2563eb;--focus-red:#dc2626;--break-blue:#2563eb;--timer-gray:#e8ded1;--memo-line:18px;--memo-min-lines:2;--memo-max-lines:6}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}body{display:flex;justify-content:center}button,input,textarea{font:inherit}button{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.app{width:min(100%,480px);min-height:100svh;padding:12px 14px 18px}header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}h1{margin:0;font-size:29px;line-height:1;letter-spacing:-.05em}.version{margin-left:6px;color:var(--muted);font-size:12px;font-weight:750}.subtitle{margin:4px 0 0;color:var(--muted);font-size:13px}.top-btn{min-width:44px;height:40px;border:0;border-radius:15px;background:var(--view);color:#fff;font-size:23px;line-height:1;font-weight:950;padding:0 12px}.top-btn.close{background:#fff;color:var(--muted);border:1px solid var(--line);font-size:13px}.view{display:none}.view.active{display:block}.card{margin-bottom:8px;padding:11px;border:1px solid var(--line);border-radius:17px;background:var(--card)}.focus{border-color:#ecc47c;background:linear-gradient(180deg,#fff8ea 0%,#fffefa 100%);box-shadow:0 8px 20px rgba(120,72,18,.07)}.label{margin-bottom:6px;color:var(--muted);font-size:12px;font-weight:850}.empty{padding:24px 8px 18px;color:var(--muted);text-align:center;line-height:1.45}.empty strong{display:block;margin-bottom:5px;color:var(--ink);font-size:18px}.empty-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.empty-actions.single{grid-template-columns:1fr}.soft-action{height:44px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font-weight:900}.soft-action.primary{border:0;background:var(--view);color:#fff}input[type="text"]{width:100%;height:46px;border:1.5px solid var(--line);border-radius:14px;padding:0 12px;outline:none;background:#fff;color:var(--ink);font-size:16px;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default;touch-action:auto}input[type="text"]:focus,textarea:focus{border-color:var(--accent)}.detail-grid{display:grid;gap:7px;margin-top:7px;padding-top:7px;border-top:1px solid var(--line)}.detail-grid .label{margin-bottom:0}.range-box{border:1.5px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}.range-row{display:grid;grid-template-columns:50px 1fr;align-items:center;min-height:43px}.range-row+.range-row{border-top:1px solid var(--line)}.range-row span{height:100%;display:flex;align-items:center;justify-content:center;border-right:1px solid #eee2d2;color:var(--muted);font-size:12px;font-weight:950}.range-row input{height:43px!important;border:0!important;border-radius:0!important;background:transparent!important;padding:0 11px!important;font-size:14px!important;color:var(--ink)}.range-row input:focus{box-shadow:inset 0 0 0 1.5px rgba(217,119,6,.25)}.memo-shell{display:grid;grid-template-columns:40px 1fr;align-items:start;gap:0;min-height:calc(var(--memo-line)*var(--memo-min-lines) + 18px);padding:9px 10px;border:1px solid #ecd9b9;border-radius:13px;background:#fffaf0;color:var(--muted);font-size:13px;line-height:var(--memo-line);font-weight:700}.memo-shell.readonly{background:#fffaf0}.memo-shell.editable{background:#fffaf0}.memo-shell.standalone{margin:0 0 10px}.memo-label{color:var(--accent-dark);font-weight:950;line-height:var(--memo-line);padding-top:0}.memo-content,.memo-field{min-width:0;width:100%;min-height:calc(var(--memo-line)*var(--memo-min-lines));max-height:calc(var(--memo-line)*var(--memo-max-lines));line-height:var(--memo-line);font-size:13px;font-weight:700;color:var(--muted);overflow-wrap:anywhere;scrollbar-width:thin;scrollbar-color:rgba(116,107,96,.26) transparent}.memo-content{white-space:pre-wrap;overflow-y:auto}.memo-field{display:block;border:0;outline:none;background:transparent;padding:0;margin:0;resize:none;overflow-y:hidden;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default;touch-action:auto}.memo-content::-webkit-scrollbar,.memo-field::-webkit-scrollbar{width:4px}.memo-content::-webkit-scrollbar-track,.memo-field::-webkit-scrollbar-track{background:transparent}.memo-content::-webkit-scrollbar-thumb,.memo-field::-webkit-scrollbar-thumb{background:rgba(116,107,96,.26);border-radius:999px}.memo-content::-webkit-scrollbar-thumb:hover,.memo-field::-webkit-scrollbar-thumb:hover{background:rgba(116,107,96,.38)}.small-check{margin-top:0;display:flex;align-items:center;gap:8px;min-height:36px;padding:4px 2px 1px;color:var(--muted);font-size:13px;font-weight:850}.small-check input{width:18px;height:18px;accent-color:var(--accent)}.small-check span{color:var(--ink);font-weight:900}.small-check small{margin-left:auto;color:var(--muted);font-size:11px;font-weight:700}.chips{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.chip{min-height:42px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--muted);font-weight:900;line-height:1.15;padding:6px 4px}.chip small{display:block;margin-top:2px;font-size:10px;font-weight:750;color:inherit;opacity:.78}.chip.on{border-color:#e7b55f;background:var(--warm);color:var(--accent-dark);box-shadow:0 0 0 2px rgba(217,119,6,.10) inset}.add-final{width:100%;height:54px;margin-top:2px;border:0;border-radius:17px;background:linear-gradient(180deg,#f59e0b,#d97706);color:#fff;font-size:17px;font-weight:950;box-shadow:0 8px 18px rgba(217,119,6,.18)}.add-final:disabled{opacity:.42;box-shadow:none}.now-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}.title-line{min-width:0;flex:1;display:flex;align-items:center;gap:8px}.type-pill{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:22px;padding:0 8px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--muted);font-size:11px;font-weight:950}.head-right{display:flex;align-items:center;gap:7px;flex:0 0 auto}.badge{border-radius:999px;background:var(--warm);color:var(--accent-dark);padding:6px 9px;font-size:12px;font-weight:900}.badge.done{background:var(--success-soft);color:var(--success);border:1px solid rgba(21,128,61,.22)}.gear{width:34px;height:34px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:17px}.gear.on{border-color:#e7b55f;background:var(--warm)}.now-title{min-width:0;margin:0;font-size:26px;line-height:1.12;letter-spacing:-.045em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.title-edit{min-width:0;width:100%;height:34px;border:1px solid #ecd9b9;border-radius:12px;background:#fffaf0;color:var(--ink);padding:0 9px;font-size:22px;font-weight:950;line-height:1.05;letter-spacing:-.045em;outline:none}.title-edit:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(217,119,6,.10)}.meta-row{display:flex;align-items:center;gap:10px;margin:0 0 9px}.meta-row.has-memo{justify-content:space-between}.meta-row.solo-timer{justify-content:center;margin:0 0 9px}.meta-row .memo-shell{flex:1;min-width:0}.timer-wrap{flex:0 0 auto;display:grid;place-items:center}.timer-card{position:relative;width:62px;height:62px;border:0;border-radius:999px;background:transparent;display:grid;place-items:center;overflow:visible;padding:0;transition:transform .08s ease,filter .08s ease}.timer-card::before{content:"";position:absolute;inset:3px;border-radius:999px;background:#fff}.timer-card:active{transform:scale(.96);filter:brightness(.985)}.timer-card::after{content:"";position:absolute;inset:7px;border-radius:999px;background:rgba(24,22,20,.055);opacity:0;pointer-events:none;transition:opacity .16s ease}.timer-card.tap-flash::after{opacity:1}.timer-svg{position:absolute;inset:1px;width:60px;height:60px;overflow:visible;z-index:1}.timer-track,.timer-progress{fill:none;stroke-width:5.2}.timer-track{stroke:var(--timer-track)}.timer-progress{stroke:var(--timer-color);stroke-linecap:round;stroke-dasharray:150.8;stroke-dashoffset:var(--timer-offset);transform:rotate(-90deg);transform-origin:30px 30px}.timer-text{position:relative;z-index:2;display:grid;place-items:center;width:100%;height:100%;color:var(--timer-color);font-size:12.3px;line-height:1;font-weight:950;letter-spacing:-.055em;font-variant-numeric:tabular-nums;text-align:center;transform:translateY(.2px)}.timer-card.off .timer-track{stroke:var(--timer-gray)}.timer-card.off .timer-progress{display:none}.timer-card.off .timer-text{display:none}.timer-card.focus-mode{--timer-color:var(--focus-red);--timer-track:#f2e8dc}.timer-card.break-mode{--timer-color:var(--break-blue);--timer-track:#e7edf9}.timer-card.over.focus-mode{box-shadow:0 0 0 6px rgba(220,38,38,.075)}.timer-card.over.break-mode{box-shadow:0 0 0 6px rgba(37,99,235,.075)}.timer-card.paused .timer-progress{opacity:.76}.bar{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:5px;margin-bottom:12px}.seg{min-width:0;height:28px;display:grid;place-items:center;border:1.5px solid transparent;border-radius:999px;background:var(--pending);color:#5f574f;font-size:12px;font-weight:950}.seg.pending::before{content:"·"}.seg.current{background:#fff;color:var(--ink);border-color:#6b7280;box-shadow:0 0 0 2px rgba(107,114,128,.16) inset}.seg.current::before{content:"▶"}.seg.success{background:var(--success);color:#fff}.seg.success::before{content:"✓"}.seg.incomplete{background:var(--incomplete);color:#fff}.seg.incomplete::before{content:"…"}.seg.blocked{background:var(--blocked);color:#fff}.seg.blocked::before{content:"!"}.seg.viewing{outline:3px solid var(--view);outline-offset:2px}.steps{display:grid;gap:7px;margin-bottom:11px}.step{width:100%;display:grid;grid-template-columns:40px 1fr;gap:9px;align-items:center;padding:10px;border:1px solid #ecd9b9;border-radius:14px;background:#fff;text-align:left;color:var(--ink)}.step.checked{border-color:var(--success);background:#f0fdf4;box-shadow:0 0 0 2px rgba(22,163,74,.08) inset}.num{width:36px;height:36px;display:grid;place-items:center;border-radius:999px;background:var(--warm);color:var(--accent-dark);font-size:14px;font-weight:950;align-self:center;justify-self:center}.step.checked .num{background:var(--success);color:#fff}.step-line{display:block;color:var(--ink);font-size:14px;font-weight:900;line-height:1.35;letter-spacing:-.02em}.step-line strong{font-weight:950}.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:2px}.result-btn{position:relative;overflow:hidden;height:50px;border:0;border-radius:14px;font-size:15px;font-weight:950;transform:translateZ(0);transition:transform .08s ease,filter .08s ease,opacity .08s ease;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}.result-btn .hold-fill{position:absolute;inset:0;transform:scaleX(var(--hold,0));transform-origin:left center;opacity:0;transition:opacity .08s linear;pointer-events:none;background:rgba(255,255,255,.55)}.result-btn .hold-label{position:relative;z-index:1}.result-btn.holding{transform:scale(.985);filter:brightness(.96)}.result-btn.holding .hold-fill{opacity:.55}.result-btn.success{background:var(--success);color:#fff}.result-btn.incomplete{background:var(--incomplete);color:#fff}.result-btn.blocked{background:var(--blocked);color:#fff}.result-btn.locked{opacity:.28;filter:saturate(.7);pointer-events:none}.done-box{margin:2px 0 10px;padding:12px;border:1px solid rgba(21,128,61,.22);border-radius:15px;background:var(--success-soft);color:var(--success);font-weight:950;text-align:center}.done-box small{display:block;margin-top:3px;color:#48745a;font-size:12px;font-weight:750}.done-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.done-action{height:42px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font-weight:900}.done-action.primary{border:0;background:var(--view);color:#fff}.gear-panel{display:none;margin-top:9px;padding-top:9px;border-top:1px solid var(--line)}.gear-panel.open{display:grid;gap:9px}.gear-section{display:grid;gap:6px}.gear-title{margin:0;color:var(--muted);font-size:12px;font-weight:850}.gear-type-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.gear-type-row .chip{min-height:38px}.size-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.size-btn,.putaway-btn{height:42px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);font-weight:900}.putaway-btn{width:100%;background:var(--soft)}.delete-btn{width:100%;height:42px;margin-top:2px;border:1px solid var(--blocked);border-radius:14px;background:#fff;color:var(--blocked);font-weight:950}.delete-btn.armed{background:var(--blocked);color:#fff}.library{margin-top:2px}.library-toggle{width:100%;min-height:42px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:0;border-radius:14px;background:transparent;color:var(--muted);padding:4px 2px;font-size:13px;font-weight:900;text-align:left}.library-toggle strong{color:var(--ink);font-size:14px}.library-toggle .chev{color:var(--muted);font-size:16px}.tasks{display:grid;gap:7px;padding-top:4px}.task{width:100%;border:1px solid var(--line);border-radius:15px;background:#fff;padding:9px 10px;text-align:left;color:var(--ink)}.task.done{border-color:rgba(21,128,61,.26);background:var(--success-soft)}.task-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.task-title{min-width:0;display:flex;align-items:center;gap:7px}.task-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px;font-weight:900}.task-meta{color:var(--muted);font-size:11px;font-weight:850;white-space:nowrap}.task.done .task-meta{color:var(--success)}.task .bar{margin-bottom:0}.task .seg{height:22px;font-size:11px}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);width:min(calc(100% - 28px),452px);padding:12px 14px;border-radius:15px;background:rgba(20,20,20,.94);color:#fff;font-size:14px;opacity:0;pointer-events:none;transition:opacity .15s;z-index:30}.toast.show{opacity:1}.celebration{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%) scale(.96);z-index:20;display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:999px;background:rgba(255,255,255,.96);color:var(--success);border:1px solid rgba(21,128,61,.22);box-shadow:0 12px 30px rgba(0,0,0,.13);font-size:16px;font-weight:950;opacity:0;pointer-events:none}.celebration.show{animation:celebrate 1150ms ease forwards}.celebration .check{width:26px;height:26px;display:grid;place-items:center;border-radius:999px;background:var(--success);color:#fff;font-size:16px}@keyframes celebrate{0%{opacity:0;transform:translate(-50%,-50%) scale(.94)}18%{opacity:1;transform:translate(-50%,-54%) scale(1.02)}72%{opacity:1;transform:translate(-50%,-54%) scale(1)}100%{opacity:0;transform:translate(-50%,-58%) scale(.98)}}@media (prefers-reduced-motion:reduce){.celebration.show{animation:celebrateReduced 900ms ease forwards}@keyframes celebrateReduced{0%{opacity:0}18%{opacity:1}72%{opacity:1}100%{opacity:0}}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <h1>스텝 <span class="version">v0.6.11</span></h1>
+        <p class="subtitle" id="subtitle">지금 할 것만 보기</p>
+      </div>
+      <button class="top-btn" id="topBtn">＋</button>
+    </header>
+
+    <section id="doView" class="view active">
+      <section class="card focus" id="currentCard"></section>
+      <section class="library" id="listCard"></section>
+    </section>
+
+    <section id="addView" class="view">
+      <section class="card">
+        <div class="label">새 할 일</div>
+        <input id="taskInput" type="text" placeholder="예: 회로 과제 3번 풀기" autocomplete="off" />
+        <div class="detail-grid">
+          <div class="label">시작·끝 기준</div>
+          <div class="range-box">
+            <label class="range-row">
+              <span>시작</span>
+              <input id="startInput" type="text" placeholder="처음 볼 곳이나 손댈 것" autocomplete="off" />
+            </label>
+            <label class="range-row">
+              <span>끝</span>
+              <input id="finishInput" type="text" placeholder="이번에 어디까지 할지" autocomplete="off" />
+            </label>
+          </div>
+          <label class="memo-shell editable">
+            <span class="memo-label">메모</span>
+            <textarea id="memoInput" class="memo-field" placeholder="조건, 제출 시간, 주의할 점" rows="2"></textarea>
+          </label>
+          <label class="small-check"><input id="prepInput" type="checkbox" /><span>준비부터 필요함</span><small>첫 스텝을 준비로 시작</small></label>
+        </div>
+      </section>
+      <section class="card">
+        <div class="label">종류</div>
+        <div class="chips">
+          <button class="chip" data-type="0">공부</button>
+          <button class="chip" data-type="1">과제</button>
+          <button class="chip" data-type="2">기타</button>
+        </div>
+      </section>
+      <section class="card">
+        <div class="label">전체 분량</div>
+        <div class="chips">
+          <button class="chip" data-count="1">1스텝<small>30분</small></button>
+          <button class="chip" data-count="2">2스텝<small>1시간</small></button>
+          <button class="chip" data-count="3">3스텝<small>1.5시간</small></button>
+          <button class="chip" data-count="4">4스텝<small>2시간</small></button>
+          <button class="chip" data-count="5">5스텝<small>2.5시간</small></button>
+          <button class="chip" data-count="6">6스텝<small>3시간</small></button>
+        </div>
+      </section>
+      <button class="add-final" id="addBtn" disabled>＋ 이 할 일 추가</button>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+  <div class="celebration" id="celebration"><span class="check">✓</span><span>할 일 완료</span></div>
+
+  <script>
+    var KEY="step_live_v1";
+    var TYPE={STUDY:0,ASSIGNMENT:1,ETC:2};
+    var TYPE_NAMES=["공부","과제","기타"];
+    var STATUS={PENDING:"pending",SUCCESS:"success",INCOMPLETE:"incomplete",BLOCKED:"blocked"};
+    var KIND={PREP:"prep",START:"start",CONTINUE:"continue",WRAP:"wrap",SUBMIT:"submit",INCOMPLETE:"incomplete",BLOCKED:"blocked"};
+    var TIMER={FOCUS:"focus",BREAK:"break",OFF:"off"};
+    var TIMER_MS={focus:25*60*1000,break:5*60*1000};
+    var CIRCLE_LEN=150.8;
+    var HOLD_MS=1150;
+    var TIMER_HOLD_MS=800;
+    var MEMO_LINE=18;
+    var MEMO_MIN_LINES=2;
+    var MEMO_MAX_LINES=6;
+    var MEMO_MAX_HEIGHT=MEMO_LINE*MEMO_MAX_LINES;
+    var MEMO_TOLERANCE=2;
+    var state=loadState();
+    var armedDeleteId=null;
+    var toastTimer=null;
+    var celebrationTimer=null;
+    var timerTick=null;
+    var timerFlashTimer=null;
+    var titleBeforeEdit="";
+    var el={
+      subtitle:byId("subtitle"),doView:byId("doView"),addView:byId("addView"),topBtn:byId("topBtn"),
+      taskInput:byId("taskInput"),startInput:byId("startInput"),memoInput:byId("memoInput"),finishInput:byId("finishInput"),prepInput:byId("prepInput"),addBtn:byId("addBtn"),
+      currentCard:byId("currentCard"),listCard:byId("listCard"),toast:byId("toast"),celebration:byId("celebration")
+    };
+
+    function byId(id){return document.getElementById(id)}
+    function all(selector,root){return Array.prototype.slice.call((root||document).querySelectorAll(selector))}
+    function baseTimer(){return{mode:TIMER.FOCUS,running:false,startedAt:null,elapsed:0}}
+    function baseState(){return{screen:"do",draft:"",startText:"",memoText:"",finishText:"",type:TYPE.STUDY,count:1,prep:false,activeId:null,libraryOpen:false,timer:baseTimer(),tasks:[]}}
+    function storageGet(key){try{return localStorage.getItem(key)}catch(e){return null}}
+    function storageSet(key,value){try{localStorage.setItem(key,value)}catch(e){}}
+    function loadState(){
+      var raw=storageGet(KEY);
+      if(!raw)return baseState();
+      try{return normalizeState(JSON.parse(raw))}catch(e){return baseState()}
+    }
+    function saveState(){storageSet(KEY,JSON.stringify(state))}
+    function normalizeState(saved){
+      var next=baseState(); saved=saved||{};
+      next.screen=saved.screen==="add"?"add":"do";
+      next.draft=str(saved.draft); next.startText=str(saved.startText); next.memoText=str(saved.memoText); next.finishText=str(saved.finishText);
+      next.type=clamp(saved.type,TYPE.STUDY,TYPE.ETC); next.count=clamp(saved.count,1,6); next.prep=!!(saved.prep||saved.criteria&&saved.criteria.unclear);
+      next.libraryOpen=!!saved.libraryOpen; next.tasks=Array.isArray(saved.tasks)?saved.tasks.map(normalizeTask).filter(Boolean):[];
+      next.activeId=saved.activeId&&findTaskInList(String(saved.activeId),next.tasks)?String(saved.activeId):null;
+      next.timer=normalizeTimer(saved.timer);
+      return next;
+    }
+    function normalizeTimer(raw){
+      raw=raw||{};
+      var mode=raw.mode===TIMER.BREAK?TIMER.BREAK:raw.mode===TIMER.OFF?TIMER.OFF:TIMER.FOCUS;
+      var elapsed=Number(raw.elapsed||0);
+      var startedAt=raw.startedAt?Number(raw.startedAt):null;
+      return{mode:mode,running:!!raw.running&&mode!==TIMER.OFF,startedAt:startedAt,elapsed:isFinite(elapsed)&&elapsed>0?elapsed:0};
+    }
+    function normalizeTask(raw){
+      if(!raw)return null;
+      var title=clean(raw.title||"할 일")||"할 일";
+      var task={id:String(raw.id||uid()),title:title,startText:clean(raw.startText),memoText:cleanMemo(raw.memoText),finishText:clean(raw.finishText),type:clamp(raw.type,TYPE.STUDY,TYPE.ETC),prep:!!(raw.prep||raw.criteria&&raw.criteria.unclear),count:clamp(raw.count||1,1,6),now:0,view:0,settingsOpen:!!raw.settingsOpen,pieces:[]};
+      var oldPieces=Array.isArray(raw.pieces)?raw.pieces:[];
+      task.pieces=oldPieces.length?oldPieces.map(function(piece,index){return normalizePiece(piece,task,index,oldPieces)}).filter(Boolean):makePieces(task);
+      if(!task.pieces.length)task.pieces=makePieces(task);
+      refreshKinds(task);
+      recalcTask(task);
+      task.view=clamp(typeof raw.view==="number"?raw.view:task.now,0,Math.max(task.pieces.length-1,0));
+      return task.pieces.length?task:null;
+    }
+    function normalizePiece(piece,task,index,pieces){if(!piece)return null;return{status:validStatus(piece.status),kind:validKind(piece.kind)||inferredKind(task,index,pieces),done:doneFlags(piece)}}
+    function doneFlags(piece){var flags=[];if(Array.isArray(piece.done)){flags=piece.done.map(Boolean)}else if(Array.isArray(piece.steps)){flags=piece.steps.map(function(step){return!!step.done})}while(flags.length<3)flags.push(false);return flags.slice(0,3)}
+    function inferredKind(task,index,pieces){
+      var prev=index>0?pieces[index-1]:null, current=pieces[index], prevStatus=prev?validStatus(prev.status):"", currentStatus=current?validStatus(current.status):STATUS.PENDING;
+      if(currentStatus===STATUS.PENDING&&prevStatus===STATUS.INCOMPLETE)return KIND.INCOMPLETE;
+      if(currentStatus===STATUS.PENDING&&prevStatus===STATUS.BLOCKED)return KIND.BLOCKED;
+      return kindForNewPiece(task,index,pieces.length);
+    }
+    function validStatus(status){return[STATUS.PENDING,STATUS.SUCCESS,STATUS.INCOMPLETE,STATUS.BLOCKED].indexOf(status)>=0?status:STATUS.PENDING}
+    function validKind(kind){return[KIND.PREP,KIND.START,KIND.CONTINUE,KIND.WRAP,KIND.SUBMIT,KIND.INCOMPLETE,KIND.BLOCKED].indexOf(kind)>=0?kind:""}
+    function clamp(value,min,max){value=Number(value);if(!isFinite(value))value=min;return Math.max(min,Math.min(max,Math.round(value)))}
+    function uid(){return"t-"+Date.now()+"-"+Math.random().toString(16).slice(2)}
+    function str(value){return String(value||"")}
+    function clean(text){return str(text).trim().replace(/\s+/g," ")}
+    function cleanMemo(text){return str(text).trim()}
+    function safe(text){return str(text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+    function attr(text){return safe(text).replace(/"/g,"&quot;")}
+    function toast(message){if(toastTimer)clearTimeout(toastTimer);el.toast.textContent=message;el.toast.classList.add("show");toastTimer=setTimeout(function(){el.toast.classList.remove("show")},1300)}
+    function showCelebration(){if(celebrationTimer)clearTimeout(celebrationTimer);el.celebration.classList.remove("show");void el.celebration.offsetWidth;el.celebration.classList.add("show");celebrationTimer=setTimeout(function(){el.celebration.classList.remove("show")},1250)}
+    function autoGrow(node){
+      if(!node)return;
+      node.style.height="auto";
+      var wanted=Math.max(node.scrollHeight,MEMO_LINE*MEMO_MIN_LINES);
+      if(wanted<=MEMO_MAX_HEIGHT+MEMO_TOLERANCE){
+        node.style.height=wanted+"px";
+        node.style.overflowY="hidden";
+      }else{
+        node.style.height=MEMO_MAX_HEIGHT+"px";
+        node.style.overflowY="auto";
+      }
+    }
+    function autoGrowAll(){all("textarea.memo-field").forEach(autoGrow)}
+    function findTask(taskId){return findTaskInList(taskId,state.tasks)}
+    function findTaskInList(taskId,list){taskId=str(taskId);for(var i=0;i<list.length;i++){if(list[i].id===taskId)return list[i]}return null}
+    function activeTask(){return findTask(state.activeId)}
+    function storedTasks(){return state.tasks.filter(function(task){return task.id!==state.activeId})}
+    function firstPendingIndex(pieces){for(var i=0;i<pieces.length;i++){if(pieces[i].status===STATUS.PENDING)return i}return pieces.length}
+    function findLastPendingIndex(task){for(var i=task.pieces.length-1;i>=0;i--){if(task.pieces[i].status===STATUS.PENDING)return i}return-1}
+    function completedCount(task){return task.pieces.filter(function(piece){return piece.status!==STATUS.PENDING}).length}
+    function isTaskDone(task){return!!task&&task.pieces.length>0&&firstPendingIndex(task.pieces)>=task.pieces.length}
+    function recalcTask(task){task.now=firstPendingIndex(task.pieces);task.count=task.pieces.length;task.view=task.pieces.length?(task.now<task.pieces.length?task.now:task.pieces.length-1):0}
+    function viewPiece(task){if(!task||!task.pieces.length)return null;return task.pieces[clamp(task.view,0,task.pieces.length-1)]||null}
+    function typeName(type){return TYPE_NAMES[clamp(type,TYPE.STUDY,TYPE.ETC)]||TYPE_NAMES[0]}
+    function typeBadge(task){return'<span class="type-pill">'+typeName(task.type)+'</span>'}
+    function text(value){return{text:str(value),strong:false}}
+    function strong(value){return{text:str(value),strong:true}}
+    function line(){return Array.prototype.slice.call(arguments).map(function(part){return typeof part==="string"?text(part):part}).filter(function(part){return part&&clean(part.text)})}
+
+    function stepsFor(task,piece){
+      var start=clean(task.startText), finish=clean(task.finishText);
+      if(piece.kind===KIND.PREP)return prepSteps(task,start,finish);
+      if(piece.kind===KIND.START)return startSteps(task,start,finish);
+      if(piece.kind===KIND.SUBMIT)return submitSteps();
+      if(piece.kind===KIND.BLOCKED)return blockedSteps(task);
+      return resumeSteps(task,finish);
+    }
+    function prepSteps(task,start,finish){return[start?startLine(task,start):line("첫 준비 하나를 끝낸다"),line("완성하려 하지 말고 ",strong("2분만")," 실제로 해본다"),reviewLine(task,finish)]}
+    function startSteps(task,start,finish){
+      if(task.type===TYPE.STUDY)return[start?startLine(task,start):line("볼 자료를 하나만 열어둔다"),line("첫 문제나 첫 문단을 ",strong("2분만")," 본다"),reviewLine(task,finish)];
+      if(task.type===TYPE.ASSIGNMENT)return[start?startLine(task,start):line("과제 파일과 조건을 바로 보이게 연다"),line("완성하려 하지 말고 빈칸 하나를 채운다"),reviewLine(task,finish)];
+      return[start?startLine(task,start):line("지금 손댈 대상을 눈앞에 둔다"),line("첫 동작 하나를 끝내고 멈춘다"),reviewLine(task,finish)];
+    }
+    function startLine(task,start){if(task.type===TYPE.STUDY)return line(strong(start),"를 열고 바로 볼 위치에 둔다");if(task.type===TYPE.ASSIGNMENT)return line(strong(start),"를 열고 바로 쓸 위치에 둔다");return line(strong(start),"부터 바로 손댄다")}
+    function resumeSteps(task,finish){
+      if(task.type===TYPE.STUDY)return[line("마지막으로 본 위치에서 다시 시작한다"),line("새 범위 말고 남은 한 부분만 본다"),reviewLine(task,finish)];
+      if(task.type===TYPE.ASSIGNMENT)return[line("마지막으로 쓴 위치에서 다시 시작한다"),line("새 범위 말고 남은 한 부분만 채운다"),reviewLine(task,finish)];
+      return[line("마지막으로 멈춘 곳에서 다시 시작한다"),line("새 일 말고 남은 한 부분만 처리한다"),reviewLine(task,finish)];
+    }
+    function blockedSteps(task){if(task.type===TYPE.ETC)return[line("멈춘 지점으로 돌아간다"),line("지금 할 일을 더 작게 줄인다"),line("다음 첫 동작만 적어둔다")];return[line("멈춘 위치를 다시 연다"),line("막힌 부분을 한 줄로 줄여 쓴다"),line("물어볼 질문 하나를 적어둔다")]}
+    function submitSteps(){return[line("제출할 파일을 한곳에 모은다"),line("조건표에서 빠진 항목을 확인한다"),line(strong("제출 완료 화면"),"을 확인한다")]}
+    function reviewLine(task,finish){
+      if(task.type===TYPE.STUDY)return finish?line(strong(finish),"까지 남은 부분과 방금 잡은 핵심을 적어둔다"):line("다음에 볼 위치와 방금 잡은 핵심을 적어둔다");
+      if(task.type===TYPE.ASSIGNMENT)return finish?line(strong(finish),"까지 남은 부분과 제출 전에 확인할 점을 적어둔다"):line("남은 부분과 제출 전에 확인할 점을 적어둔다");
+      return finish?line(strong(finish),"까지 남은 것만 적어둔다"):line("더 해야 하면 다음 동작만 적어둔다");
+    }
+    function kindForNewPiece(task,index,total){if(index===0)return task.prep?KIND.PREP:KIND.START;if(index===total-1&&task.type===TYPE.ASSIGNMENT&&total>1)return KIND.SUBMIT;if(index===total-1&&total>2)return KIND.WRAP;return KIND.CONTINUE}
+    function refreshKinds(task){for(var i=0;i<task.pieces.length;i++){if(task.pieces[i].kind!==KIND.INCOMPLETE&&task.pieces[i].kind!==KIND.BLOCKED)task.pieces[i].kind=kindForNewPiece(task,i,task.pieces.length)}}
+    function makePieces(task){var pieces=[],total=clamp(task.count,1,6);for(var i=0;i<total;i++)pieces.push(newPiece(kindForNewPiece(task,i,total)));return pieces}
+    function newPiece(kind){return{status:STATUS.PENDING,kind:kind||KIND.CONTINUE,done:[false,false,false]}}
+
+    function resetTimer(mode){state.timer={mode:mode||TIMER.FOCUS,running:false,startedAt:null,elapsed:0}}
+    function timerDuration(){return TIMER_MS[state.timer.mode]||0}
+    function timerElapsed(){
+      if(state.timer.mode===TIMER.OFF)return 0;
+      var elapsed=Number(state.timer.elapsed||0);
+      if(state.timer.running&&state.timer.startedAt)elapsed+=Date.now()-Number(state.timer.startedAt);
+      return Math.max(0,elapsed);
+    }
+    function timerView(){
+      var mode=state.timer.mode||TIMER.FOCUS;
+      if(mode===TIMER.OFF)return{mode:mode,display:"",offset:CIRCLE_LEN,over:false,running:false};
+      var duration=timerDuration(),elapsed=timerElapsed(),over=elapsed>duration;
+      var seconds=over?Math.floor((elapsed-duration)/1000):Math.ceil(Math.max(duration-elapsed,0)/1000);
+      var remainingRatio=over?0:Math.max(duration-elapsed,0)/duration;
+      return{mode:mode,display:formatSeconds(seconds),offset:CIRCLE_LEN*(1-remainingRatio),over:over,running:!!state.timer.running};
+    }
+    function formatSeconds(totalSeconds){
+      totalSeconds=Math.max(0,Math.floor(totalSeconds));
+      var minutes=Math.floor(totalSeconds/60),seconds=totalSeconds%60;
+      return pad2(minutes)+":"+pad2(seconds);
+    }
+    function pad2(value){return value<10?"0"+value:String(value)}
+    function flashTimer(){
+      var card=byId("timerCard");if(!card)return;
+      if(timerFlashTimer)clearTimeout(timerFlashTimer);
+      card.classList.remove("tap-flash");void card.offsetWidth;card.classList.add("tap-flash");
+      timerFlashTimer=setTimeout(function(){card.classList.remove("tap-flash")},180);
+    }
+    function toggleTimer(){
+      if(state.timer.mode===TIMER.OFF)return;
+      if(state.timer.running){
+        state.timer.elapsed=timerElapsed();
+        state.timer.running=false;
+        state.timer.startedAt=null;
+      }else{
+        state.timer.running=true;
+        state.timer.startedAt=Date.now();
+      }
+      saveState();
+      updateTimerDom();
+      flashTimer();
+    }
+    function cycleTimerMode(){
+      var next=state.timer.mode===TIMER.FOCUS?TIMER.BREAK:state.timer.mode===TIMER.BREAK?TIMER.OFF:TIMER.FOCUS;
+      resetTimer(next);
+      saveState();
+      updateTimerDom();
+    }
+    function renderTimer(){
+      var view=timerView();
+      var cls="timer-card "+(view.mode===TIMER.BREAK?"break-mode":view.mode===TIMER.OFF?"off":"focus-mode")+(view.over?" over":"")+(view.running?"":" paused");
+      return '<div class="timer-wrap"><button class="'+cls+'" id="timerCard" style="--timer-offset:'+view.offset+'" aria-label="스텝 타이머"><svg class="timer-svg" viewBox="0 0 60 60" aria-hidden="true"><circle class="timer-track" cx="30" cy="30" r="24"></circle><circle class="timer-progress" cx="30" cy="30" r="24"></circle></svg><span class="timer-text">'+safe(view.display)+'</span></button></div>';
+    }
+    function updateTimerDom(){
+      var card=byId("timerCard");
+      if(!card)return;
+      var view=timerView();
+      card.className="timer-card "+(view.mode===TIMER.BREAK?"break-mode":view.mode===TIMER.OFF?"off":"focus-mode")+(view.over?" over":"")+(view.running?"":" paused");
+      card.style.setProperty("--timer-offset",view.offset);
+      var textNode=card.querySelector(".timer-text");
+      if(textNode)textNode.textContent=view.display;
+    }
+    function bindTimer(){
+      var card=byId("timerCard");
+      if(!card)return;
+      var timer=null,longDone=false;
+      function cleanup(){if(timer)clearTimeout(timer);timer=null;card.classList.remove("holding")}
+      function start(event){
+        event.preventDefault();
+        cleanup();
+        longDone=false;
+        card.classList.add("holding");
+        timer=setTimeout(function(){longDone=true;cycleTimerMode();cleanup()},TIMER_HOLD_MS);
+      }
+      function end(event){
+        if(event)event.preventDefault();
+        if(!longDone)toggleTimer();
+        cleanup();
+      }
+      function cancel(event){if(event)event.preventDefault();cleanup()}
+      card.addEventListener("pointerdown",start);
+      card.addEventListener("pointerup",end);
+      card.addEventListener("pointerleave",cancel);
+      card.addEventListener("pointercancel",cancel);
+      card.addEventListener("contextmenu",function(event){event.preventDefault()});
+    }
+    function startTimerLoop(){
+      if(timerTick)clearInterval(timerTick);
+      timerTick=setInterval(function(){
+        if(state.timer&&state.timer.running)updateTimerDom();
+      },500);
+    }
+
+    function addTask(){
+      var title=clean(state.draft);if(!title){toast("할 일을 먼저 입력해 주세요.");return}
+      var task={id:uid(),title:title,startText:clean(state.startText),memoText:cleanMemo(state.memoText),finishText:clean(state.finishText),type:state.type,prep:state.prep,count:state.count,now:0,view:0,settingsOpen:false,pieces:[]};
+      task.pieces=makePieces(task);task.count=task.pieces.length;state.tasks.unshift(task);state.activeId=task.id;state.libraryOpen=false;clearDraft();resetTimer(TIMER.FOCUS);state.screen="do";
+      saveState();syncInputs();renderAll();toast("할 일을 추가했어요.");
+    }
+    function clearDraft(){state.draft="";state.startText="";state.memoText="";state.finishText="";state.prep=false}
+    function selectTask(taskId){var task=findTask(taskId);if(!task)return;armedDeleteId=null;state.activeId=task.id;state.libraryOpen=false;task.settingsOpen=false;task.view=Math.min(task.now,task.pieces.length-1);resetTimer(TIMER.FOCUS);saveState();renderAll()}
+    function putAwayCurrent(){var task=activeTask();if(!task)return;task.settingsOpen=false;state.activeId=null;state.libraryOpen=false;resetTimer(TIMER.FOCUS);saveState();renderAll();toast("보관함으로 내렸어요.")}
+    function openAddView(){armedDeleteId=null;state.screen="add";saveState();renderScreen();renderAddControls();syncInputs();focusTaskInput()}
+    function markCurrent(status){
+      var task=activeTask();if(!task||task.now>=task.pieces.length)return;
+      var index=task.now;task.pieces[index].status=validStatus(status);
+      if(status===STATUS.INCOMPLETE)task.pieces.splice(index+1,0,newPiece(KIND.INCOMPLETE));
+      if(status===STATUS.BLOCKED)task.pieces.splice(index+1,0,newPiece(KIND.BLOCKED));
+      recalcTask(task);resetTimer(TIMER.FOCUS);
+      var justFinished=status===STATUS.SUCCESS&&isTaskDone(task);saveState();renderAll();if(justFinished)showCelebration();
+    }
+    function addOnePiece(){var task=activeTask();if(!task)return;var wasDone=isTaskDone(task);task.pieces.push(newPiece(KIND.CONTINUE));refreshKinds(task);recalcTask(task);if(wasDone)resetTimer(TIMER.FOCUS);saveState();renderAll();toast("스텝을 하나 늘렸어요.")}
+    function removeOnePiece(){
+      var task=activeTask();if(!task)return;
+      if(task.pieces.length<=1){toast("마지막 스텝은 삭제할 수 없어요.");return}
+      var wasDone=isTaskDone(task),removeIndex=findLastPendingIndex(task);
+      if(removeIndex<0){toast("줄일 수 있는 예정 스텝이 없어요.");return}
+      task.pieces.splice(removeIndex,1);refreshKinds(task);recalcTask(task);var nowDone=isTaskDone(task);if(nowDone)resetTimer(TIMER.FOCUS);saveState();renderAll();
+      if(!wasDone&&nowDone){toast("남은 스텝을 줄여서 완료했어요.");showCelebration()}else toast("예정 스텝을 하나 줄였어요.");
+    }
+    function deleteTask(taskId){
+      if(armedDeleteId!==taskId){armedDeleteId=taskId;renderCurrent();return}
+      state.tasks=state.tasks.filter(function(task){return task.id!==taskId});if(state.activeId===taskId){state.activeId=null;resetTimer(TIMER.FOCUS)}armedDeleteId=null;saveState();renderAll();toast("삭제했어요.");
+    }
+    function toggleStep(index){var task=activeTask(),piece=viewPiece(task);if(!piece||index<0||index>2)return;while(piece.done.length<3)piece.done.push(false);piece.done[index]=!piece.done[index];saveState();renderCurrent()}
+
+    function renderAll(){renderScreen();renderAddControls();renderCurrent();autoGrowAll()}
+    function renderScreen(){var add=state.screen==="add";el.addView.classList.toggle("active",add);el.doView.classList.toggle("active",!add);el.topBtn.textContent=add?"닫기":"＋";el.topBtn.classList.toggle("close",add);el.subtitle.textContent=add?"새 할 일 만들기":"지금 할 것만 보기"}
+    function renderAddControls(){el.addBtn.disabled=!clean(state.draft);el.prepInput.checked=!!state.prep;all("[data-type]").forEach(function(btn){btn.classList.toggle("on",Number(btn.dataset.type)===state.type)});all("[data-count]").forEach(function(btn){btn.classList.toggle("on",Number(btn.dataset.count)===state.count)})}
+    function syncInputs(){el.taskInput.value=state.draft;el.startInput.value=state.startText;el.memoInput.value=state.memoText;el.finishInput.value=state.finishText;el.prepInput.checked=!!state.prep;el.addBtn.disabled=!clean(state.draft);autoGrow(el.memoInput)}
+    function renderCurrent(){
+      var task=activeTask();if(!task){renderEmptyCurrent();renderTaskList();return}
+      if(isTaskDone(task)){renderDoneTask(task);return}
+      var piece=viewPiece(task),viewIndex=clamp(task.view,0,Math.max(task.pieces.length-1,0)),isCurrent=viewIndex===task.now&&task.now<task.pieces.length;
+      if(!piece){renderDoneTask(task);return}
+      el.currentCard.innerHTML=renderTaskHeader(task,false,(viewIndex+1)+"/"+task.pieces.length)+'<div class="bar">'+renderBar(task,true)+'</div>'+renderMeta(task,isCurrent)+'<div class="steps">'+renderSteps(task,piece)+'</div>'+renderResultButtons("current",!isCurrent)+renderGearPanel(task);
+      bindCurrentCard(task,isCurrent);renderTaskList();updateTimerDom();autoGrowAll();
+    }
+    function renderTaskHeader(task,done,badgeText){
+      var titlePart=task.settingsOpen?'<input class="title-edit" id="titleEditInput" type="text" value="'+attr(task.title)+'" aria-label="제목 수정" autocomplete="off" />':'<h2 class="now-title">'+safe(task.title||"할 일")+'</h2>';
+      return'<div class="now-head"><div class="title-line">'+typeBadge(task)+titlePart+'</div><div class="head-right"><div class="badge '+(done?'done':'')+'">'+badgeText+'</div><button class="gear '+(task.settingsOpen?'on':'')+'" id="gearBtn">⚙</button></div></div>'
+    }
+    function renderMeta(task,showTimer){
+      var memo=task.settingsOpen?renderMemoEdit(task,false):renderMemo(task,false),timer=showTimer?renderTimer():"";
+      if(!memo&&!timer)return"";
+      return '<div class="meta-row '+(memo?"has-memo":"solo-timer")+'">'+memo+timer+'</div>';
+    }
+    function renderEmptyCurrent(){
+      var hasStored=storedTasks().length>0,actionsClass=hasStored?"empty-actions":"empty-actions single";
+      el.currentCard.innerHTML='<div class="label">지금 할 것</div><div class="empty"><strong>지금 할 일을 비워뒀어요</strong>쉬거나, 수업 가거나, 보관함에서 다시 골라도 됩니다.<div class="'+actionsClass+'"><button class="soft-action primary" id="emptyAddBtn">새 할 일 추가</button>'+(hasStored?'<button class="soft-action" id="emptyLibraryBtn">보관함 열기</button>':'')+'</div></div>';
+      var add=byId("emptyAddBtn"),lib=byId("emptyLibraryBtn");if(add)add.onclick=openAddView;if(lib)lib.onclick=function(){state.libraryOpen=true;saveState();renderTaskList()};
+    }
+    function renderDoneTask(){
+      var task=activeTask();
+      el.currentCard.innerHTML=renderTaskHeader(task,true,"완료")+'<div class="bar">'+renderBar(task,true)+'</div>'+(task.settingsOpen?renderMemoEdit(task,true):renderMemo(task,true))+'<div class="done-box">할 일 완료<small>다음 할 일이 있으면 바로 이어가도 됩니다</small></div><div class="done-actions"><button class="done-action primary" id="doneAddBtn">새 할 일 추가</button><button class="done-action" id="doneClearBtn">지금 비워두기</button></div>'+renderGearPanel(task);
+      bindGear(task);bindInlineEditors(task);bindDoneActions();renderTaskList();autoGrowAll();
+    }
+    function bindDoneActions(){var add=byId("doneAddBtn"),clear=byId("doneClearBtn");if(add)add.onclick=openAddView;if(clear)clear.onclick=putAwayCurrent}
+    function renderMemo(task,standalone){return task.memoText?'<div class="memo-shell readonly '+(standalone?'standalone':'')+'"><span class="memo-label">메모</span><div class="memo-content">'+safe(task.memoText)+'</div></div>':''}
+    function renderMemoEdit(task,standalone){return'<label class="memo-shell editable '+(standalone?'standalone':'')+'"><span class="memo-label">메모</span><textarea class="memo-field" id="memoInlineInput" placeholder="조건, 제출 시간, 주의할 점" rows="2">'+safe(task.memoText)+'</textarea></label>'}
+    function renderSteps(task,piece){return stepsFor(task,piece).map(function(parts,index){var checked=!!piece.done[index];return'<button class="step '+(checked?'checked':'')+'" data-step="'+index+'"><div class="num">'+(checked?'✓':index+1)+'</div><div><span class="step-line">'+renderLine(parts)+'</span></div></button>'}).join("")}
+    function renderLine(parts){return parts.map(function(part){var escaped=safe(part.text);return part.strong?'<strong>'+escaped+'</strong>':escaped}).join("")}
+    function renderBar(task,interactive){
+      var view=typeof task.view==="number"?task.view:task.now;
+      return task.pieces.map(function(piece,index){var cls="seg "+piece.status;if(piece.status===STATUS.PENDING&&index===task.now)cls="seg current";if(interactive&&index===view)cls+=" viewing";return interactive?'<button class="'+cls+'" data-piece="'+index+'" aria-label="스텝 '+(index+1)+'"></button>':'<span class="'+cls+'"></span>'}).join("");
+    }
+    function renderResultButtons(prefix,locked){return'<div class="actions">'+resultButton("success",prefix+"-success","✓ 성공",locked)+resultButton("incomplete",prefix+"-incomplete","… 미완",locked)+resultButton("blocked",prefix+"-blocked","! 멈춤",locked)+'</div>'}
+    function resultButton(cls,key,label,locked){return'<button class="result-btn '+cls+(locked?' locked" disabled':'"')+' data-hold="'+key+'"><span class="hold-fill"></span><span class="hold-label">'+label+'</span></button>'}
+    function renderGearPanel(task){
+      return'<div class="gear-panel '+(task.settingsOpen?'open':'')+'" id="gearPanel">'+
+        '<div class="gear-section"><div class="gear-title">시작·끝 기준</div><div class="range-box"><label class="range-row"><span>시작</span><input id="startEditInput" type="text" value="'+attr(task.startText)+'" placeholder="처음 볼 곳이나 손댈 것" autocomplete="off" /></label><label class="range-row"><span>끝</span><input id="finishEditInput" type="text" value="'+attr(task.finishText)+'" placeholder="이번에 어디까지 할지" autocomplete="off" /></label></div></div>'+
+        '<div class="gear-section"><div class="gear-title">종류</div><div class="gear-type-row"><button class="chip '+(task.type===TYPE.STUDY?'on':'')+'" data-edit-type="0">공부</button><button class="chip '+(task.type===TYPE.ASSIGNMENT?'on':'')+'" data-edit-type="1">과제</button><button class="chip '+(task.type===TYPE.ETC?'on':'')+'" data-edit-type="2">기타</button></div></div>'+
+        '<div class="gear-section"><div class="gear-title">전체 분량</div><div class="size-row"><button class="size-btn" id="minusPiece">− 스텝</button><button class="size-btn" id="plusPiece">＋ 스텝</button></div></div>'+
+        '<button class="putaway-btn" id="putAwayBtn">↓ 보관함으로 내리기</button>'+
+        '<button class="delete-btn '+(armedDeleteId===task.id?'armed':'')+'" id="deleteBtn">'+(armedDeleteId===task.id?'한 번 더 누르면 삭제':'이 할 일 삭제')+'</button></div>'
+    }
+    function bindCurrentCard(task,enableHold){
+      bindGear(task);bindInlineEditors(task);bindTimer();
+      all("[data-piece]",el.currentCard).forEach(function(btn){btn.onclick=function(){armedDeleteId=null;task.view=Number(btn.dataset.piece);saveState();renderCurrent()}});
+      all("[data-step]",el.currentCard).forEach(function(btn){btn.onclick=function(){toggleStep(Number(btn.dataset.step))}});
+      if(enableHold){bindHold('[data-hold="current-success"]',function(){markCurrent(STATUS.SUCCESS)},el.currentCard);bindHold('[data-hold="current-incomplete"]',function(){markCurrent(STATUS.INCOMPLETE)},el.currentCard);bindHold('[data-hold="current-blocked"]',function(){markCurrent(STATUS.BLOCKED)},el.currentCard)}
+    }
+    function bindInlineEditors(task){
+      var titleInput=byId("titleEditInput"),memoInput=byId("memoInlineInput");
+      if(titleInput){
+        titleInput.addEventListener("focus",function(){titleBeforeEdit=task.title||"할 일"});
+        titleInput.addEventListener("input",function(){if(clean(titleInput.value)){task.title=titleInput.value;saveState()}});
+        titleInput.addEventListener("blur",function(){if(!clean(titleInput.value)){task.title=titleBeforeEdit||task.title||"할 일"}else{task.title=clean(titleInput.value)}saveState();renderCurrent()});
+      }
+      if(memoInput){
+        autoGrow(memoInput);
+        memoInput.addEventListener("input",function(){task.memoText=memoInput.value;autoGrow(memoInput);saveState()});
+        memoInput.addEventListener("blur",function(){task.memoText=cleanMemo(memoInput.value);saveState();renderCurrent()});
+      }
+    }
+    function bindGear(task){
+      var gear=byId("gearBtn"),put=byId("putAwayBtn"),minus=byId("minusPiece"),plus=byId("plusPiece"),del=byId("deleteBtn"),startInput=byId("startEditInput"),finishInput=byId("finishEditInput");
+      if(gear)gear.onclick=function(){armedDeleteId=null;task.settingsOpen=!task.settingsOpen;saveState();renderCurrent()};
+      if(put)put.onclick=putAwayCurrent;
+      if(minus)minus.onclick=removeOnePiece;
+      if(plus)plus.onclick=addOnePiece;
+      if(del)del.onclick=function(){deleteTask(task.id)};
+      if(startInput){
+        startInput.addEventListener("input",function(){task.startText=startInput.value;saveState()});
+        startInput.addEventListener("blur",function(){task.startText=clean(startInput.value);saveState();renderCurrent()});
+      }
+      if(finishInput){
+        finishInput.addEventListener("input",function(){task.finishText=finishInput.value;saveState()});
+        finishInput.addEventListener("blur",function(){task.finishText=clean(finishInput.value);saveState();renderCurrent()});
+      }
+      all("[data-edit-type]",el.currentCard).forEach(function(btn){
+        btn.onclick=function(){
+          task.type=clamp(btn.dataset.editType,TYPE.STUDY,TYPE.ETC);
+          refreshKinds(task);
+          saveState();
+          renderCurrent();
+        };
+      });
+    }
+    function renderTaskList(){
+      var tasks=storedTasks();if(!tasks.length){el.listCard.style.display="none";el.listCard.innerHTML="";return}
+      el.listCard.style.display="block";el.listCard.innerHTML='<button class="library-toggle" id="libraryToggle"><span><strong>할 일 보관함</strong> '+tasks.length+'개</span><span class="chev">'+(state.libraryOpen?'⌄':'〉')+'</span></button>'+(state.libraryOpen?'<div class="tasks">'+tasks.map(renderTaskButton).join("")+'</div>':'');
+      var toggle=byId("libraryToggle");if(toggle)toggle.onclick=function(){state.libraryOpen=!state.libraryOpen;saveState();renderTaskList()};all(".task",el.listCard).forEach(function(btn){btn.onclick=function(){selectTask(btn.dataset.id)}});
+    }
+    function renderTaskButton(task){var done=isTaskDone(task),meta=done?"완료":completedCount(task)+"/"+task.pieces.length;return'<button class="task '+(done?'done':'')+'" data-id="'+task.id+'"><div class="task-top"><div class="task-title">'+typeBadge(task)+'<div class="task-name">'+safe(task.title)+'</div></div><div class="task-meta">'+meta+'</div></div><div class="bar">'+renderBar(task,false)+'</div></button>'}
+
+    function bindHold(selector,onComplete,root){
+      var button=(root||document).querySelector(selector);if(!button||button.disabled)return;
+      var timer=null,raf=null,startTime=0,completed=false;
+      function reset(){button.classList.remove("holding");button.style.setProperty("--hold",0)}
+      function cleanup(){if(timer)clearTimeout(timer);if(raf)cancelAnimationFrame(raf);timer=null;raf=null;completed=false;reset()}
+      function tick(){var ratio=Math.min((performance.now()-startTime)/HOLD_MS,1);button.style.setProperty("--hold",ratio);if(ratio<1&&!completed)raf=requestAnimationFrame(tick)}
+      function start(event){if(button.disabled)return;event.preventDefault();cleanup();startTime=performance.now();button.classList.add("holding");raf=requestAnimationFrame(tick);timer=setTimeout(function(){if(completed)return;completed=true;button.style.setProperty("--hold",1);onComplete();cleanup()},HOLD_MS)}
+      function cancel(event){if(event)event.preventDefault();cleanup()}
+      button.addEventListener("pointerdown",start);
+      button.addEventListener("pointerup",cancel);
+      button.addEventListener("pointerleave",cancel);
+      button.addEventListener("pointercancel",cancel);
+      button.addEventListener("contextmenu",function(event){event.preventDefault()});
+      button.addEventListener("keydown",function(event){if(event.key!==" "&&event.key!=="Enter")return;if(event.repeat)return;start(event)});
+      button.addEventListener("keyup",function(event){if(event.key!==" "&&event.key!=="Enter")return;cancel(event)});
+    }
+    function focusTaskInput(){setTimeout(function(){el.taskInput.focus()},0)}
+    function bindInput(input,key,after){input.addEventListener("input",function(){state[key]=input.value;if(input.tagName==="TEXTAREA")autoGrow(input);if(after)after();saveState()})}
+    function bindStaticEvents(){
+      bindInput(el.taskInput,"draft",function(){el.addBtn.disabled=!clean(state.draft)});
+      bindInput(el.startInput,"startText");
+      bindInput(el.memoInput,"memoText");
+      bindInput(el.finishInput,"finishText");
+      el.prepInput.addEventListener("change",function(){state.prep=el.prepInput.checked;saveState()});
+      el.addBtn.onclick=addTask;
+      all("[data-type]").forEach(function(btn){btn.onclick=function(){state.type=Number(btn.dataset.type);saveState();renderAddControls()}});
+      all("[data-count]").forEach(function(btn){btn.onclick=function(){state.count=Number(btn.dataset.count);saveState();renderAddControls()}});
+      el.topBtn.onclick=function(){armedDeleteId=null;state.screen=state.screen==="add"?"do":"add";saveState();renderScreen();renderAddControls();if(state.screen==="add"){syncInputs();focusTaskInput()}};
+    }
+    bindStaticEvents();syncInputs();renderAll();startTimerLoop();saveState();
+  </script>
+</body>
+</html>
