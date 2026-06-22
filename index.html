@@ -124,7 +124,7 @@
     }
 
 
-    /* v0.6.34 brand icon */
+    /* v0.6.38 brand icon */
     .brand-title{
       display:flex;
       align-items:center;
@@ -136,16 +136,415 @@
       display:block;
       flex:0 0 auto;
     }
-  </style>
+
+    /* v0.6.38 done shelf action hierarchy */
+    .task-card-actions{
+      flex:0 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:6px;
+      white-space:nowrap;
+    }
+    .shelf-action{
+      height:28px;
+      min-height:28px;
+      border:1px solid #ddd6cc;
+      border-radius:999px;
+      background:#f6f3ee;
+      color:#7a7168;
+      padding:0 9px;
+      font-size:11px;
+      font-weight:900;
+      line-height:1;
+      box-shadow:0 1px 0 rgba(255,255,255,.58) inset;
+      white-space:nowrap;
+    }
+    .shelf-action:active{background:#eee7dd;color:#5f574f}
+    .shelf-action.danger,.delete-btn{
+      border-color:rgba(239,68,68,.46)!important;
+      background:#fff!important;
+      color:#dc2626!important;
+      box-shadow:0 1px 0 rgba(255,255,255,.58) inset!important;
+    }
+    .shelf-action.danger:active,.delete-btn:active{background:#fef2f2!important;color:#b91c1c!important}
+    .delete-btn.armed{background:#ef4444!important;color:#fff!important;border-color:#ef4444!important}
+
+    .shelf-action.danger.armed{
+      border-color:var(--blocked)!important;
+      background:var(--blocked)!important;
+      color:#fff!important;
+      box-shadow:0 2px 0 rgba(185,28,28,.16)!important;
+    }
+    .shelf-action.danger.armed:active{background:#b91c1c!important;color:#fff!important}
+
+    .done-shelf-toggle{
+      width:100%;
+      min-height:36px;
+      margin:4px 0 0;
+      border:0;
+      border-radius:13px;
+      background:transparent;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+      text-align:center;
+    }
+    .done-shelf-toggle:active{background:rgba(116,107,96,.06)}
+    .done-shelf-panel{
+      display:grid;
+      gap:7px;
+      margin-top:5px;
+      padding-top:5px;
+      border-top:1px solid rgba(228,214,195,.66);
+    }
+    .done-shelf-empty{
+      padding:10px 8px 12px;
+      color:rgba(116,107,96,.72);
+      font-size:12px;
+      font-weight:800;
+      text-align:center;
+    }
+    .task.shelved{
+      background:#fbfaf7;
+      border-color:#e5ded4;
+    }
+    .task.shelved .bar{opacity:.58}
+    .done-shelf-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:6px;
+      margin-top:8px;
+    }
+  
+
+    /* v0.6.43 memo check token: Unicode circled glyph pass */
+    .memo-helper-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:8px;margin:-2px 0 7px}
+    .memo-helper-row .memo-help{margin:0!important;min-width:0}
+    .memo-check-insert{align-self:start;height:24px;min-height:24px;margin:0;border:1px solid rgba(138,75,15,.18);border-radius:999px;background:rgba(255,250,240,.72);color:rgba(138,75,15,.82);padding:0 8px;font-size:10.5px;font-weight:850;line-height:1;white-space:nowrap;box-shadow:0 1px 0 rgba(255,255,255,.55) inset}
+    .memo-check-insert:active{background:#fff1d6;color:var(--accent-dark)}
+    .memo-shell.readonly{display:block;grid-template-columns:1fr}
+    .memo-token{display:inline;margin:0;padding:0;border:0;background:transparent;font:inherit;font-size:1em;line-height:inherit;vertical-align:baseline;color:rgba(66,59,52,.88);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;text-decoration:none}
+    .memo-token.labeled{font-weight:850}
+    .memo-token.empty{font-weight:850;color:rgba(66,59,52,.82)}
+    .memo-token.checked{color:rgba(116,107,96,.50);font-weight:800}
+    .memo-token.empty.checked{color:rgba(116,107,96,.46);font-weight:850}
+    .memo-token:focus-visible{outline:1px solid rgba(217,119,6,.42);outline-offset:2px;border-radius:3px}
+    .add-memo-shell,.memo-shell.editable,.memo-shell.readonly{background:#fff8e8}
+    .add-memo-shell,.memo-shell{border-color:#ead2a5}
+
+
+    /* v0.6.43 memo note typography: unified light memo surface */
+    :root{
+      --memo-line:21px;
+      --memo-text:rgba(83,75,66,.84);
+      --memo-text-strong:rgba(69,62,55,.88);
+      --memo-done:rgba(116,107,96,.58);
+      --memo-surface:#fff8e8;
+      --memo-border:#ead2a5;
+    }
+    .memo-shell,
+    .add-memo-shell,
+    .memo-shell.editable,
+    .memo-shell.readonly,
+    .memo-edit-shell{
+      display:block!important;
+      grid-template-columns:none!important;
+      min-height:calc(var(--memo-line)*var(--memo-min-lines) + 20px)!important;
+      padding:10px 12px!important;
+      border:1px solid var(--memo-border)!important;
+      border-radius:14px!important;
+      background:var(--memo-surface)!important;
+      color:var(--memo-text)!important;
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif!important;
+      font-size:16px!important;
+      line-height:var(--memo-line)!important;
+      font-weight:500!important;
+      letter-spacing:-.012em!important;
+    }
+    .memo-content,
+    .memo-field,
+    .add-memo-field,
+    .memo-edit-shell .memo-field{
+      font-family:inherit!important;
+      font-size:16px!important;
+      line-height:var(--memo-line)!important;
+      font-weight:500!important;
+      color:var(--memo-text)!important;
+      letter-spacing:-.012em!important;
+      min-height:calc(var(--memo-line)*var(--memo-min-lines))!important;
+      max-height:calc(var(--memo-line)*var(--memo-max-lines))!important;
+    }
+    .memo-content{
+      display:block!important;
+      white-space:pre-wrap!important;
+      margin:0!important;
+      padding:0!important;
+    }
+    .memo-field{
+      display:block!important;
+      margin:0!important;
+      padding:0!important;
+      border:0!important;
+      background:transparent!important;
+      outline:none!important;
+      resize:none!important;
+    }
+    .memo-field::placeholder{
+      font-family:inherit!important;
+      font-size:16px!important;
+      line-height:var(--memo-line)!important;
+      font-weight:400!important;
+      color:rgba(116,107,96,.46)!important;
+      letter-spacing:-.012em!important;
+    }
+    .memo-token{
+      font-family:"Apple Symbols","Segoe UI Symbol","Noto Sans Symbols 2","Noto Sans Symbols","Arial Unicode MS",-apple-system,BlinkMacSystemFont,system-ui,sans-serif!important;
+      font-size:1em!important;
+      line-height:inherit!important;
+      font-weight:500!important;
+      color:var(--memo-text-strong)!important;
+      opacity:1!important;
+      vertical-align:baseline!important;
+      letter-spacing:0!important;
+    }
+    .memo-token.digit{font-size:1.035em!important;color:rgba(63,56,50,.90)!important}
+    .memo-token.empty{color:rgba(69,62,55,.78)!important;font-weight:500!important}
+    .memo-token.checked{color:var(--memo-done)!important;font-weight:500!important;opacity:1!important}
+    .memo-token.empty.checked{color:rgba(116,107,96,.54)!important;font-weight:500!important;opacity:1!important}
+    .memo-helper-row{align-items:start!important;margin:-1px 0 7px!important}
+    .memo-help{
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif!important;
+      font-size:10.5px!important;
+      font-weight:500!important;
+      line-height:14px!important;
+      color:rgba(116,107,96,.72)!important;
+      letter-spacing:-.01em!important;
+    }
+    .memo-help span,
+    .memo-help span+span{
+      display:block!important;
+      margin:0!important;
+      padding:0!important;
+      height:14px!important;
+      line-height:14px!important;
+    }
+
+
+
+    /* v0.6.43 memo typography refinement: calmer display memo + preview family */
+    :root{
+      --memo-input-line:22px;
+      --memo-display-line:19px;
+      --memo-preview-line:17px;
+      --memo-input-size:16px;
+      --memo-display-size:13.5px;
+      --memo-preview-size:12.5px;
+      --memo-weight:400;
+      --memo-text:rgba(72,65,58,.84);
+      --memo-display-text:rgba(75,68,60,.80);
+      --memo-preview-text:rgba(93,84,74,.72);
+      --memo-token-text:rgba(67,60,53,.82);
+      --memo-done:rgba(116,107,96,.50);
+      --memo-surface:#fff8ea;
+      --memo-border:#ead6ae;
+    }
+    .memo-shell,
+    .add-memo-shell,
+    .memo-shell.editable,
+    .memo-edit-shell{
+      padding:10px 12px!important;
+      border-color:var(--memo-border)!important;
+      background:var(--memo-surface)!important;
+      color:var(--memo-text)!important;
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif!important;
+      font-size:var(--memo-input-size)!important;
+      line-height:var(--memo-input-line)!important;
+      font-weight:var(--memo-weight)!important;
+      letter-spacing:-.004em!important;
+      min-height:calc(var(--memo-input-line)*var(--memo-min-lines) + 20px)!important;
+    }
+    .memo-field,
+    .add-memo-field,
+    .memo-edit-shell .memo-field{
+      font-family:inherit!important;
+      font-size:var(--memo-input-size)!important;
+      line-height:var(--memo-input-line)!important;
+      font-weight:var(--memo-weight)!important;
+      color:var(--memo-text)!important;
+      letter-spacing:-.004em!important;
+      min-height:calc(var(--memo-input-line)*var(--memo-min-lines))!important;
+      max-height:calc(var(--memo-input-line)*var(--memo-max-lines))!important;
+    }
+    .memo-field::placeholder{
+      font-size:var(--memo-input-size)!important;
+      line-height:var(--memo-input-line)!important;
+      font-weight:400!important;
+      color:rgba(116,107,96,.43)!important;
+      letter-spacing:-.004em!important;
+    }
+    .memo-shell.readonly{
+      padding:9px 11px!important;
+      font-size:var(--memo-display-size)!important;
+      line-height:var(--memo-display-line)!important;
+      font-weight:var(--memo-weight)!important;
+      color:var(--memo-display-text)!important;
+      min-height:calc(var(--memo-display-line)*var(--memo-min-lines) + 18px)!important;
+    }
+    .memo-shell.readonly .memo-content{
+      font-size:var(--memo-display-size)!important;
+      line-height:var(--memo-display-line)!important;
+      font-weight:var(--memo-weight)!important;
+      color:var(--memo-display-text)!important;
+      letter-spacing:-.004em!important;
+      min-height:calc(var(--memo-display-line)*var(--memo-min-lines))!important;
+      max-height:calc(var(--memo-display-line)*var(--memo-max-lines))!important;
+    }
+    .memo-token{
+      font-family:"Apple Symbols","Segoe UI Symbol","Noto Sans Symbols 2","Noto Sans Symbols","Arial Unicode MS",-apple-system,BlinkMacSystemFont,system-ui,sans-serif!important;
+      font-weight:inherit!important;
+      color:var(--memo-token-text)!important;
+      opacity:1!important;
+      vertical-align:baseline!important;
+      letter-spacing:0!important;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:auto;
+    }
+    .memo-token.digit{font-size:1.035em!important;color:rgba(58,52,46,.85)!important}
+    .memo-token.empty{color:rgba(73,66,58,.72)!important;font-weight:inherit!important}
+    .memo-token.checked{color:var(--memo-done)!important;font-weight:inherit!important;opacity:1!important}
+    .memo-token.empty.checked{color:rgba(116,107,96,.50)!important;font-weight:inherit!important;opacity:1!important}
+    .task-note{
+      color:var(--memo-preview-text)!important;
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif!important;
+      font-size:var(--memo-preview-size)!important;
+      font-weight:400!important;
+      line-height:var(--memo-preview-line)!important;
+      letter-spacing:-.004em!important;
+    }
+    .task-note .memo-token{
+      color:rgba(87,78,68,.70)!important;
+      font-weight:inherit!important;
+      line-height:inherit!important;
+    }
+    .task-note .memo-token.checked{color:rgba(116,107,96,.42)!important}
+    .task.selected .task-note{max-height:calc(var(--memo-preview-line)*6)!important}
+    .memo-help{
+      font-size:10.5px!important;
+      font-weight:400!important;
+      line-height:14px!important;
+      color:rgba(116,107,96,.68)!important;
+      letter-spacing:-.004em!important;
+    }
+    .memo-help span,
+    .memo-help span+span{
+      display:block!important;
+      height:14px!important;
+      line-height:14px!important;
+      margin:0!important;
+      padding:0!important;
+    }
+
+
+    /* v0.6.45 add draft top actions: preserve draft, explicit clear only */
+    .top-actions{
+      flex:0 0 auto;
+      display:flex;
+      align-items:flex-start;
+      gap:7px;
+    }
+    .clear-draft-btn{
+      height:40px;
+      min-height:40px;
+      border:1px solid rgba(239,68,68,.46);
+      border-radius:14px;
+      background:#fff;
+      color:#dc2626;
+      padding:0 10px;
+      font-size:12px;
+      font-weight:950;
+      line-height:1;
+      box-shadow:0 1px 0 rgba(255,255,255,.58) inset;
+      white-space:nowrap;
+    }
+    .clear-draft-btn[hidden]{display:none!important}
+    .clear-draft-btn:active{background:#fef2f2;color:#b91c1c}
+    .clear-draft-btn.armed{
+      border-color:var(--blocked);
+      background:var(--blocked);
+      color:#fff;
+      box-shadow:0 2px 0 rgba(185,28,28,.16);
+    }
+    .clear-draft-btn.armed:active{background:#b91c1c;color:#fff}
+
+
+    /* v0.6.45 add settings disclosure: stable quick-add flow */
+    .step-settings-card{
+      padding:0!important;
+      overflow:hidden;
+      border-color:#d9e7f4!important;
+      background:#fffefa!important;
+    }
+    .add-settings-toggle{
+      width:100%;
+      min-height:46px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border:0;
+      border-radius:0;
+      background:transparent;
+      color:#6d6257;
+      padding:0 14px;
+      font-size:13px;
+      font-weight:900;
+      line-height:1;
+      text-align:left;
+    }
+    .add-settings-toggle:active{background:rgba(100,116,139,.06)}
+    .add-settings-right{
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:850;
+      white-space:nowrap;
+    }
+    .add-settings-chevron{
+      width:7px;
+      height:7px;
+      display:inline-block;
+      border-right:2px solid currentColor;
+      border-bottom:2px solid currentColor;
+      transform:rotate(45deg) translateY(-1px);
+      opacity:.82;
+    }
+    .step-settings-card:not(.collapsed) .add-settings-chevron{
+      transform:rotate(225deg) translateY(-1px);
+    }
+    .step-settings-card .settings-grid{
+      padding:12px 14px 14px;
+      border-top:1px solid rgba(228,214,195,.72);
+      gap:15px;
+    }
+    .step-settings-card .settings-grid>.setting-section:first-child>.label{
+      margin-top:0;
+    }
+    .step-settings-card.collapsed .settings-grid{display:none}
+
+</style>
 </head>
 <body>
   <main class="app">
     <header>
       <div>
-        <h1 class="brand-title"><img src="./step-icon.svg" alt="" class="brand-icon" aria-hidden="true" /><span>Step!</span><span class="version">v0.6.34</span></h1>
+        <h1 class="brand-title"><img src="./step-icon.svg" alt="" class="brand-icon" aria-hidden="true" /><span>Step!</span><span class="version">v0.6.46</span></h1>
         <p class="subtitle" id="subtitle">지금 할 것만 보기</p>
       </div>
-      <button class="top-btn" id="topBtn">＋</button>
+      <div class="top-actions"><button class="clear-draft-btn" id="clearDraftBtn" hidden>🗑 비우기</button><button class="top-btn" id="topBtn">＋</button></div>
     </header>
 
     <section id="doView" class="view active">
@@ -163,13 +562,16 @@
         </div>
         <input id="taskInput" class="add-title-field" type="text" placeholder="예: 회로 과제 3번 풀기" autocomplete="off" />
         <div class="add-field-label">메모</div>
-        <div class="memo-help" id="memoHelp"></div>
+        <div class="memo-helper-row"><div class="memo-help" id="memoHelp"></div><button type="button" class="memo-check-insert" id="memoInsertBtn">○ 체크</button></div>
         <label class="add-memo-shell">
           <textarea id="memoInput" class="memo-field add-memo-field" rows="2"></textarea>
         </label>
       </section>
-      <section class="card step-settings-card">
-        <div class="label card-label">세부 설정</div>
+      <section class="card step-settings-card collapsed" id="addSettingsCard">
+        <button type="button" class="add-settings-toggle" id="addSettingsToggle" aria-expanded="false">
+          <span>세부 설정</span>
+          <span class="add-settings-right"><span class="add-settings-state" id="addSettingsState">열기</span><span class="add-settings-chevron" aria-hidden="true"></span></span>
+        </button>
         <div class="settings-grid">
           <div class="setting-section">
             <div class="label">시작·끝 기준</div>
@@ -198,7 +600,7 @@
           </div>
         </div>
       </section>
-      <button class="add-final" id="addBtn" disabled>＋ 이 할 일 추가</button>
+      <button class="add-final" id="addBtn" disabled>＋ 1 Step 만들기</button>
     </section>
   </main>
 
@@ -223,21 +625,22 @@
     var MEMO_TOLERANCE=2;
     var state=loadState();
     var armedDeleteId=null;
+    var armedDraftClear=false;
     var toastTimer=null;
     var celebrationTimer=null;
     var timerTick=null;
     var timerFlashTimer=null;
     var editDraft=null;
     var el={
-      subtitle:byId("subtitle"),doView:byId("doView"),addView:byId("addView"),topBtn:byId("topBtn"),
-      taskInput:byId("taskInput"),startInput:byId("startInput"),memoInput:byId("memoInput"),memoHelp:byId("memoHelp"),finishInput:byId("finishInput"),prepInput:byId("prepInput"),addBtn:byId("addBtn"),
+      subtitle:byId("subtitle"),doView:byId("doView"),addView:byId("addView"),topBtn:byId("topBtn"),clearDraftBtn:byId("clearDraftBtn"),
+      taskInput:byId("taskInput"),startInput:byId("startInput"),memoInput:byId("memoInput"),memoHelp:byId("memoHelp"),finishInput:byId("finishInput"),prepInput:byId("prepInput"),addBtn:byId("addBtn"),addSettingsToggle:byId("addSettingsToggle"),addSettingsState:byId("addSettingsState"),addSettingsCard:byId("addSettingsCard"),
       currentCard:byId("currentCard"),listCard:byId("listCard"),toast:byId("toast"),celebration:byId("celebration")
     };
 
     function byId(id){return document.getElementById(id)}
     function all(selector,root){return Array.prototype.slice.call((root||document).querySelectorAll(selector))}
     function baseTimer(){return{mode:TIMER.FOCUS,running:false,startedAt:null,elapsed:0}}
-    function baseState(){return{screen:"do",draft:"",startText:"",memoText:"",finishText:"",type:TYPE.STUDY,count:1,prep:false,activeId:null,libraryOpen:false,selectedLibraryId:null,timer:baseTimer(),tasks:[]}}
+    function baseState(){return{screen:"do",draft:"",startText:"",memoText:"",finishText:"",type:TYPE.STUDY,count:1,prep:false,addSettingsOpen:false,activeId:null,libraryOpen:false,doneShelfOpen:false,selectedLibraryId:null,timer:baseTimer(),tasks:[]}}
     function storageGet(key){try{return localStorage.getItem(key)}catch(e){return null}}
     function storageSet(key,value){try{localStorage.setItem(key,value)}catch(e){}}
     function loadState(){
@@ -250,8 +653,8 @@
       var next=baseState(); saved=saved||{};
       next.screen=saved.screen==="add"?"add":"do";
       next.draft=str(saved.draft); next.startText=str(saved.startText); next.memoText=str(saved.memoText); next.finishText=str(saved.finishText);
-      next.type=clamp(saved.type,TYPE.STUDY,TYPE.ETC); next.count=clamp(saved.count,1,6); next.prep=!!(saved.prep||saved.criteria&&saved.criteria.unclear);
-      next.libraryOpen=!!saved.libraryOpen; next.tasks=Array.isArray(saved.tasks)?saved.tasks.map(normalizeTask).filter(Boolean):[];
+      next.type=clamp(saved.type,TYPE.STUDY,TYPE.ETC); next.count=clamp(saved.count,1,6); next.prep=!!(saved.prep||saved.criteria&&saved.criteria.unclear); next.addSettingsOpen=!!saved.addSettingsOpen;
+      next.libraryOpen=!!saved.libraryOpen; next.doneShelfOpen=!!saved.doneShelfOpen; next.tasks=Array.isArray(saved.tasks)?saved.tasks.map(normalizeTask).filter(Boolean):[];
       next.activeId=saved.activeId&&findTaskInList(String(saved.activeId),next.tasks)?String(saved.activeId):null;
       next.selectedLibraryId=saved.libraryOpen&&saved.selectedLibraryId&&String(saved.selectedLibraryId)!==next.activeId&&findTaskInList(String(saved.selectedLibraryId),next.tasks)?String(saved.selectedLibraryId):null;
       next.timer=normalizeTimer(saved.timer);
@@ -267,7 +670,7 @@
     function normalizeTask(raw){
       if(!raw)return null;
       var title=clean(raw.title||"할 일")||"할 일";
-      var task={id:String(raw.id||uid()),title:title,startText:clean(raw.startText),memoText:cleanMemo(raw.memoText),finishText:clean(raw.finishText),type:clamp(raw.type,TYPE.STUDY,TYPE.ETC),prep:!!(raw.prep||raw.criteria&&raw.criteria.unclear),count:clamp(raw.count||1,1,6),now:0,view:0,settingsOpen:!!raw.settingsOpen,pieces:[]};
+      var task={id:String(raw.id||uid()),title:title,startText:clean(raw.startText),memoText:cleanMemo(raw.memoText),finishText:clean(raw.finishText),type:clamp(raw.type,TYPE.STUDY,TYPE.ETC),prep:!!(raw.prep||raw.criteria&&raw.criteria.unclear),count:clamp(raw.count||1,1,6),now:0,view:0,settingsOpen:!!raw.settingsOpen,doneShelf:!!raw.doneShelf,doneShelfAt:validTimestamp(raw.doneShelfAt),pieces:[]};
       var oldPieces=Array.isArray(raw.pieces)?raw.pieces:[];
       task.pieces=oldPieces.length?oldPieces.map(function(piece,index){return normalizePiece(piece,task,index,oldPieces)}).filter(Boolean):makePieces(task);
       if(!task.pieces.length)task.pieces=makePieces(task);
@@ -286,6 +689,7 @@
     }
     function validStatus(status){return[STATUS.PENDING,STATUS.SUCCESS,STATUS.INCOMPLETE,STATUS.BLOCKED].indexOf(status)>=0?status:STATUS.PENDING}
     function validKind(kind){return[KIND.PREP,KIND.START,KIND.CONTINUE,KIND.WRAP,KIND.SUBMIT,KIND.INCOMPLETE,KIND.BLOCKED].indexOf(kind)>=0?kind:""}
+    function validTimestamp(value){value=Number(value);return isFinite(value)&&value>0?value:undefined}
     function clamp(value,min,max){value=Number(value);if(!isFinite(value))value=min;return Math.max(min,Math.min(max,Math.round(value)))}
     function uid(){return"t-"+Date.now()+"-"+Math.random().toString(16).slice(2)}
     function str(value){return String(value||"")}
@@ -311,7 +715,8 @@
     function findTask(taskId){return findTaskInList(taskId,state.tasks)}
     function findTaskInList(taskId,list){taskId=str(taskId);for(var i=0;i<list.length;i++){if(list[i].id===taskId)return list[i]}return null}
     function activeTask(){return findTask(state.activeId)}
-    function storedTasks(){return state.tasks.filter(function(task){return task.id!==state.activeId})}
+    function storedTasks(){return state.tasks.filter(function(task){return task.id!==state.activeId&&!task.doneShelf})}
+    function doneShelfTasks(){return state.tasks.map(function(task,index){return{task:task,index:index}}).filter(function(item){return item.task.id!==state.activeId&&!!item.task.doneShelf}).sort(function(a,b){var at=validTimestamp(a.task.doneShelfAt),bt=validTimestamp(b.task.doneShelfAt);if(at&&bt)return bt-at;if(at)return-1;if(bt)return 1;return a.index-b.index}).map(function(item){return item.task})}
     function firstPendingIndex(pieces){for(var i=0;i<pieces.length;i++){if(pieces[i].status===STATUS.PENDING)return i}return pieces.length}
     function findLastPendingIndex(task){for(var i=task.pieces.length-1;i>=0;i--){if(task.pieces[i].status===STATUS.PENDING)return i}return-1}
     function taskHasStarted(task){
@@ -331,6 +736,74 @@
     }
     function renderMemoHelp(type){var guide=memoGuide(type);return'<span>'+safe(guide.line1)+'</span><span>'+safe(guide.line2)+'</span>'}
     function applyMemoGuide(){var guide=memoGuide(state.type);if(el.memoHelp)el.memoHelp.innerHTML=renderMemoHelp(state.type);if(el.memoInput)el.memoInput.placeholder=guide.placeholder}
+    function isMemoTokenLabel(ch){return /^[A-Za-z0-9]$/.test(ch||"")}
+    function circledMemoLabel(label){
+      var ch=str(label).charAt(0);
+      if(/^[a-z]$/.test(ch))return String.fromCharCode(0x24D0+ch.charCodeAt(0)-97);
+      if(/^[A-Z]$/.test(ch))return String.fromCharCode(0x24B6+ch.charCodeAt(0)-65);
+      if(ch==="0")return "⓪";
+      if(/^[1-9]$/.test(ch))return String.fromCharCode(0x2460+Number(ch)-1);
+      return ch;
+    }
+    function memoTokenHtml(mark,label,index,interactive){
+      var checked=mark==="●",hasLabel=!!label;
+      var symbol=hasLabel?circledMemoLabel(label):(checked?"●":"○");
+      var labelKind=hasLabel?(/^[0-9]$/.test(label)?" digit":" letter"):"";
+      var cls="memo-token "+(hasLabel?"labeled":"empty")+labelKind+(checked?" checked":"")+(interactive?"":" preview-token");
+      if(!interactive)return '<span class="'+cls+'">'+safe(symbol)+'</span>';
+      var aria=(checked?"완료된 메모 체크":"메모 체크")+(hasLabel?" "+label:"");
+      return '<span class="'+cls+'" role="button" tabindex="0" aria-label="'+attr(aria)+'" data-memo-token="'+index+'">'+safe(symbol)+'</span>';
+    }
+    function renderMemoTokens(value,interactive){
+      var input=str(value),out="",i=0;
+      while(i<input.length){
+        var ch=input.charAt(i);
+        if(ch==="○"||ch==="●"){
+          var label=isMemoTokenLabel(input.charAt(i+1))?input.charAt(i+1):"";
+          out+=memoTokenHtml(ch,label,i,interactive);
+          i+=label?2:1;
+        }else{
+          var start=i;
+          while(i<input.length&&input.charAt(i)!=="○"&&input.charAt(i)!=="●")i++;
+          out+=safe(input.slice(start,i));
+        }
+      }
+      return out;
+    }
+    function renderMemoText(value){return renderMemoTokens(value,true)}
+    function renderMemoPreviewText(value){return renderMemoTokens(value,false)}
+    function insertMemoToken(input,afterInsert){
+      if(!input)return;
+      var scrollTop=input.scrollTop||0,start=typeof input.selectionStart==="number"?input.selectionStart:input.value.length,end=typeof input.selectionEnd==="number"?input.selectionEnd:start;
+      var before=input.value.slice(0,start),after=input.value.slice(end);
+      input.value=before+"○"+after;
+      var pos=start+1;
+      input.focus({preventScroll:true});
+      input.setSelectionRange(pos,pos);
+      input.scrollTop=scrollTop;
+      if(afterInsert)afterInsert(input.value);
+      autoGrow(input);
+    }
+    function bindInsertButton(button,input,getSetter){
+      if(!button||!input)return;
+      function run(event){event.preventDefault();var setValue=getSetter&&getSetter();insertMemoToken(input,setValue)}
+      button.addEventListener("pointerdown",run);
+      button.addEventListener("click",function(event){event.preventDefault()});
+    }
+    function toggleMemoToken(task,index){
+      if(!task)return;index=Number(index);var memo=str(task.memoText);if(index<0||index>=memo.length)return;
+      var mark=memo.charAt(index);if(mark!=="○"&&mark!=="●")return;
+      var box=el.currentCard?el.currentCard.querySelector(".memo-content"):null,scrollTop=box?box.scrollTop:0;
+      task.memoText=memo.slice(0,index)+(mark==="○"?"●":"○")+memo.slice(index+1);
+      saveState();renderCurrent();
+      requestAnimationFrame(function(){var next=el.currentCard?el.currentCard.querySelector(".memo-content"):null;if(next)next.scrollTop=scrollTop});
+    }
+    function bindMemoTokens(task){
+      all("[data-memo-token]",el.currentCard).forEach(function(token){
+        token.onclick=function(event){event.stopPropagation();toggleMemoToken(task,token.dataset.memoToken)};
+        token.onkeydown=function(event){if(event.key!=="Enter"&&event.key!==" ")return;event.preventDefault();toggleMemoToken(task,token.dataset.memoToken)};
+      });
+    }
     function typeBadge(task){return'<span class="type-pill">'+typeName(task.type)+'</span>'}
     function text(value){return{text:str(value),strong:false}}
     function strong(value){return{text:str(value),strong:true}}
@@ -360,37 +833,37 @@
       return line("자료 열기");
     }
     function firstChecklist(task){
-      if(task.type===TYPE.ASSIGNMENT)return[line("조건 다시 보기"),line("시작할 부분 잡기"),line("한 줄이라도 진행하기")];
-      if(task.type===TYPE.ETC)return[line("할 위치 확인하기"),line("바로 할 동작 정하기"),line("바로 조금 하기")];
-      return[line("시작할 부분 보기"),line("볼 지점 표시하기"),line("조금 보기")];
+      if(task.type===TYPE.ASSIGNMENT)return[line("시작할 부분 열기"),line("20분 제출물 만들기"),line("진행상황·다음 손댈 곳 남기기")];
+      if(task.type===TYPE.ETC)return[line("할 위치 확인하기"),line("20분 실제로 하기"),line("남은 것·다음 동작 남기기")];
+      return[line("시작할 곳 열기"),line("20분 읽고 풀기"),line("핵심·막힌 점·다음 볼 곳 남기기")];
     }
     function middleChecklist(task){
-      if(task.type===TYPE.ASSIGNMENT)return[line("이어갈 부분 보기"),line("다음 시작점 잡기"),line("한 줄이라도 더 진행하기")];
-      if(task.type===TYPE.ETC)return[line("이어갈 부분 확인하기"),line("다음 동작 정하기"),line("바로 조금 더 하기")];
-      return[line("이어갈 부분 보기"),line("볼 지점 표시하기"),line("조금 더 보기")];
+      if(task.type===TYPE.ASSIGNMENT)return[line("이어갈 부분 열기"),line("20분 제출물 만들기"),line("진행상황·다음 손댈 곳 남기기")];
+      if(task.type===TYPE.ETC)return[line("이어갈 위치 확인하기"),line("20분 실제로 하기"),line("남은 것·다음 동작 남기기")];
+      return[line("이어갈 곳 열기"),line("20분 읽고 풀기"),line("핵심·막힌 점·다음 볼 곳 남기기")];
     }
     function lastChecklist(task,finish){
-      if(task.type===TYPE.ASSIGNMENT)return[line("남은 부분 확인하기"),line("제출 조건 다시 보기"),finish?line(strong(finish)," 확인하기"):line("제출 전 확인하기")];
-      if(task.type===TYPE.ETC)return[line("남은 것 확인하기"),line("끝낼 기준 확인하기"),finish?line(strong(finish),"까지 마무리하기"):line("정한 만큼 마무리하기")];
-      return[line("남은 부분 확인하기"),line("다시 볼 부분 표시하기"),finish?line(strong(finish),"까지 마무리하기"):line("핵심만 짧게 정리하기")];
+      if(task.type===TYPE.ASSIGNMENT)return[line("남은 부분 열기"),finish?line(strong(finish),"까지 마무리하기"):line("20분 제출물 마무리하기"),line("진행상황·빠진 것 확인하기")];
+      if(task.type===TYPE.ETC)return[line("남은 것 확인하기"),finish?line(strong(finish),"까지 마무리하기"):line("20분 실제로 마무리하기"),line("다음 동작 정하기")];
+      return[line("남은 부분 열기"),finish?line(strong(finish),"까지 마무리하기"):line("20분 읽고 풀기"),line("핵심·막힌 점 남기기")];
     }
     function onlyChecklist(task,finish){
       if(task.type===TYPE.ASSIGNMENT){
-        if(hasSubmitCue(finish))return[line("조건 다시 보기"),line("빠진 것 확인하기"),line("제출 전 확인하기")];
-        return[line("조건 다시 보기"),line("시작할 부분 잡기"),line("한 줄이라도 진행하기")];
+        if(hasSubmitCue(finish))return[line("제출 조건 열기"),line("20분 제출물 마무리하기"),line("진행상황·빠진 것 확인하기")];
+        return[line("시작할 부분 열기"),line("20분 제출물 만들기"),line("진행상황·다음 손댈 곳 남기기")];
       }
-      if(task.type===TYPE.ETC)return[line("할 것 확인하기"),line("바로 할 동작 정하기"),line("마무리까지 하기")];
-      return[line("할 부분 확인하기"),line("볼 지점 표시하기"),line("조금 보고 정리하기")];
+      if(task.type===TYPE.ETC)return[line("할 위치 확인하기"),line("20분 실제로 하기"),line("남은 것·다음 동작 남기기")];
+      return[line("시작할 곳 열기"),line("20분 읽고 풀기"),line("핵심·막힌 점·다음 볼 곳 남기기")];
     }
     function incompleteChecklist(task,isLast){
-      if(task.type===TYPE.ASSIGNMENT)return[line("못 끝낸 부분 다시 보기"),line("다음 시작점 잡기"),isLast?line("제출 전 확인하기"):line("한 줄이라도 더 진행하기")];
-      if(task.type===TYPE.ETC)return[line("못 끝낸 부분 다시 보기"),line("지금 할 동작 정하기"),line("조금만 더 하기")];
-      return[line("못 끝낸 부분 다시 보기"),line("볼 지점 다시 잡기"),line("조금만 더 보기")];
+      if(task.type===TYPE.ASSIGNMENT)return[line("못 끝낸 지점 열기"),line("20분 이어서 만들기"),isLast?line("진행상황·빠진 것 확인하기"):line("남은 부분·다음 손댈 곳 남기기")];
+      if(task.type===TYPE.ETC)return[line("못 끝낸 지점 보기"),line("20분 이어서 하기"),line("남은 것·다음 동작 남기기")];
+      return[line("못 끝낸 지점 열기"),line("20분 이어서 보기"),line("막힌 점·다음 볼 곳 남기기")];
     }
     function blockedChecklist(task){
-      if(task.type===TYPE.ASSIGNMENT)return[line("막힌 조건 다시 보기"),line("모르는 부분 표시하기"),line("참고자료나 예시 찾기")];
-      if(task.type===TYPE.ETC)return[line("막힌 이유 다시 보기"),line("지금 가능한 것 확인하기"),line("작게 다시 시작하기")];
-      return[line("막힌 부분 다시 보기"),line("헷갈린 것 표시하기"),line("예제나 설명 하나 보기")];
+      if(task.type===TYPE.ASSIGNMENT)return[line("막힌 지점 열기"),line("가능한 부분만 건드리기"),line("막힌 이유·다음 확인거리 남기기")];
+      if(task.type===TYPE.ETC)return[line("막힌 지점 보기"),line("가능한 것만 하기"),line("막힌 이유·다음 동작 남기기")];
+      return[line("막힌 부분 열기"),line("예제나 설명 하나 보기"),line("막힌 이유·다음 볼 곳 남기기")];
     }
     function hasSubmitCue(text){return/(제출|업로드|마감|완료)/.test(clean(text))}
     function kindForNewPiece(task,index,total){if(index===0)return KIND.START;if(index===total-1&&task.type===TYPE.ASSIGNMENT&&total>1)return KIND.SUBMIT;if(index===total-1&&total>2)return KIND.WRAP;return KIND.CONTINUE}
@@ -493,14 +966,30 @@
 
     function addTask(){
       var title=clean(state.draft);if(!title){toast("할 일을 먼저 입력해 주세요.");return}
-      var task={id:uid(),title:title,startText:clean(state.startText),memoText:cleanMemo(state.memoText),finishText:clean(state.finishText),type:state.type,prep:state.prep,count:state.count,now:0,view:0,settingsOpen:false,pieces:[]};
+      var task={id:uid(),title:title,startText:clean(state.startText),memoText:cleanMemo(state.memoText),finishText:clean(state.finishText),type:state.type,prep:!!state.prep,count:clamp(state.count,1,6),now:0,view:0,settingsOpen:false,pieces:[]};
       task.pieces=makePieces(task);task.count=task.pieces.length;state.tasks.unshift(task);state.activeId=task.id;state.libraryOpen=false;state.selectedLibraryId=null;clearDraft();resetTimer(TIMER.FOCUS);state.screen="do";
       saveState();syncInputs();renderAll();toast("할 일을 추가했어요.");
     }
-    function clearDraft(){state.draft="";state.startText="";state.memoText="";state.finishText="";state.prep=false}
-    function selectTask(taskId){var task=findTask(taskId);if(!task)return;armedDeleteId=null;editDraft=null;state.activeId=task.id;state.libraryOpen=false;state.selectedLibraryId=null;task.settingsOpen=false;task.view=Math.min(task.now,task.pieces.length-1);resetTimer(TIMER.FOCUS);saveState();renderAll()}
+    function resetAddSettings(){state.startText="";state.finishText="";state.count=1;state.prep=false;state.addSettingsOpen=false}
+    function clearDraft(){armedDraftClear=false;state.draft="";state.memoText="";state.type=TYPE.STUDY;resetAddSettings()}
+    function isAddDraftDirty(){return !!(clean(state.draft)||cleanMemo(state.memoText)||clean(state.startText)||clean(state.finishText)||state.type!==TYPE.STUDY||clamp(state.count,1,6)!==1||!!state.prep||!!state.addSettingsOpen)}
+    function clearAddDraftFromButton(){
+      if(!isAddDraftDirty())return;
+      if(!armedDraftClear){armedDraftClear=true;renderAddControls();return}
+      clearDraft();saveState();syncInputs();renderAddControls();toast("비웠어요.");focusTaskInput();
+    }
+    function selectTask(taskId){var task=findTask(taskId);if(!task)return;armedDeleteId=null;armedDraftClear=false;editDraft=null;state.activeId=task.id;state.libraryOpen=false;state.selectedLibraryId=null;task.settingsOpen=false;task.view=Math.min(task.now,task.pieces.length-1);resetTimer(TIMER.FOCUS);saveState();renderAll()}
     function putAwayCurrent(){var task=activeTask();if(!task)return;editDraft=null;task.settingsOpen=false;state.activeId=null;state.libraryOpen=false;state.selectedLibraryId=null;resetTimer(TIMER.FOCUS);saveState();renderAll();toast("보관함으로 내렸어요.")}
-    function openAddView(){armedDeleteId=null;editDraft=null;state.screen="add";saveState();renderScreen();renderAddControls();syncInputs();focusTaskInput()}
+    function moveTaskToDoneShelf(taskId){var task=findTask(taskId);if(!task||!isTaskDone(task))return;armedDeleteId=null;task.doneShelf=true;task.doneShelfAt=Date.now();if(state.selectedLibraryId===task.id)state.selectedLibraryId=null;state.libraryOpen=true;saveState();renderTaskListStable();toast("끝낸 일로 치웠어요.")}
+    function restoreTaskFromDoneShelf(taskId){var task=findTask(taskId);if(!task)return;armedDeleteId=null;task.doneShelf=false;task.doneShelfAt=undefined;if(state.selectedLibraryId===task.id)state.selectedLibraryId=null;state.libraryOpen=true;saveState();renderTaskListStable();toast("보관함으로 꺼냈어요.")}
+    function deleteDoneShelfTask(taskId){
+      var task=findTask(taskId);if(!task||!task.doneShelf)return;
+      if(armedDeleteId!==taskId){armedDeleteId=taskId;state.libraryOpen=true;saveState();renderTaskListStable();return}
+      state.tasks=state.tasks.filter(function(item){return item.id!==task.id});
+      if(state.selectedLibraryId===task.id)state.selectedLibraryId=null;
+      armedDeleteId=null;state.libraryOpen=true;saveState();renderTaskListStable();toast("삭제했어요.");
+    }
+    function openAddView(){armedDeleteId=null;armedDraftClear=false;editDraft=null;state.screen="add";saveState();renderScreen();renderAddControls();syncInputs();focusTaskInput()}
     function markCurrent(status){
       var task=activeTask();if(!task||task.now>=task.pieces.length)return;
       var index=task.now;task.pieces[index].status=validStatus(status);
@@ -570,8 +1059,10 @@
 
     function renderAll(){renderScreen();renderAddControls();renderCurrent();autoGrowAll()}
     function renderScreen(){var add=state.screen==="add";document.body.classList.toggle("add-mode",add);el.addView.classList.toggle("active",add);el.doView.classList.toggle("active",!add);el.topBtn.textContent=add?"닫기":"＋";el.topBtn.classList.toggle("close",add);el.subtitle.textContent=add?"새 할 일 만들기":"지금 할 것만 보기"}
-    function renderAddControls(){el.addBtn.disabled=!clean(state.draft);el.prepInput.checked=!!state.prep;applyMemoGuide();all("[data-type]").forEach(function(btn){btn.classList.toggle("on",Number(btn.dataset.type)===state.type)});all("[data-count]").forEach(function(btn){btn.classList.toggle("on",Number(btn.dataset.count)===state.count)})}
-    function syncInputs(){el.taskInput.value=state.draft;el.startInput.value=state.startText;el.memoInput.value=state.memoText;el.finishInput.value=state.finishText;el.prepInput.checked=!!state.prep;el.addBtn.disabled=!clean(state.draft);applyMemoGuide();autoGrow(el.memoInput)}
+    function addButtonText(){var count=clamp(state.count,1,6);return "＋ "+count+" Step 만들기"}
+    function updateAddButton(){el.addBtn.disabled=!clean(state.draft);el.addBtn.textContent=addButtonText()}
+    function renderAddControls(){updateAddButton();el.prepInput.checked=!!state.prep;if(el.clearDraftBtn){var dirty=isAddDraftDirty()&&state.screen==="add";el.clearDraftBtn.hidden=!dirty;el.clearDraftBtn.classList.toggle("armed",!!armedDraftClear&&dirty);el.clearDraftBtn.textContent=(armedDraftClear&&dirty)?"🗑 비우기 확인":"🗑 비우기"}if(el.addSettingsToggle)el.addSettingsToggle.setAttribute("aria-expanded",state.addSettingsOpen?"true":"false");if(el.addSettingsState)el.addSettingsState.textContent=state.addSettingsOpen?"접기":"열기";if(el.addSettingsCard)el.addSettingsCard.classList.toggle("collapsed",!state.addSettingsOpen);applyMemoGuide();all("[data-type]").forEach(function(btn){btn.classList.toggle("on",Number(btn.dataset.type)===state.type)});all("[data-count]").forEach(function(btn){btn.classList.toggle("on",Number(btn.dataset.count)===state.count)})}
+    function syncInputs(){el.taskInput.value=state.draft;el.startInput.value=state.startText;el.memoInput.value=state.memoText;el.finishInput.value=state.finishText;el.prepInput.checked=!!state.prep;updateAddButton();applyMemoGuide();autoGrow(el.memoInput)}
     function renderCurrent(){
       var task=activeTask();if(!task){renderEmptyCurrent();renderTaskList();return}
       if(task.settingsOpen){renderEditTask(task);return}
@@ -594,7 +1085,7 @@
         '<div class="edit-divider"></div><div class="edit-settings">'+
         '<div class="setting-section"><div class="label">시작·끝 기준</div><div class="range-box"><label class="range-row"><span>시작</span><input id="startEditInput" type="text" value="'+attr(draft.startText)+'" placeholder="처음 볼 곳이나 손댈 것" autocomplete="off" /></label><label class="range-row"><span>끝</span><input id="finishEditInput" type="text" value="'+attr(draft.finishText)+'" placeholder="이번에 어디까지 할지" autocomplete="off" /></label></div>'+prepEdit+'</div>'+ 
         '<div class="setting-section"><div class="label">전체 분량</div><div class="size-row"><button class="size-btn" id="minusPiece">− Step</button><button class="size-btn" id="plusPiece">＋ Step</button></div></div>'+ 
-        '<div class="edit-actions"><button class="putaway-btn" id="putAwayBtn">↓ 보관함으로 내리기</button><button class="delete-btn '+(armedDeleteId===task.id?'armed':'')+'" id="deleteBtn">'+(armedDeleteId===task.id?'한 번 더 누르면 삭제':'이 할 일 삭제')+'</button></div>'+ 
+        '<div class="edit-actions"><button class="putaway-btn" id="putAwayBtn">↓ 보관함으로 내리기</button><button class="delete-btn '+(armedDeleteId===task.id?'armed':'')+'" id="deleteBtn">'+(armedDeleteId===task.id?'🗑 삭제 확인':'🗑 이 할 일 삭제')+'</button></div>'+ 
         '</div></div>';
     }
     function renderTaskHeader(task,done,badgeText){
@@ -622,11 +1113,11 @@
       var task=activeTask();
       if(task&&task.settingsOpen){renderEditTask(task);return}
       el.currentCard.innerHTML=renderTaskHeader(task,true,"완료")+renderMemo(task,true)+renderProgressBar(task,true)+'<div class="done-box">할 일 완료<small>다음 할 일이 있으면 바로 이어가도 됩니다</small></div><div class="done-actions"><button class="done-action primary" id="doneAddBtn">새 할 일 추가</button><button class="done-action" id="doneClearBtn">지금 비워두기</button></div>';
-      bindGear(task);bindDoneActions();renderTaskList();autoGrowAll();
+      bindGear(task);bindDoneActions();bindMemoTokens(task);renderTaskList();autoGrowAll();
     }
     function bindDoneActions(){var add=byId("doneAddBtn"),clear=byId("doneClearBtn");if(add)add.onclick=openAddView;if(clear)clear.onclick=putAwayCurrent}
-    function renderMemo(task,standalone){return task.memoText?'<div class="memo-shell readonly '+(standalone?'standalone':'')+'"><span class="memo-label">메모</span><div class="memo-content">'+safe(task.memoText)+'</div></div>':''}
-    function renderMemoEdit(task,standalone){var guide=memoGuide(task.type);return'<div class="memo-edit-block '+(standalone?'standalone':'')+'"><div class="add-field-label">메모</div><div class="memo-help">'+renderMemoHelp(task.type)+'</div><label class="memo-shell editable memo-edit-shell"><textarea class="memo-field" id="memoInlineInput" placeholder="'+attr(guide.placeholder)+'" rows="2">'+safe(task.memoText)+'</textarea></label></div>'}
+    function renderMemo(task,standalone){return task.memoText?'<div class="memo-shell readonly '+(standalone?'standalone':'')+'"><div class="memo-content">'+renderMemoText(task.memoText)+'</div></div>':''}
+    function renderMemoEdit(task,standalone){var guide=memoGuide(task.type);return'<div class="memo-edit-block '+(standalone?'standalone':'')+'"><div class="add-field-label">메모</div><div class="memo-helper-row"><div class="memo-help">'+renderMemoHelp(task.type)+'</div><button type="button" class="memo-check-insert" id="memoInlineInsertBtn">○ 체크</button></div><label class="memo-shell editable memo-edit-shell"><textarea class="memo-field" id="memoInlineInput" placeholder="'+attr(guide.placeholder)+'" rows="2">'+safe(task.memoText)+'</textarea></label></div>'}
     function renderSteps(task,piece,pieceIndex){
       var readonly=pieceIndex!==task.now||task.now>=task.pieces.length;
       return getStepChecklist(task,pieceIndex).map(function(item,index){
@@ -644,7 +1135,7 @@
     function renderResultButtons(prefix,locked){return'<div class="actions">'+resultButton("success",prefix+"-success","✓ 성공",locked)+resultButton("incomplete",prefix+"-incomplete","… 미완",locked)+resultButton("blocked",prefix+"-blocked","! 멈춤",locked)+'</div>'}
     function resultButton(cls,key,label,locked){return'<button class="result-btn '+cls+(locked?' locked" disabled':'"')+' data-hold="'+key+'"><span class="hold-fill"></span><span class="hold-label">'+label+'</span></button>'}
     function bindCurrentCard(task,enableHold){
-      bindGear(task);bindTimer();
+      bindGear(task);bindTimer();bindMemoTokens(task);
       all("[data-piece]",el.currentCard).forEach(function(btn){btn.onclick=function(){armedDeleteId=null;task.view=Number(btn.dataset.piece);saveState();renderCurrent()}});
       all("[data-step]",el.currentCard).forEach(function(btn){btn.onclick=function(){toggleStep(Number(btn.dataset.step))}});
       if(enableHold){bindHold('[data-hold="current-success"]',function(){markCurrent(STATUS.SUCCESS)},el.currentCard);bindHold('[data-hold="current-incomplete"]',function(){markCurrent(STATUS.INCOMPLETE)},el.currentCard);bindHold('[data-hold="current-blocked"]',function(){markCurrent(STATUS.BLOCKED)},el.currentCard)}
@@ -664,9 +1155,9 @@
       });
     }
     function bindEditDraftInputs(task,draft){
-      var titleInput=byId("titleEditInput"),memoInput=byId("memoInlineInput"),startInput=byId("startEditInput"),finishInput=byId("finishEditInput");
+      var titleInput=byId("titleEditInput"),memoInput=byId("memoInlineInput"),startInput=byId("startEditInput"),finishInput=byId("finishEditInput"),insertBtn=byId("memoInlineInsertBtn");
       if(titleInput)titleInput.addEventListener("input",function(){draft.title=titleInput.value});
-      if(memoInput){autoGrow(memoInput);memoInput.addEventListener("input",function(){draft.memoText=memoInput.value;autoGrow(memoInput)})}
+      if(memoInput){autoGrow(memoInput);memoInput.addEventListener("input",function(){draft.memoText=memoInput.value;autoGrow(memoInput)});bindInsertButton(insertBtn,memoInput,function(){return function(value){draft.memoText=value}})}
       if(startInput)startInput.addEventListener("input",function(){draft.startText=startInput.value});
       if(finishInput)finishInput.addEventListener("input",function(){draft.finishText=finishInput.value});
     }
@@ -675,16 +1166,25 @@
       if(gear)gear.onclick=function(){armedDeleteId=null;editDraft=draftFromTask(task);task.settingsOpen=true;saveState();renderCurrent()};
     }
     function renderTaskListStable(){var y=window.scrollY;renderTaskList();requestAnimationFrame(function(){window.scrollTo(0,y)})}
-    function toggleLibraryTask(taskId){taskId=String(taskId);state.selectedLibraryId=state.selectedLibraryId===taskId?null:taskId;saveState();renderTaskListStable()}
+    function toggleLibraryTask(taskId){taskId=String(taskId);armedDeleteId=null;state.selectedLibraryId=state.selectedLibraryId===taskId?null:taskId;saveState();renderTaskListStable()}
     function renderTaskList(){
-      var tasks=storedTasks();if(!tasks.length){state.selectedLibraryId=null;el.listCard.style.display="none";el.listCard.innerHTML="";return}
-      if(state.selectedLibraryId&&!findTaskInList(state.selectedLibraryId,tasks))state.selectedLibraryId=null;
-      el.listCard.style.display="block";el.listCard.innerHTML='<button class="library-toggle" id="libraryToggle"><span><strong>할 일 보관함</strong> '+tasks.length+'개</span><span class="chev">'+(state.libraryOpen?'⌄':'〉')+'</span></button>'+(state.libraryOpen?'<div class="tasks">'+tasks.map(renderTaskButton).join("")+'</div>':'');
-      var toggle=byId("libraryToggle");if(toggle)toggle.onclick=function(){state.libraryOpen=!state.libraryOpen;if(!state.libraryOpen)state.selectedLibraryId=null;else state.selectedLibraryId=null;saveState();renderTaskList()};
-      all(".task",el.listCard).forEach(function(card){card.onclick=function(){toggleLibraryTask(card.dataset.id)};card.onkeydown=function(event){if(event.key!=="Enter"&&event.key!==" ")return;event.preventDefault();toggleLibraryTask(card.dataset.id)}});
+      var tasks=storedTasks(),shelf=doneShelfTasks();
+      if(!tasks.length&&!shelf.length){state.selectedLibraryId=null;el.listCard.style.display="none";el.listCard.innerHTML="";return}
+      var visible=tasks.concat(state.doneShelfOpen?shelf:[]);
+      if(state.selectedLibraryId&&!findTaskInList(state.selectedLibraryId,visible))state.selectedLibraryId=null;
+      el.listCard.style.display="block";
+      el.listCard.innerHTML='<button class="library-toggle" id="libraryToggle"><span><strong>할 일 보관함</strong> '+tasks.length+'개</span><span class="chev">'+(state.libraryOpen?'⌄':'〉')+'</span></button>'+(state.libraryOpen?'<div class="tasks">'+tasks.map(renderTaskButton).join("")+renderDoneShelfSection(shelf)+'</div>':'');
+      var toggle=byId("libraryToggle");if(toggle)toggle.onclick=function(){state.libraryOpen=!state.libraryOpen;state.selectedLibraryId=null;saveState();renderTaskList()};
+      var shelfToggle=byId("doneShelfToggle");if(shelfToggle)shelfToggle.onclick=function(){armedDeleteId=null;state.doneShelfOpen=!state.doneShelfOpen;if(!state.doneShelfOpen&&state.selectedLibraryId&&findTaskInList(state.selectedLibraryId,shelf))state.selectedLibraryId=null;saveState();renderTaskListStable()};
+      all(".task",el.listCard).forEach(function(card){card.onclick=function(event){if(event.target&&event.target.closest&&event.target.closest("button"))return;toggleLibraryTask(card.dataset.id)};card.onkeydown=function(event){if(event.key!=="Enter"&&event.key!==" ")return;if(event.target&&event.target.closest&&event.target.closest("button"))return;event.preventDefault();toggleLibraryTask(card.dataset.id)}});
       all("[data-resume-id]",el.listCard).forEach(function(btn){btn.onclick=function(event){event.stopPropagation();selectTask(btn.dataset.resumeId)}});
+      all("[data-shelf-id]",el.listCard).forEach(function(btn){btn.onclick=function(event){event.stopPropagation();moveTaskToDoneShelf(btn.dataset.shelfId)}});
+      all("[data-unshelf-id]",el.listCard).forEach(function(btn){btn.onclick=function(event){event.stopPropagation();restoreTaskFromDoneShelf(btn.dataset.unshelfId)}});
+      all("[data-delete-shelf-id]",el.listCard).forEach(function(btn){btn.onclick=function(event){event.stopPropagation();deleteDoneShelfTask(btn.dataset.deleteShelfId)}});
     }
-    function renderTaskButton(task){var done=isTaskDone(task),note=cleanMemo(task.memoText),selected=state.selectedLibraryId===task.id,right=selected?'<button class="task-resume" data-resume-id="'+attr(task.id)+'">이어서 하기 →</button>':(done?'<div class="task-meta">완료</div>':''),cls="task "+(done?"done ":"")+(selected?"selected":"");return'<div class="'+cls+'" data-id="'+attr(task.id)+'" role="button" tabindex="0" aria-label="'+attr(task.title)+'"><div class="task-top"><div class="task-title">'+typeBadge(task)+'<div class="task-name">'+safe(task.title)+'</div></div>'+right+'</div>'+(note?'<div class="task-note">'+safe(note)+'</div>':'')+renderProgressBar(task,false)+'</div>'}
+    function renderTaskButton(task){var done=isTaskDone(task),note=cleanMemo(task.memoText),selected=state.selectedLibraryId===task.id,right="";if(selected){right='<div class="task-card-actions">'+(done?'<button class="shelf-action" data-shelf-id="'+attr(task.id)+'">치우기</button>':'')+'<button class="task-resume" data-resume-id="'+attr(task.id)+'">이어서 하기 →</button></div>'}else if(done){right='<div class="task-meta">완료</div>'}var cls="task "+(done?"done ":"")+(selected?"selected":"");return'<div class="'+cls+'" data-id="'+attr(task.id)+'" role="button" tabindex="0" aria-label="'+attr(task.title)+'"><div class="task-top"><div class="task-title">'+typeBadge(task)+'<div class="task-name">'+safe(task.title)+'</div></div>'+right+'</div>'+(note?'<div class="task-note">'+renderMemoPreviewText(note)+'</div>':'')+renderProgressBar(task,false)+'</div>'}
+    function renderDoneShelfSection(shelf){return'<button class="done-shelf-toggle" id="doneShelfToggle">'+(state.doneShelfOpen?'끝낸 일 숨기기':'끝낸 일 보기')+'</button>'+(state.doneShelfOpen?'<div class="done-shelf-panel">'+(shelf.length?shelf.map(renderDoneShelfButton).join(""):'<div class="done-shelf-empty">끝낸 일이 아직 없어요.</div>')+'</div>':'')}
+    function renderDoneShelfButton(task){var note=cleanMemo(task.memoText),selected=state.selectedLibraryId===task.id,armed=armedDeleteId===task.id,cls="task done shelved "+(selected?"selected":""),actions='<div class="task-card-actions"><button class="shelf-action" data-unshelf-id="'+attr(task.id)+'">꺼내기</button><button class="shelf-action danger '+(armed?'armed':'')+'" data-delete-shelf-id="'+attr(task.id)+'">'+(armed?'🗑 삭제 확인':'🗑 삭제')+'</button></div>';return'<div class="'+cls+'" data-id="'+attr(task.id)+'" role="button" tabindex="0" aria-label="'+attr(task.title)+'"><div class="task-top"><div class="task-title">'+typeBadge(task)+'<div class="task-name">'+safe(task.title)+'</div></div>'+actions+'</div>'+(note?'<div class="task-note">'+renderMemoPreviewText(note)+'</div>':'')+renderProgressBar(task,false)+'</div>'}
 
     function bindHold(selector,onComplete,root){
       var button=(root||document).querySelector(selector);if(!button||button.disabled)return;
@@ -703,17 +1203,20 @@
       button.addEventListener("keyup",function(event){if(event.key!==" "&&event.key!=="Enter")return;cancel(event)});
     }
     function focusTaskInput(){setTimeout(function(){el.taskInput.focus()},0)}
-    function bindInput(input,key,after){input.addEventListener("input",function(){state[key]=input.value;if(input.tagName==="TEXTAREA")autoGrow(input);if(after)after();saveState()})}
+    function bindInput(input,key,after){input.addEventListener("input",function(){armedDraftClear=false;state[key]=input.value;if(input.tagName==="TEXTAREA")autoGrow(input);if(after)after();saveState();renderAddControls()})}
     function bindStaticEvents(){
-      bindInput(el.taskInput,"draft",function(){el.addBtn.disabled=!clean(state.draft)});
+      bindInput(el.taskInput,"draft",updateAddButton);
       bindInput(el.startInput,"startText");
       bindInput(el.memoInput,"memoText");
       bindInput(el.finishInput,"finishText");
-      el.prepInput.addEventListener("change",function(){state.prep=el.prepInput.checked;saveState()});
+      bindInsertButton(byId("memoInsertBtn"),el.memoInput,function(){return function(value){armedDraftClear=false;state.memoText=value;saveState();renderAddControls()}});
+      if(el.addSettingsToggle)el.addSettingsToggle.onclick=function(){armedDraftClear=false;state.addSettingsOpen=!state.addSettingsOpen;saveState();renderAddControls()};
+      el.prepInput.addEventListener("change",function(){armedDraftClear=false;state.prep=el.prepInput.checked;saveState();renderAddControls()});
       el.addBtn.onclick=addTask;
-      all("[data-type]").forEach(function(btn){btn.onclick=function(){state.type=Number(btn.dataset.type);saveState();renderAddControls()}});
-      all("[data-count]").forEach(function(btn){btn.onclick=function(){state.count=Number(btn.dataset.count);saveState();renderAddControls()}});
-      el.topBtn.onclick=function(){armedDeleteId=null;state.screen=state.screen==="add"?"do":"add";saveState();renderScreen();renderAddControls();if(state.screen==="add"){syncInputs();focusTaskInput()}};
+      if(el.clearDraftBtn)el.clearDraftBtn.onclick=function(){clearAddDraftFromButton()};
+      all("[data-type]").forEach(function(btn){btn.onclick=function(){armedDraftClear=false;state.type=Number(btn.dataset.type);saveState();renderAddControls()}});
+      all("[data-count]").forEach(function(btn){btn.onclick=function(){armedDraftClear=false;state.count=Number(btn.dataset.count);saveState();renderAddControls()}});
+      el.topBtn.onclick=function(){armedDeleteId=null;armedDraftClear=false;if(state.screen==="add"){state.screen="do";saveState();renderAll();return}openAddView()};
     }
     bindStaticEvents();syncInputs();renderAll();startTimerLoop();saveState();
   </script>
