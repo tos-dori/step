@@ -675,7 +675,7 @@
     }
 
 
-    /* v0.6.52 Firebase sync login gate + hidden logout popover */
+    /* v0.6.55 Firebase sync login gate + cloud-source handoff */
     body.sync-locked{
       background:var(--bg);
     }
@@ -863,21 +863,211 @@
     }
 
 
+
+    /* v0.6.55 blue theme from v0.6.49.2: blue default, beige add screen */
+    :root{
+      --bg:#eef7ff;
+      --card:#fbfdff;
+      --line:#cfe0ef;
+      --soft:#edf6ff;
+      --warm:#fff1d6;
+      --muted:#637184;
+      --view:#2563eb;
+      --timer-gray:#dbe9f5;
+    }
+    body{background:var(--bg)}
+    .subtitle{color:#607086}
+    .card{border-color:var(--line);background:var(--card)}
+    .focus{
+      border-color:#b8d7ee;
+      background:linear-gradient(180deg,#f7fbff 0%,#fffefa 100%);
+      box-shadow:0 8px 20px rgba(37,99,235,.055);
+    }
+    .type-pill,.gear,.soft-action,.task,.done-action{border-color:#cfe0ef}
+    .library-toggle{color:#607086}
+    .task{background:#fffefe}
+    .task.selected{
+      border-color:rgba(37,99,235,.32);
+      background:#f3f8ff;
+      box-shadow:0 0 0 2px rgba(37,99,235,.07) inset;
+    }
+    .task-resume,.putaway-btn{
+      border-color:#2563eb!important;
+      background:#2563eb!important;
+      box-shadow:0 2px 0 rgba(30,64,175,.16),0 0 0 1px rgba(255,255,255,.16) inset!important;
+    }
+    .task-resume:active,.putaway-btn:active{background:#1d4ed8!important}
+    #currentCard>.meta-row.meta-spacer{opacity:.82}
+
+    body.add-mode{background:#f7f2e8}
+    body.add-mode .subtitle{color:#746b60}
+    body.add-mode .card{border-color:#e4d6c3;background:#fffefa}
+    body.add-mode .add-main-card{
+      border-color:#e5c893!important;
+      background:linear-gradient(180deg,#fffaf0 0%,#fffefa 100%)!important;
+      box-shadow:0 7px 18px rgba(120,72,18,.045)!important;
+    }
+    body.add-mode .step-settings-card{
+      border-color:#e4d6c3!important;
+      background:#fffefa!important;
+    }
+    body.add-mode .add-settings-toggle{color:#6d6257}
+    body.add-mode .add-settings-right{color:#746b60}
+    body.add-mode .add-title-field{border-color:#e2d2bc!important;background:#fff!important}
+    body.add-mode .chip.on{border-color:#e7b55f;background:var(--warm);color:var(--accent-dark)}
+    body.add-mode .top-btn.close{border-color:#e4d6c3;background:#fff;color:#746b60}
+
+
+    /* v0.6.55 blue theme polish: blue structure colors, semantic colors preserved */
+    :root{
+      --bg:#eef7ff;
+      --card:#fbfdff;
+      --line:#c9deef;
+      --soft:#edf6ff;
+      --pending:#d7e7f5;
+      --muted:#637184;
+      --view:#2563eb;
+      --timer-gray:#dbe9f5;
+    }
+
+    /* Default/do mode: structure belongs to the blue family */
+    .focus{
+      border-color:#acd0eb!important;
+      background:linear-gradient(180deg,#f8fcff 0%,#fffefe 100%)!important;
+      box-shadow:0 8px 20px rgba(37,99,235,.06)!important;
+    }
+    .step{
+      border-color:#c9deef!important;
+      background:#fffefe!important;
+    }
+    .step .num{
+      background:#e7f2ff!important;
+      color:#255f8f!important;
+    }
+    .step.checked{
+      border-color:rgba(21,128,61,.45)!important;
+      background:#f3fcf6!important;
+      box-shadow:0 0 0 2px rgba(22,163,74,.07) inset!important;
+    }
+    .step.checked .num{
+      background:var(--success)!important;
+      color:#fff!important;
+    }
+    .step.prep-check{
+      border-color:#d7e7f5!important;
+      background:#f8fcff!important;
+    }
+    .step.prep-check .num{
+      background:#edf6ff!important;
+      color:#607086!important;
+    }
+    .step.prep-check.checked{
+      border-color:#cde6d3!important;
+      background:#f7fcf8!important;
+    }
+    .step.prep-check.checked .num{
+      background:#6aa877!important;
+      color:#fff!important;
+    }
+    .seg.pending,
+    .seg{background:var(--pending);color:#58718a}
+    .seg.current{
+      background:#ffffff!important;
+      color:#1d3348!important;
+      border-color:#7ba8cd!important;
+      box-shadow:0 0 0 2px rgba(37,99,235,.13) inset!important;
+    }
+    .seg.success{background:var(--success)!important;color:#fff!important}
+    .seg.incomplete{background:var(--incomplete)!important;color:#fff!important}
+    .seg.blocked{background:var(--blocked)!important;color:#fff!important}
+    .type-pill,.gear,.soft-action,.task,.done-action{
+      border-color:#c9deef!important;
+    }
+    .type-pill{
+      background:#ffffff!important;
+      color:#5c6f84!important;
+    }
+    .gear.on{
+      border-color:#9fc6e5!important;
+      background:#eaf4ff!important;
+      color:#1d5f92!important;
+    }
+    .badge{
+      background:#eaf4ff!important;
+      color:#255f8f!important;
+    }
+    .badge.done{
+      background:var(--success-soft)!important;
+      color:var(--success)!important;
+      border-color:rgba(21,128,61,.22)!important;
+    }
+
+    /* Stored/done cards should read as status, not as a second dominant theme */
+    .task.done,
+    .task.shelved{
+      border-color:rgba(21,128,61,.25)!important;
+      background:#f6fcf8!important;
+    }
+    .task.done.selected{
+      border-color:rgba(21,128,61,.34)!important;
+      background:#f2fbf5!important;
+      box-shadow:0 0 0 2px rgba(21,128,61,.07) inset!important;
+    }
+    .task.done .bar,
+    .task.shelved .bar{opacity:.72}
+    .task.done .task-meta{color:var(--success)!important}
+    .done-shelf-toggle{color:#607086!important}
+    .done-shelf-panel{border-top-color:rgba(201,222,239,.82)!important}
+
+    /* Active controls stay semantic; movement/action uses the blue family */
+    .task-resume,.putaway-btn{
+      border-color:#2563eb!important;
+      background:#2563eb!important;
+      color:#fff!important;
+      box-shadow:0 2px 0 rgba(30,64,175,.16),0 0 0 1px rgba(255,255,255,.16) inset!important;
+    }
+    .task-resume:active,.putaway-btn:active{background:#1d4ed8!important;color:#fff!important}
+
+    /* Add mode deliberately returns to the beige writing surface */
+    body.add-mode .step,
+    body.add-mode .task{border-color:#e4d6c3!important;background:#fff!important}
+    body.add-mode .chip.on{border-color:#e7b55f!important;background:var(--warm)!important;color:var(--accent-dark)!important}
+
+
+
+    /* v0.6.56 library card height stabilization */
+    .task-top{
+      min-height:28px;
+      align-items:center;
+    }
+    .task-card-actions,
+    .task-meta{
+      min-height:28px;
+      display:flex;
+      align-items:center;
+    }
+    .task-card-actions{
+      justify-content:flex-end;
+    }
+    .task-meta{
+      justify-content:flex-end;
+    }
+
 </style>
 </head>
 <body class="sync-locked">
   <section id="syncGate" class="sync-gate" aria-live="polite">
     <div class="sync-gate-card">
       <div class="sync-gate-brand"><img src="./step-icon.svg" alt="" aria-hidden="true" /><span>Step!</span></div>
-      <p class="sync-gate-title">로그인 확인 중</p>
-      <p class="sync-gate-subtitle">한 번 로그인하면 로그아웃하기 전까지 이 화면은 다시 보이지 않아요.</p>
+      <p class="sync-gate-title">로그인</p>
+      <p class="sync-gate-subtitle">한 번 로그인하면 계속 유지돼요.</p>
     </div>
   </section>
   <div id="syncPopover" class="sync-popover" hidden></div>
   <main class="app">
     <header>
       <div>
-        <h1 class="brand-title"><img src="./step-icon.svg" alt="" class="brand-icon" aria-hidden="true" /><span>Step!</span><span class="version" id="versionTap">v0.6.53</span></h1>
+        <h1 class="brand-title"><img src="./step-icon.svg" alt="" class="brand-icon" aria-hidden="true" /><span>Step!</span><span class="version" id="versionTap">v0.6.55</span></h1>
         <p class="subtitle" id="subtitle">지금 할 것만 보기</p>
       </div>
       <div class="top-actions"><button class="clear-draft-btn" id="clearDraftBtn" hidden>🗑 비우기</button><button class="top-btn" id="topBtn">＋</button></div>
@@ -1645,6 +1835,7 @@
     };
     const STEP_SYNC_EMAIL_PLACEHOLDER = "xxxxx@xxxxx.com";
     const SYNC_DEVICE_KEY = "step_sync_device_id_v1";
+    const SYNC_PROFILE_KEY = "step_sync_profile_v1";
     const SYNC_DOC_ID = "main";
     const SAVE_DEBOUNCE_MS = 650;
 
@@ -1693,7 +1884,11 @@
       syncError = "";
       pendingRemote = null;
       pendingReason = "";
+      pendingRemoteHash = "";
+      pendingRemoteRevision = 0;
       initialSnapshotHandled = false;
+      lastCloudHash = "";
+      lastAppliedRevision = 0;
       clearTimeout(saveTimer);
       saveTimer = null;
       if(unsubscribeSnapshot){unsubscribeSnapshot();unsubscribeSnapshot = null}
@@ -1726,6 +1921,19 @@
     function cloudState(){return stepApp&&stepApp.getCloudState?stepApp.getCloudState():{schema:1,activeId:null,tasks:[]}}
     function cloudHash(value){return JSON.stringify(value || cloudState())}
     function cloudHasData(value){return !!(value && (value.activeId || (Array.isArray(value.tasks) && value.tasks.length)))}
+    function getSyncProfile(){
+      try{return JSON.parse(localStorage.getItem(SYNC_PROFILE_KEY) || "null") || null}catch(error){return null}
+    }
+    function markCloudLinked(hash,revision){
+      if(!currentUser)return;
+      try{
+        localStorage.setItem(SYNC_PROFILE_KEY,JSON.stringify({uid:currentUser.uid,hash:String(hash || lastCloudHash || ""),revision:Number(revision || lastAppliedRevision || 0),linkedAt:Date.now()}));
+      }catch(error){}
+    }
+    function isCloudLinkedForCurrentUser(){
+      const profile = getSyncProfile();
+      return !!(currentUser && profile && profile.uid === currentUser.uid);
+    }
     function sanitizeForFirestore(value){
       if(value === undefined)return undefined;
       if(value === null)return null;
@@ -1801,7 +2009,14 @@
       syncCard.hidden = false;
       const status = escapeHtml(syncStatus);
       const errorHtml = syncError ? '<div class="sync-error">' + escapeHtml(syncError) + '</div>' : '';
-      const pendingHtml = pendingRemote ? '<div>다른 기기에서 변경됨. 입력 중인 내용이 있으면 바로 덮어쓰지 않았어요.<div class="sync-actions"><button class="sync-primary" id="syncApplyRemoteBtn">클라우드 적용</button><button class="sync-secondary" id="syncUploadLocalBtn">이 기기 올리기</button></div></div>' : '';
+      let pendingHtml = "";
+      if(pendingRemote){
+        const isInitial = pendingReason === "initial-conflict";
+        const message = isInitial ? "계정 데이터가 있어요. 처음 한 번만 어느 쪽을 기준으로 할지 정해요." : "다른 기기에서 바뀐 내용이 있어요. 입력 중이라 아직 가져오지 않았어요.";
+        const primary = isInitial ? "가져오기" : "가져오기";
+        const secondary = isInitial ? "이 기기 내용 올리기" : "이 기기 내용 유지";
+        pendingHtml = '<div>' + escapeHtml(message) + '<div class="sync-actions"><button class="sync-primary" id="syncApplyRemoteBtn">' + primary + '</button><button class="sync-secondary" id="syncUploadLocalBtn">' + secondary + '</button></div></div>';
+      }
       syncCard.className = "sync-card";
       syncCard.innerHTML = '<div class="sync-title"><strong>동기화 확인</strong><span>' + status + '</span></div>' + pendingHtml + errorHtml;
       const applyBtn = document.getElementById("syncApplyRemoteBtn");
@@ -1908,14 +2123,23 @@
         if(updatedBy === deviceId || remoteHash === localHash){
           lastCloudHash = remoteHash;
           lastAppliedRevision = Math.max(lastAppliedRevision,revision);
+          markCloudLinked(remoteHash,revision);
           syncStatus = "동기화됨";
           renderSyncCard();
           return;
         }
         if(!initialSnapshotHandled){
           initialSnapshotHandled = true;
+          if(isCloudLinkedForCurrentUser()){
+            if(stepApp && stepApp.isLocalInputActive && stepApp.isLocalInputActive()){
+              holdRemote(remote,revision,remoteHash,"input-active");
+            }else{
+              applyRemoteState(remote,revision,remoteHash,{silent:true});
+            }
+            return;
+          }
           if(!cloudHasData(local) && cloudHasData(remote)){
-            applyRemoteState(remote,revision,remoteHash);
+            applyRemoteState(remote,revision,remoteHash,{silent:true});
             return;
           }
           if(cloudHasData(local) && !cloudHasData(remote)){
@@ -1944,23 +2168,25 @@
       pendingRemoteRevision = revision;
       pendingRemoteHash = hash;
       pendingReason = reason;
-      syncStatus = "적용 대기";
+      syncStatus = reason === "initial-conflict" ? "처음 연결" : "적용 대기";
       renderSyncCard();
     }
     function applyPendingRemote(){
       if(!pendingRemote)return;
-      applyRemoteState(pendingRemote,pendingRemoteRevision,pendingRemoteHash);
+      applyRemoteState(pendingRemote,pendingRemoteRevision,pendingRemoteHash,{silent:false});
     }
-    function applyRemoteState(remote,revision,hash){
+    function applyRemoteState(remote,revision,hash,options){
+      options = options || {};
       if(stepApp && stepApp.applyCloudState)stepApp.applyCloudState(remote);
       pendingRemote = null;
       pendingReason = "";
       lastCloudHash = hash || cloudHash(remote);
       lastAppliedRevision = Math.max(lastAppliedRevision,Number(revision || 0));
+      markCloudLinked(lastCloudHash,lastAppliedRevision);
       syncStatus = "동기화됨";
       syncError = "";
       renderSyncCard();
-      if(stepApp && stepApp.toast)stepApp.toast("다른 기기 변경을 적용했어요.");
+      if(!options.silent && stepApp && stepApp.toast)stepApp.toast("가져왔어요.");
     }
     function queueCloudSave(){
       if(!currentUser || !syncRef)return;
@@ -1986,6 +2212,7 @@
         await setDoc(syncRef,{schema:1,state:payloadState,revision:revision,updatedAt:serverTimestamp(),updatedBy:deviceId},{merge:false});
         lastCloudHash = hash;
         lastAppliedRevision = Math.max(lastAppliedRevision,revision);
+        markCloudLinked(hash,revision);
         syncStatus = "동기화됨";
         syncError = "";
         renderSyncCard();
