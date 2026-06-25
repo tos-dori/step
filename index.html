@@ -535,17 +535,355 @@
     }
     .step-settings-card.collapsed .settings-grid{display:none}
 
+
+    /* v0.6.48 done screen actions + subtle 30min time marks */
+    .done-title{
+      margin:7px 0 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      color:var(--success);
+      font-size:19px;
+      font-weight:950;
+      line-height:1.15;
+      letter-spacing:-.035em;
+    }
+    .done-title .done-check{
+      width:23px;
+      height:23px;
+      display:grid;
+      place-items:center;
+      border-radius:999px;
+      background:var(--success);
+      color:#fff;
+      font-size:15px;
+      line-height:1;
+    }
+    .done-secondary-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin:0 0 10px;
+    }
+    .done-shelf-final,.done-delete-final{
+      width:100%;
+      min-height:38px;
+      margin:0;
+      border:1px solid rgba(217,119,6,.24);
+      border-radius:14px;
+      background:#fffaf0;
+      color:var(--accent-dark);
+      font-size:13px;
+      font-weight:900;
+    }
+    .done-shelf-final:active{background:#fff1d6}
+    .done-delete-final{
+      border-color:rgba(239,68,68,.46);
+      background:#fff;
+      color:#dc2626;
+    }
+    .done-delete-final:active{background:#fef2f2;color:#b91c1c}
+    .done-delete-final.armed{
+      border-color:var(--blocked);
+      background:var(--blocked);
+      color:#fff;
+      box-shadow:0 2px 0 rgba(185,28,28,.16);
+    }
+    .done-delete-final.armed:active{background:#b91c1c;color:#fff}
+    .time-plan{
+      display:grid;
+      grid-template-columns:repeat(var(--step-count,1),minmax(0,1fr));
+      gap:5px;
+      margin:-8px 0 10px;
+      padding:0;
+      color:rgba(116,107,96,.54);
+      font-size:9.8px;
+      font-weight:750;
+      line-height:1;
+      font-variant-numeric:tabular-nums;
+      letter-spacing:-.045em;
+      pointer-events:none;
+      user-select:none;
+    }
+    .time-mark{
+      display:block;
+      min-width:0;
+      text-align:center;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:clip;
+    }
+    .time-mark.now{
+      color:rgba(138,75,15,.76);
+      font-weight:900;
+    }
+    .time-mark.blank{color:transparent}
+
+
+    /* v0.6.49 done screen spacing + unified action button geometry */
+    .done-title{
+      margin:14px 0 18px!important;
+      min-height:34px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      color:var(--success);
+      font-size:19px;
+      font-weight:950;
+      line-height:1.15;
+      letter-spacing:-.035em;
+    }
+    .done-title .done-check{
+      width:26px;
+      height:26px;
+      display:grid;
+      place-items:center;
+      border-radius:999px;
+      background:var(--success);
+      color:#fff;
+      font-size:16px;
+      line-height:1;
+      flex:0 0 auto;
+    }
+    .done-actions,
+    .done-secondary-actions{
+      display:grid!important;
+      grid-template-columns:1fr 1fr!important;
+      gap:8px!important;
+      margin:0!important;
+    }
+    .done-actions{margin-bottom:8px!important}
+    .done-action,
+    .done-shelf-final,
+    .done-delete-final{
+      width:100%!important;
+      height:46px!important;
+      min-height:46px!important;
+      margin:0!important;
+      border-radius:15px!important;
+      padding:0 10px!important;
+      font-size:14px!important;
+      font-weight:950!important;
+      line-height:1!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      white-space:nowrap!important;
+      box-sizing:border-box!important;
+    }
+
+
+    /* v0.6.52 Firebase sync login gate + hidden logout popover */
+    body.sync-locked{
+      background:var(--bg);
+    }
+    body.sync-locked .app{
+      display:none!important;
+    }
+    .sync-gate[hidden],.sync-popover[hidden],.sync-card[hidden]{display:none!important}
+    .sync-gate{
+      position:fixed;
+      inset:0;
+      z-index:100;
+      display:grid;
+      place-items:center;
+      padding:18px;
+      background:var(--bg);
+      color:var(--ink);
+    }
+    .sync-gate-card{
+      width:min(100%,420px);
+      padding:22px 18px 18px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:linear-gradient(180deg,#fffaf0 0%,#fffefa 100%);
+      box-shadow:0 18px 46px rgba(80,55,28,.12);
+    }
+    .sync-gate-brand{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      margin-bottom:8px;
+      font-size:30px;
+      font-weight:950;
+      line-height:1;
+      letter-spacing:-.055em;
+    }
+    .sync-gate-brand img{
+      width:28px;
+      height:28px;
+      display:block;
+      flex:0 0 auto;
+    }
+    .sync-gate-title{
+      margin:0 0 4px;
+      text-align:center;
+      color:var(--ink);
+      font-size:17px;
+      font-weight:950;
+      letter-spacing:-.03em;
+    }
+    .sync-gate-subtitle{
+      margin:0 0 16px;
+      text-align:center;
+      color:var(--muted);
+      font-size:12.5px;
+      font-weight:750;
+      line-height:1.38;
+    }
+    .sync-gate-grid{
+      display:grid;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .sync-gate input[type="email"],
+    .sync-gate input[type="password"]{
+      width:100%;
+      height:48px;
+      border:1.5px solid var(--line);
+      border-radius:15px;
+      padding:0 13px;
+      outline:none;
+      background:#fff;
+      color:var(--ink);
+      font-size:16px;
+      -webkit-user-select:text;
+      user-select:text;
+      -webkit-touch-callout:default;
+      touch-action:auto;
+    }
+    .sync-gate input[type="email"]:focus,
+    .sync-gate input[type="password"]:focus{border-color:var(--accent)}
+    .sync-gate-login{
+      width:100%;
+      height:49px;
+      border:0;
+      border-radius:16px;
+      background:var(--view);
+      color:#fff;
+      font-size:15px;
+      font-weight:950;
+      line-height:1;
+    }
+    .sync-gate-login:disabled{opacity:.56}
+    .sync-gate-note{
+      margin:10px 0 0;
+      color:rgba(116,107,96,.76);
+      font-size:11.5px;
+      font-weight:650;
+      line-height:1.38;
+      text-align:center;
+    }
+    .sync-error{
+      margin-top:9px;
+      color:#dc2626;
+      font-size:12px;
+      font-weight:850;
+      line-height:1.38;
+      text-align:center;
+    }
+    .sync-card{
+      margin:-2px 0 9px;
+      padding:10px;
+      border:1px solid rgba(217,119,6,.22);
+      border-radius:16px;
+      background:#fff7ed;
+      color:#8a4b0f;
+      box-shadow:0 5px 14px rgba(217,119,6,.04);
+      font-size:12px;
+      font-weight:850;
+      line-height:1.38;
+    }
+    .sync-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:7px;
+      color:var(--ink);
+      font-size:13px;
+      font-weight:950;
+    }
+    .sync-title span{
+      flex:0 0 auto;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:850;
+    }
+    .sync-actions{display:flex;align-items:center;gap:7px;justify-content:flex-start;margin-top:7px}
+    .sync-primary,.sync-secondary{
+      height:36px;
+      border:0;
+      border-radius:13px;
+      padding:0 12px;
+      font-size:12px;
+      font-weight:950;
+      line-height:1;
+      white-space:nowrap;
+    }
+    .sync-primary{background:var(--view);color:#fff}
+    .sync-secondary{border:1px solid var(--line);background:#fff;color:var(--muted)}
+    .sync-popover{
+      position:fixed;
+      right:14px;
+      top:58px;
+      z-index:80;
+      min-width:132px;
+      padding:7px;
+      border:1px solid rgba(228,214,195,.92);
+      border-radius:15px;
+      background:rgba(255,254,250,.98);
+      box-shadow:0 14px 34px rgba(24,22,20,.16);
+    }
+    .sync-popover button{
+      width:100%;
+      height:37px;
+      border:1px solid rgba(239,68,68,.44);
+      border-radius:12px;
+      background:#fff;
+      color:#dc2626;
+      font-size:12px;
+      font-weight:950;
+      line-height:1;
+      white-space:nowrap;
+    }
+    .sync-popover button.armed{
+      border-color:var(--blocked);
+      background:var(--blocked);
+      color:#fff;
+      box-shadow:0 2px 0 rgba(185,28,28,.16);
+    }
+    .version{
+      -webkit-user-select:none;
+      user-select:none;
+      -webkit-touch-callout:none;
+    }
+
+
 </style>
 </head>
-<body>
+<body class="sync-locked">
+  <section id="syncGate" class="sync-gate" aria-live="polite">
+    <div class="sync-gate-card">
+      <div class="sync-gate-brand"><img src="./step-icon.svg" alt="" aria-hidden="true" /><span>Step!</span></div>
+      <p class="sync-gate-title">로그인 확인 중</p>
+      <p class="sync-gate-subtitle">한 번 로그인하면 로그아웃하기 전까지 이 화면은 다시 보이지 않아요.</p>
+    </div>
+  </section>
+  <div id="syncPopover" class="sync-popover" hidden></div>
   <main class="app">
     <header>
       <div>
-        <h1 class="brand-title"><img src="./step-icon.svg" alt="" class="brand-icon" aria-hidden="true" /><span>Step!</span><span class="version">v0.6.46</span></h1>
+        <h1 class="brand-title"><img src="./step-icon.svg" alt="" class="brand-icon" aria-hidden="true" /><span>Step!</span><span class="version" id="versionTap">v0.6.52</span></h1>
         <p class="subtitle" id="subtitle">지금 할 것만 보기</p>
       </div>
       <div class="top-actions"><button class="clear-draft-btn" id="clearDraftBtn" hidden>🗑 비우기</button><button class="top-btn" id="topBtn">＋</button></div>
     </header>
+
+    <section id="syncCard" class="sync-card" hidden></section>
 
     <section id="doView" class="view active">
       <section class="card focus" id="currentCard"></section>
@@ -629,6 +967,7 @@
     var toastTimer=null;
     var celebrationTimer=null;
     var timerTick=null;
+    var timePlanTick=null;
     var timerFlashTimer=null;
     var editDraft=null;
     var el={
@@ -648,7 +987,43 @@
       if(!raw)return baseState();
       try{return normalizeState(JSON.parse(raw))}catch(e){return baseState()}
     }
-    function saveState(){storageSet(KEY,JSON.stringify(state))}
+    function serializeStateForLocal(value){return JSON.stringify(value)}
+    function saveLocalState(){storageSet(KEY,serializeStateForLocal(state))}
+    function notifyCloudStateChanged(){
+      if(window.StepSyncBridge&&typeof window.StepSyncBridge.onLocalStateChanged==="function")window.StepSyncBridge.onLocalStateChanged();
+    }
+    function saveState(){saveLocalState();notifyCloudStateChanged()}
+    function currentLocalUiState(){
+      return{screen:state.screen,draft:state.draft,startText:state.startText,memoText:state.memoText,finishText:state.finishText,type:state.type,count:state.count,prep:state.prep,addSettingsOpen:state.addSettingsOpen,libraryOpen:state.libraryOpen,doneShelfOpen:state.doneShelfOpen,selectedLibraryId:state.selectedLibraryId,timer:normalizeTimer(state.timer)};
+    }
+    function pieceForCloud(piece){
+      piece=piece||{};
+      return{status:validStatus(piece.status),kind:validKind(piece.kind)||KIND.CONTINUE,done:Array.isArray(piece.done)?piece.done.map(Boolean).slice(0,4):[false,false,false]};
+    }
+    function taskForCloud(task){
+      task=task||{};
+      return{id:str(task.id),title:str(task.title),startText:str(task.startText),memoText:str(task.memoText),finishText:str(task.finishText),type:clamp(task.type,TYPE.STUDY,TYPE.ETC),prep:!!task.prep,count:Array.isArray(task.pieces)?task.pieces.length:clamp(task.count,1,6),doneShelf:!!task.doneShelf,doneShelfAt:validTimestamp(task.doneShelfAt),pieces:Array.isArray(task.pieces)?task.pieces.map(pieceForCloud):[]};
+    }
+    function stateForCloud(){
+      return{schema:1,activeId:state.activeId,tasks:state.tasks.map(taskForCloud)};
+    }
+    function applyCloudState(remote){
+      var local=currentLocalUiState(),next=baseState();
+      remote=remote||{};
+      next.screen=local.screen;next.draft=local.draft;next.startText=local.startText;next.memoText=local.memoText;next.finishText=local.finishText;
+      next.type=local.type;next.count=local.count;next.prep=local.prep;next.addSettingsOpen=local.addSettingsOpen;next.libraryOpen=local.libraryOpen;next.doneShelfOpen=local.doneShelfOpen;next.selectedLibraryId=local.selectedLibraryId;next.timer=local.timer;
+      next.activeId=remote.activeId?String(remote.activeId):null;
+      next.tasks=Array.isArray(remote.tasks)?remote.tasks.map(normalizeTask).filter(Boolean):[];
+      state=normalizeState(next);
+      saveLocalState();
+    }
+    function isTextEditingNode(node){
+      if(!node)return false;
+      var tag=str(node.tagName).toUpperCase();
+      return tag==="INPUT"||tag==="TEXTAREA"||!!node.isContentEditable;
+    }
+    function hasOpenTaskEditor(){return state.tasks.some(function(task){return !!task.settingsOpen})}
+    function isLocalInputActive(){return isTextEditingNode(document.activeElement)||state.screen==="add"||!!editDraft||hasOpenTaskEditor()}
     function normalizeState(saved){
       var next=baseState(); saved=saved||{};
       next.screen=saved.screen==="add"?"add":"do";
@@ -833,37 +1208,37 @@
       return line("자료 열기");
     }
     function firstChecklist(task){
-      if(task.type===TYPE.ASSIGNMENT)return[line("시작할 부분 열기"),line("20분 제출물 만들기"),line("진행상황·다음 손댈 곳 남기기")];
-      if(task.type===TYPE.ETC)return[line("할 위치 확인하기"),line("20분 실제로 하기"),line("남은 것·다음 동작 남기기")];
-      return[line("시작할 곳 열기"),line("20분 읽고 풀기"),line("핵심·막힌 점·다음 볼 곳 남기기")];
+      if(task.type===TYPE.ASSIGNMENT)return[line("시작할 부분 열기"),line("20분 제출물 만들기"),line("진행상황·다음 손댈 곳 잡기")];
+      if(task.type===TYPE.ETC)return[line("할 위치 확인하기"),line("20분 실제로 하기"),line("남은 것·다음 동작 잡기")];
+      return[line("시작할 곳 열기"),line("20분 읽고 풀기"),line("핵심·막힌 점·다음 볼 곳 잡기")];
     }
     function middleChecklist(task){
-      if(task.type===TYPE.ASSIGNMENT)return[line("이어갈 부분 열기"),line("20분 제출물 만들기"),line("진행상황·다음 손댈 곳 남기기")];
-      if(task.type===TYPE.ETC)return[line("이어갈 위치 확인하기"),line("20분 실제로 하기"),line("남은 것·다음 동작 남기기")];
-      return[line("이어갈 곳 열기"),line("20분 읽고 풀기"),line("핵심·막힌 점·다음 볼 곳 남기기")];
+      if(task.type===TYPE.ASSIGNMENT)return[line("이어갈 부분 열기"),line("20분 제출물 만들기"),line("진행상황·다음 손댈 곳 잡기")];
+      if(task.type===TYPE.ETC)return[line("이어갈 위치 확인하기"),line("20분 실제로 하기"),line("남은 것·다음 동작 잡기")];
+      return[line("이어갈 곳 열기"),line("20분 읽고 풀기"),line("핵심·막힌 점·다음 볼 곳 잡기")];
     }
     function lastChecklist(task,finish){
       if(task.type===TYPE.ASSIGNMENT)return[line("남은 부분 열기"),finish?line(strong(finish),"까지 마무리하기"):line("20분 제출물 마무리하기"),line("진행상황·빠진 것 확인하기")];
       if(task.type===TYPE.ETC)return[line("남은 것 확인하기"),finish?line(strong(finish),"까지 마무리하기"):line("20분 실제로 마무리하기"),line("다음 동작 정하기")];
-      return[line("남은 부분 열기"),finish?line(strong(finish),"까지 마무리하기"):line("20분 읽고 풀기"),line("핵심·막힌 점 남기기")];
+      return[line("남은 부분 열기"),finish?line(strong(finish),"까지 마무리하기"):line("20분 읽고 풀기"),line("핵심·막힌 점 잡기")];
     }
     function onlyChecklist(task,finish){
       if(task.type===TYPE.ASSIGNMENT){
         if(hasSubmitCue(finish))return[line("제출 조건 열기"),line("20분 제출물 마무리하기"),line("진행상황·빠진 것 확인하기")];
-        return[line("시작할 부분 열기"),line("20분 제출물 만들기"),line("진행상황·다음 손댈 곳 남기기")];
+        return[line("시작할 부분 열기"),line("20분 제출물 만들기"),line("진행상황·다음 손댈 곳 잡기")];
       }
-      if(task.type===TYPE.ETC)return[line("할 위치 확인하기"),line("20분 실제로 하기"),line("남은 것·다음 동작 남기기")];
-      return[line("시작할 곳 열기"),line("20분 읽고 풀기"),line("핵심·막힌 점·다음 볼 곳 남기기")];
+      if(task.type===TYPE.ETC)return[line("할 위치 확인하기"),line("20분 실제로 하기"),line("남은 것·다음 동작 잡기")];
+      return[line("시작할 곳 열기"),line("20분 읽고 풀기"),line("핵심·막힌 점·다음 볼 곳 잡기")];
     }
     function incompleteChecklist(task,isLast){
-      if(task.type===TYPE.ASSIGNMENT)return[line("못 끝낸 지점 열기"),line("20분 이어서 만들기"),isLast?line("진행상황·빠진 것 확인하기"):line("남은 부분·다음 손댈 곳 남기기")];
-      if(task.type===TYPE.ETC)return[line("못 끝낸 지점 보기"),line("20분 이어서 하기"),line("남은 것·다음 동작 남기기")];
-      return[line("못 끝낸 지점 열기"),line("20분 이어서 보기"),line("막힌 점·다음 볼 곳 남기기")];
+      if(task.type===TYPE.ASSIGNMENT)return[line("못 끝낸 지점 열기"),line("20분 이어서 만들기"),isLast?line("진행상황·빠진 것 확인하기"):line("남은 부분·다음 손댈 곳 잡기")];
+      if(task.type===TYPE.ETC)return[line("못 끝낸 지점 보기"),line("20분 이어서 하기"),line("남은 것·다음 동작 잡기")];
+      return[line("못 끝낸 지점 열기"),line("20분 이어서 보기"),line("막힌 점·다음 볼 곳 잡기")];
     }
     function blockedChecklist(task){
-      if(task.type===TYPE.ASSIGNMENT)return[line("막힌 지점 열기"),line("가능한 부분만 건드리기"),line("막힌 이유·다음 확인거리 남기기")];
-      if(task.type===TYPE.ETC)return[line("막힌 지점 보기"),line("가능한 것만 하기"),line("막힌 이유·다음 동작 남기기")];
-      return[line("막힌 부분 열기"),line("예제나 설명 하나 보기"),line("막힌 이유·다음 볼 곳 남기기")];
+      if(task.type===TYPE.ASSIGNMENT)return[line("막힌 지점 열기"),line("가능한 부분만 건드리기"),line("막힌 이유·다음 확인거리 잡기")];
+      if(task.type===TYPE.ETC)return[line("막힌 지점 보기"),line("가능한 것만 하기"),line("막힌 이유·다음 동작 잡기")];
+      return[line("막힌 부분 열기"),line("예제나 설명 하나 보기"),line("막힌 이유·다음 볼 곳 잡기")];
     }
     function hasSubmitCue(text){return/(제출|업로드|마감|완료)/.test(clean(text))}
     function kindForNewPiece(task,index,total){if(index===0)return KIND.START;if(index===total-1&&task.type===TYPE.ASSIGNMENT&&total>1)return KIND.SUBMIT;if(index===total-1&&total>2)return KIND.WRAP;return KIND.CONTINUE}
@@ -959,9 +1334,11 @@
     }
     function startTimerLoop(){
       if(timerTick)clearInterval(timerTick);
+      if(timePlanTick)clearInterval(timePlanTick);
       timerTick=setInterval(function(){
         if(state.timer&&state.timer.running)updateTimerDom();
       },500);
+      timePlanTick=setInterval(updateTimePlanDom,30000);
     }
 
     function addTask(){
@@ -980,6 +1357,7 @@
     }
     function selectTask(taskId){var task=findTask(taskId);if(!task)return;armedDeleteId=null;armedDraftClear=false;editDraft=null;state.activeId=task.id;state.libraryOpen=false;state.selectedLibraryId=null;task.settingsOpen=false;task.view=Math.min(task.now,task.pieces.length-1);resetTimer(TIMER.FOCUS);saveState();renderAll()}
     function putAwayCurrent(){var task=activeTask();if(!task)return;editDraft=null;task.settingsOpen=false;state.activeId=null;state.libraryOpen=false;state.selectedLibraryId=null;resetTimer(TIMER.FOCUS);saveState();renderAll();toast("보관함으로 내렸어요.")}
+    function shelfCurrentDone(){var task=activeTask();if(!task||!isTaskDone(task))return;editDraft=null;task.settingsOpen=false;task.doneShelf=true;task.doneShelfAt=Date.now();state.activeId=null;state.libraryOpen=false;state.selectedLibraryId=null;resetTimer(TIMER.FOCUS);saveState();renderAll();toast("끝낸 일로 치웠어요.")}
     function moveTaskToDoneShelf(taskId){var task=findTask(taskId);if(!task||!isTaskDone(task))return;armedDeleteId=null;task.doneShelf=true;task.doneShelfAt=Date.now();if(state.selectedLibraryId===task.id)state.selectedLibraryId=null;state.libraryOpen=true;saveState();renderTaskListStable();toast("끝낸 일로 치웠어요.")}
     function restoreTaskFromDoneShelf(taskId){var task=findTask(taskId);if(!task)return;armedDeleteId=null;task.doneShelf=false;task.doneShelfAt=undefined;if(state.selectedLibraryId===task.id)state.selectedLibraryId=null;state.libraryOpen=true;saveState();renderTaskListStable();toast("보관함으로 꺼냈어요.")}
     function deleteDoneShelfTask(taskId){
@@ -1069,7 +1447,7 @@
       if(isTaskDone(task)){renderDoneTask(task);return}
       var piece=viewPiece(task),viewIndex=clamp(task.view,0,Math.max(task.pieces.length-1,0)),isCurrent=viewIndex===task.now&&task.now<task.pieces.length;
       if(!piece){renderDoneTask(task);return}
-      el.currentCard.innerHTML=renderTaskHeader(task,false,"")+renderMeta(task,isCurrent)+renderProgressBar(task,true)+'<div class="steps">'+renderSteps(task,piece,viewIndex)+'</div>'+renderResultButtons("current",!isCurrent);
+      el.currentCard.innerHTML=renderTaskHeader(task,false,"")+renderMeta(task,isCurrent)+renderProgressBar(task,true)+renderTimePlan(task)+'<div class="steps">'+renderSteps(task,piece,viewIndex)+'</div>'+renderResultButtons("current",!isCurrent);
       bindCurrentCard(task,isCurrent);renderTaskList();updateTimerDom();autoGrowAll();
     }
     function renderEditTask(task){
@@ -1112,10 +1490,10 @@
     function renderDoneTask(){
       var task=activeTask();
       if(task&&task.settingsOpen){renderEditTask(task);return}
-      el.currentCard.innerHTML=renderTaskHeader(task,true,"완료")+renderMemo(task,true)+renderProgressBar(task,true)+'<div class="done-box">할 일 완료<small>다음 할 일이 있으면 바로 이어가도 됩니다</small></div><div class="done-actions"><button class="done-action primary" id="doneAddBtn">새 할 일 추가</button><button class="done-action" id="doneClearBtn">지금 비워두기</button></div>';
+      el.currentCard.innerHTML=renderTaskHeader(task,false,"")+renderMemo(task,true)+renderProgressBar(task,true)+'<div class="done-title"><span class="done-check">✓</span><span>할 일 완료</span></div><div class="done-actions"><button class="done-action primary" id="doneAddBtn">새 할 일 추가</button><button class="done-action" id="doneKeepBtn">보관함에 두기</button></div><div class="done-secondary-actions"><button class="done-shelf-final" id="doneShelfBtn">끝낸 일로 치우기</button><button class="done-delete-final '+(armedDeleteId===task.id?'armed':'')+'" id="doneDeleteBtn">'+(armedDeleteId===task.id?'🗑 삭제 확인':'🗑 삭제')+'</button></div>';
       bindGear(task);bindDoneActions();bindMemoTokens(task);renderTaskList();autoGrowAll();
     }
-    function bindDoneActions(){var add=byId("doneAddBtn"),clear=byId("doneClearBtn");if(add)add.onclick=openAddView;if(clear)clear.onclick=putAwayCurrent}
+    function bindDoneActions(){var add=byId("doneAddBtn"),keep=byId("doneKeepBtn"),shelf=byId("doneShelfBtn"),del=byId("doneDeleteBtn");if(add)add.onclick=openAddView;if(keep)keep.onclick=putAwayCurrent;if(shelf)shelf.onclick=shelfCurrentDone;if(del)del.onclick=function(){var task=activeTask();if(task)deleteTask(task.id)}}
     function renderMemo(task,standalone){return task.memoText?'<div class="memo-shell readonly '+(standalone?'standalone':'')+'"><div class="memo-content">'+renderMemoText(task.memoText)+'</div></div>':''}
     function renderMemoEdit(task,standalone){var guide=memoGuide(task.type);return'<div class="memo-edit-block '+(standalone?'standalone':'')+'"><div class="add-field-label">메모</div><div class="memo-helper-row"><div class="memo-help">'+renderMemoHelp(task.type)+'</div><button type="button" class="memo-check-insert" id="memoInlineInsertBtn">○ 체크</button></div><label class="memo-shell editable memo-edit-shell"><textarea class="memo-field" id="memoInlineInput" placeholder="'+attr(guide.placeholder)+'" rows="2">'+safe(task.memoText)+'</textarea></label></div>'}
     function renderSteps(task,piece,pieceIndex){
@@ -1127,6 +1505,24 @@
       }).join("")
     }
     function renderLine(parts){return parts.map(function(part){var escaped=safe(part.text);return part.strong?'<strong>'+escaped+'</strong>':escaped}).join("")}
+    function circledStepNumber(value){value=Number(value);if(value>=1&&value<=20)return String.fromCharCode(0x2460+value-1);return String(value)}
+    function formatClock(date){return pad2(date.getHours())+":"+pad2(date.getMinutes())}
+    function nextHalfHour(now){var slot=30*60*1000;return new Date(Math.floor(now.getTime()/slot)*slot+slot)}
+    function timePlanHtml(task){
+      if(!task||isTaskDone(task)||task.now>=task.pieces.length)return "";
+      var now=new Date(),end=nextHalfHour(now),html="";
+      for(var i=0;i<task.pieces.length;i++){
+        if(task.pieces[i].status!==STATUS.PENDING||i<task.now){
+          html+='<span class="time-mark blank" aria-hidden="true">·</span>';
+          continue;
+        }
+        html+='<span class="time-mark '+(i===task.now?'now':'')+'">~'+formatClock(end)+'</span>';
+        end=new Date(end.getTime()+30*60*1000);
+      }
+      return html;
+    }
+    function renderTimePlan(task){var html=timePlanHtml(task);return html?'<div class="time-plan" id="timePlan" style="--step-count:'+task.pieces.length+'">'+html+'</div>':''}
+    function updateTimePlanDom(){var node=byId("timePlan");if(!node)return;var task=activeTask();var html=timePlanHtml(task);if(html){node.style.setProperty("--step-count",task.pieces.length);node.innerHTML=html}else node.remove()}
     function renderProgressBar(task,interactive){return '<div class="bar">'+renderBar(task,interactive)+'</div>'}
     function renderBar(task,interactive){
       var view=typeof task.view==="number"?task.view:task.now;
@@ -1218,7 +1614,364 @@
       all("[data-count]").forEach(function(btn){btn.onclick=function(){armedDraftClear=false;state.count=Number(btn.dataset.count);saveState();renderAddControls()}});
       el.topBtn.onclick=function(){armedDeleteId=null;armedDraftClear=false;if(state.screen==="add"){state.screen="do";saveState();renderAll();return}openAddView()};
     }
+    window.StepSyncApp={
+      key:function(){return KEY},
+      getCloudState:function(){return stateForCloud()},
+      hasLocalCloudData:function(){var data=stateForCloud();return !!(data.activeId||(Array.isArray(data.tasks)&&data.tasks.length))},
+      applyCloudState:function(remote){applyCloudState(remote);renderAll()},
+      isLocalInputActive:isLocalInputActive,
+      renderAll:renderAll,
+      toast:toast
+    };
+
     bindStaticEvents();syncInputs();renderAll();startTimerLoop();saveState();
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, setPersistence, browserLocalPersistence, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCU6Yt9nnTwb9W7O3-FMGMy-BUYCh8pE80",
+      authDomain: "step-sync-630a9.firebaseapp.com",
+      projectId: "step-sync-630a9",
+      storageBucket: "step-sync-630a9.firebasestorage.app",
+      messagingSenderId: "717154851460",
+      appId: "1:717154851460:web:04ecfa3dde532f7ae5c0d1"
+    };
+    const STEP_SYNC_EMAIL_PLACEHOLDER = "xxxxx@xxxxx.com";
+    const SYNC_DEVICE_KEY = "step_sync_device_id_v1";
+    const SYNC_DOC_ID = "main";
+    const SAVE_DEBOUNCE_MS = 650;
+
+    const syncGate = document.getElementById("syncGate");
+    const syncCard = document.getElementById("syncCard");
+    const syncPopover = document.getElementById("syncPopover");
+    const logoutTarget = document.getElementById("versionTap");
+    const stepApp = window.StepSyncApp;
+    const firebaseApp = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(firebaseApp);
+    const db = getFirestore(firebaseApp);
+    const deviceId = getDeviceId();
+    const persistenceReady = setPersistence(auth, browserLocalPersistence).catch(function(error){
+      syncError = "로그인 유지 설정 실패: " + readableAuthError(error);
+      renderSyncCard();
+    });
+
+    let currentUser = null;
+    let syncRef = null;
+    let unsubscribeSnapshot = null;
+    let saveTimer = null;
+    let syncStatus = "로그인 필요";
+    let syncError = "";
+    let lastCloudHash = "";
+    let lastAppliedRevision = 0;
+    let pendingRemote = null;
+    let pendingRemoteHash = "";
+    let pendingRemoteRevision = 0;
+    let pendingReason = "";
+    let initialSnapshotHandled = false;
+    let logoutPopoverOpen = false;
+    let logoutArmed = false;
+    let logoutPressTimer = null;
+
+    window.StepSyncBridge = {
+      onLocalStateChanged: function(){
+        queueCloudSave();
+      }
+    };
+
+    bindLogoutTrigger();
+    renderSyncCard();
+
+    onAuthStateChanged(auth, function(user){
+      currentUser = user || null;
+      syncError = "";
+      pendingRemote = null;
+      pendingReason = "";
+      initialSnapshotHandled = false;
+      clearTimeout(saveTimer);
+      saveTimer = null;
+      if(unsubscribeSnapshot){unsubscribeSnapshot();unsubscribeSnapshot = null}
+      if(!currentUser){
+        syncRef = null;
+        syncStatus = "로그인 필요";
+        hideLogoutPopover();
+        renderSyncCard();
+        return;
+      }
+      syncRef = doc(db,"stepUsers",currentUser.uid,"states",SYNC_DOC_ID);
+      syncStatus = "연결 중";
+      hideLogoutPopover();
+      renderSyncCard();
+      subscribeCloudState();
+    });
+
+    function getDeviceId(){
+      try{
+        let id = localStorage.getItem(SYNC_DEVICE_KEY);
+        if(!id){
+          id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : "device-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+          localStorage.setItem(SYNC_DEVICE_KEY,id);
+        }
+        return id;
+      }catch(error){
+        return "device-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+      }
+    }
+    function cloudState(){return stepApp&&stepApp.getCloudState?stepApp.getCloudState():{schema:1,activeId:null,tasks:[]}}
+    function cloudHash(value){return JSON.stringify(value || cloudState())}
+    function cloudHasData(value){return !!(value && (value.activeId || (Array.isArray(value.tasks) && value.tasks.length)))}
+    function escapeHtml(value){return String(value||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+    function maskEmail(email){
+      email = String(email || "");
+      const parts = email.split("@");
+      if(parts.length !== 2)return "로그인됨";
+      const name = parts[0], domain = parts[1];
+      const shown = name.length <= 2 ? name.charAt(0) + "*" : name.slice(0,2) + "***";
+      return shown + "@" + domain;
+    }
+    function readableAuthError(error){
+      const code = error && error.code ? String(error.code) : "";
+      if(code.indexOf("invalid-credential") >= 0 || code.indexOf("wrong-password") >= 0 || code.indexOf("user-not-found") >= 0)return "이메일 또는 비밀번호가 맞지 않아요.";
+      if(code.indexOf("too-many-requests") >= 0)return "시도가 너무 많아요. 잠시 뒤 다시 해주세요.";
+      if(code.indexOf("network-request-failed") >= 0)return "네트워크 연결을 확인해 주세요.";
+      if(code.indexOf("operation-not-allowed") >= 0)return "Firebase 콘솔에서 이메일/비밀번호 로그인을 켜야 해요.";
+      if(code.indexOf("permission-denied") >= 0)return "Firestore 규칙 또는 로그인 사용자를 확인해 주세요.";
+      return code || "알 수 없는 오류";
+    }
+    function renderSyncCard(){
+      renderLoginGate();
+      renderSyncNotice();
+      renderLogoutPopover();
+    }
+    function renderLoginGate(){
+      if(!syncGate)return;
+      const status = escapeHtml(syncStatus);
+      const errorHtml = syncError ? '<div class="sync-error">' + escapeHtml(syncError) + '</div>' : '';
+      if(currentUser){
+        document.body.classList.remove("sync-locked");
+        syncGate.hidden = true;
+        syncGate.innerHTML = "";
+        return;
+      }
+      document.body.classList.add("sync-locked");
+      syncGate.hidden = false;
+      syncGate.innerHTML = '<div class="sync-gate-card">' +
+        '<div class="sync-gate-brand"><img src="./step-icon.svg" alt="" aria-hidden="true" /><span>Step!</span></div>' +
+        '<p class="sync-gate-title">처음에만 로그인</p>' +
+        '<p class="sync-gate-subtitle">한 번 로그인하면 로그아웃하기 전까지 이 화면은 다시 보이지 않아요.</p>' +
+        '<div class="sync-gate-grid"><input id="syncEmailInput" type="email" autocomplete="username" placeholder="' + escapeHtml(STEP_SYNC_EMAIL_PLACEHOLDER) + '" />' +
+        '<input id="syncPasswordInput" type="password" autocomplete="current-password" placeholder="비밀번호" /></div>' +
+        '<button class="sync-gate-login" id="syncLoginBtn">로그인</button>' +
+        '<div class="sync-gate-note">Firebase에 만들어둔 이메일/비밀번호로 로그인합니다. 비밀번호는 코드에 저장하지 않습니다.</div>' + errorHtml + '</div>';
+      bindSyncLogin();
+    }
+    function renderSyncNotice(){
+      if(!syncCard)return;
+      if(!currentUser || (!pendingRemote && !syncError)){
+        syncCard.hidden = true;
+        syncCard.innerHTML = "";
+        return;
+      }
+      syncCard.hidden = false;
+      const status = escapeHtml(syncStatus);
+      const errorHtml = syncError ? '<div class="sync-error">' + escapeHtml(syncError) + '</div>' : '';
+      const pendingHtml = pendingRemote ? '<div>다른 기기에서 변경됨. 입력 중인 내용이 있으면 바로 덮어쓰지 않았어요.<div class="sync-actions"><button class="sync-primary" id="syncApplyRemoteBtn">클라우드 적용</button><button class="sync-secondary" id="syncUploadLocalBtn">이 기기 올리기</button></div></div>' : '';
+      syncCard.className = "sync-card";
+      syncCard.innerHTML = '<div class="sync-title"><strong>동기화 확인</strong><span>' + status + '</span></div>' + pendingHtml + errorHtml;
+      const applyBtn = document.getElementById("syncApplyRemoteBtn");
+      const uploadBtn = document.getElementById("syncUploadLocalBtn");
+      if(applyBtn)applyBtn.onclick = applyPendingRemote;
+      if(uploadBtn)uploadBtn.onclick = function(){pendingRemote = null; pendingReason = ""; pushCloudState(true)};
+    }
+    function bindSyncLogin(){
+      const emailInput = document.getElementById("syncEmailInput");
+      const passwordInput = document.getElementById("syncPasswordInput");
+      const button = document.getElementById("syncLoginBtn");
+      if(!emailInput || !passwordInput || !button)return;
+      async function run(){
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        if(!email || !password){syncError = "이메일과 비밀번호를 입력해 주세요."; renderSyncCard(); return}
+        syncStatus = "로그인 중"; syncError = ""; renderSyncCard();
+        try{
+          await persistenceReady;
+          await signInWithEmailAndPassword(auth,email,password);
+        }catch(error){
+          syncStatus = "로그인 실패";
+          syncError = readableAuthError(error);
+          renderSyncCard();
+        }
+      }
+      button.onclick = run;
+      passwordInput.addEventListener("keydown",function(event){if(event.key === "Enter")run()});
+      emailInput.addEventListener("keydown",function(event){if(event.key === "Enter")passwordInput.focus()});
+    }
+    function bindLogoutTrigger(){
+      if(!logoutTarget)return;
+      function clearPressTimer(){if(logoutPressTimer){clearTimeout(logoutPressTimer);logoutPressTimer = null}}
+      logoutTarget.addEventListener("pointerdown",function(event){
+        if(!currentUser)return;
+        clearPressTimer();
+        logoutPressTimer = setTimeout(function(){
+          logoutPressTimer = null;
+          showLogoutPopover();
+        },700);
+      });
+      ["pointerup","pointerleave","pointercancel"].forEach(function(type){
+        logoutTarget.addEventListener(type,clearPressTimer);
+      });
+      logoutTarget.addEventListener("contextmenu",function(event){event.preventDefault()});
+      document.addEventListener("pointerdown",function(event){
+        if(!logoutPopoverOpen)return;
+        if(syncPopover && syncPopover.contains(event.target))return;
+        if(logoutTarget && logoutTarget.contains(event.target))return;
+        hideLogoutPopover();
+      });
+    }
+    function showLogoutPopover(){
+      if(!currentUser || !syncPopover)return;
+      logoutPopoverOpen = true;
+      logoutArmed = false;
+      renderLogoutPopover();
+    }
+    function hideLogoutPopover(){
+      logoutPopoverOpen = false;
+      logoutArmed = false;
+      renderLogoutPopover();
+    }
+    function renderLogoutPopover(){
+      if(!syncPopover)return;
+      if(!currentUser || !logoutPopoverOpen){
+        syncPopover.hidden = true;
+        syncPopover.innerHTML = "";
+        return;
+      }
+      syncPopover.hidden = false;
+      syncPopover.innerHTML = '<button id="syncHiddenLogoutBtn" class="' + (logoutArmed ? 'armed' : '') + '">' + (logoutArmed ? '로그아웃 확인' : '로그아웃') + '</button>';
+      const button = document.getElementById("syncHiddenLogoutBtn");
+      if(button)button.onclick = function(event){
+        event.stopPropagation();
+        if(!logoutArmed){logoutArmed = true; renderLogoutPopover(); return}
+        hideLogoutPopover();
+        signOut(auth);
+      };
+    }
+    function subscribeCloudState(){
+      if(!syncRef)return;
+      unsubscribeSnapshot = onSnapshot(syncRef,function(snapshot){
+        const local = cloudState();
+        const localHash = cloudHash(local);
+        if(!snapshot.exists()){
+          initialSnapshotHandled = true;
+          if(cloudHasData(local)){
+            syncStatus = "첫 업로드 중";
+            renderSyncCard();
+            pushCloudState(true);
+          }else{
+            syncStatus = "동기화 준비됨";
+            renderSyncCard();
+          }
+          return;
+        }
+        const data = snapshot.data() || {};
+        const remote = data.state || null;
+        const revision = Number(data.revision || 0);
+        const updatedBy = String(data.updatedBy || "");
+        if(!remote){syncStatus = "클라우드 데이터 없음"; renderSyncCard(); return}
+        const remoteHash = cloudHash(remote);
+        if(updatedBy === deviceId || remoteHash === localHash){
+          lastCloudHash = remoteHash;
+          lastAppliedRevision = Math.max(lastAppliedRevision,revision);
+          syncStatus = "동기화됨";
+          renderSyncCard();
+          return;
+        }
+        if(!initialSnapshotHandled){
+          initialSnapshotHandled = true;
+          if(!cloudHasData(local) && cloudHasData(remote)){
+            applyRemoteState(remote,revision,remoteHash);
+            return;
+          }
+          if(cloudHasData(local) && !cloudHasData(remote)){
+            pushCloudState(true);
+            return;
+          }
+          if(cloudHasData(local) && cloudHasData(remote)){
+            holdRemote(remote,revision,remoteHash,"initial-conflict");
+            return;
+          }
+        }
+        if(revision && revision <= lastAppliedRevision && remoteHash === lastCloudHash)return;
+        if(stepApp && stepApp.isLocalInputActive && stepApp.isLocalInputActive()){
+          holdRemote(remote,revision,remoteHash,"input-active");
+        }else{
+          applyRemoteState(remote,revision,remoteHash);
+        }
+      },function(error){
+        syncStatus = "동기화 오류";
+        syncError = readableAuthError(error);
+        renderSyncCard();
+      });
+    }
+    function holdRemote(remote,revision,hash,reason){
+      pendingRemote = remote;
+      pendingRemoteRevision = revision;
+      pendingRemoteHash = hash;
+      pendingReason = reason;
+      syncStatus = "적용 대기";
+      renderSyncCard();
+    }
+    function applyPendingRemote(){
+      if(!pendingRemote)return;
+      applyRemoteState(pendingRemote,pendingRemoteRevision,pendingRemoteHash);
+    }
+    function applyRemoteState(remote,revision,hash){
+      if(stepApp && stepApp.applyCloudState)stepApp.applyCloudState(remote);
+      pendingRemote = null;
+      pendingReason = "";
+      lastCloudHash = hash || cloudHash(remote);
+      lastAppliedRevision = Math.max(lastAppliedRevision,Number(revision || 0));
+      syncStatus = "동기화됨";
+      syncError = "";
+      renderSyncCard();
+      if(stepApp && stepApp.toast)stepApp.toast("다른 기기 변경을 적용했어요.");
+    }
+    function queueCloudSave(){
+      if(!currentUser || !syncRef)return;
+      const nextHash = cloudHash();
+      if(pendingRemote)return;
+      if(nextHash === lastCloudHash)return;
+      syncStatus = "저장 대기";
+      syncError = "";
+      renderSyncCard();
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(function(){pushCloudState(false)},SAVE_DEBOUNCE_MS);
+    }
+    async function pushCloudState(force){
+      if(!currentUser || !syncRef)return;
+      const payloadState = cloudState();
+      const hash = cloudHash(payloadState);
+      if(!force && hash === lastCloudHash)return;
+      const revision = Date.now();
+      syncStatus = "저장 중";
+      syncError = "";
+      renderSyncCard();
+      try{
+        await setDoc(syncRef,{schema:1,state:payloadState,revision:revision,updatedAt:serverTimestamp(),updatedBy:deviceId},{merge:false});
+        lastCloudHash = hash;
+        lastAppliedRevision = Math.max(lastAppliedRevision,revision);
+        syncStatus = "동기화됨";
+        syncError = "";
+        renderSyncCard();
+      }catch(error){
+        syncStatus = "저장 실패";
+        syncError = readableAuthError(error);
+        renderSyncCard();
+      }
+    }
   </script>
 </body>
 </html>
