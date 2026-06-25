@@ -877,7 +877,7 @@
   <main class="app">
     <header>
       <div>
-        <h1 class="brand-title"><img src="./step-icon.svg" alt="" class="brand-icon" aria-hidden="true" /><span>Step!</span><span class="version" id="versionTap">v0.6.52</span></h1>
+        <h1 class="brand-title"><img src="./step-icon.svg" alt="" class="brand-icon" aria-hidden="true" /><span>Step!</span><span class="version" id="versionTap">v0.6.53</span></h1>
         <p class="subtitle" id="subtitle">지금 할 것만 보기</p>
       </div>
       <div class="top-actions"><button class="clear-draft-btn" id="clearDraftBtn" hidden>🗑 비우기</button><button class="top-btn" id="topBtn">＋</button></div>
@@ -1002,7 +1002,10 @@
     }
     function taskForCloud(task){
       task=task||{};
-      return{id:str(task.id),title:str(task.title),startText:str(task.startText),memoText:str(task.memoText),finishText:str(task.finishText),type:clamp(task.type,TYPE.STUDY,TYPE.ETC),prep:!!task.prep,count:Array.isArray(task.pieces)?task.pieces.length:clamp(task.count,1,6),doneShelf:!!task.doneShelf,doneShelfAt:validTimestamp(task.doneShelfAt),pieces:Array.isArray(task.pieces)?task.pieces.map(pieceForCloud):[]};
+      var cloudTask={id:str(task.id),title:str(task.title),startText:str(task.startText),memoText:str(task.memoText),finishText:str(task.finishText),type:clamp(task.type,TYPE.STUDY,TYPE.ETC),prep:!!task.prep,count:Array.isArray(task.pieces)?task.pieces.length:clamp(task.count,1,6),doneShelf:!!task.doneShelf,pieces:Array.isArray(task.pieces)?task.pieces.map(pieceForCloud):[]};
+      var shelfAt=validTimestamp(task.doneShelfAt);
+      if(shelfAt)cloudTask.doneShelfAt=shelfAt;
+      return cloudTask;
     }
     function stateForCloud(){
       return{schema:1,activeId:state.activeId,tasks:state.tasks.map(taskForCloud)};
@@ -1723,6 +1726,25 @@
     function cloudState(){return stepApp&&stepApp.getCloudState?stepApp.getCloudState():{schema:1,activeId:null,tasks:[]}}
     function cloudHash(value){return JSON.stringify(value || cloudState())}
     function cloudHasData(value){return !!(value && (value.activeId || (Array.isArray(value.tasks) && value.tasks.length)))}
+    function sanitizeForFirestore(value){
+      if(value === undefined)return undefined;
+      if(value === null)return null;
+      if(Array.isArray(value)){
+        return value.map(function(item){
+          var cleaned = sanitizeForFirestore(item);
+          return cleaned === undefined ? null : cleaned;
+        });
+      }
+      if(typeof value === "object"){
+        var output = {};
+        Object.keys(value).forEach(function(key){
+          var cleaned = sanitizeForFirestore(value[key]);
+          if(cleaned !== undefined)output[key] = cleaned;
+        });
+        return output;
+      }
+      return value;
+    }
     function escapeHtml(value){return String(value||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
     function maskEmail(email){
       email = String(email || "");
@@ -1739,6 +1761,7 @@
       if(code.indexOf("network-request-failed") >= 0)return "네트워크 연결을 확인해 주세요.";
       if(code.indexOf("operation-not-allowed") >= 0)return "Firebase 콘솔에서 이메일/비밀번호 로그인을 켜야 해요.";
       if(code.indexOf("permission-denied") >= 0)return "Firestore 규칙 또는 로그인 사용자를 확인해 주세요.";
+      if(code.indexOf("invalid-argument") >= 0)return "저장할 수 없는 값이 있어요.";
       return code || "알 수 없는 오류";
     }
     function renderSyncCard(){
@@ -1760,12 +1783,12 @@
       syncGate.hidden = false;
       syncGate.innerHTML = '<div class="sync-gate-card">' +
         '<div class="sync-gate-brand"><img src="./step-icon.svg" alt="" aria-hidden="true" /><span>Step!</span></div>' +
-        '<p class="sync-gate-title">처음에만 로그인</p>' +
-        '<p class="sync-gate-subtitle">한 번 로그인하면 로그아웃하기 전까지 이 화면은 다시 보이지 않아요.</p>' +
+        '<p class="sync-gate-title">로그인</p>' +
+        '<p class="sync-gate-subtitle">한 번 로그인하면 계속 유지돼요.</p>' +
         '<div class="sync-gate-grid"><input id="syncEmailInput" type="email" autocomplete="username" placeholder="' + escapeHtml(STEP_SYNC_EMAIL_PLACEHOLDER) + '" />' +
         '<input id="syncPasswordInput" type="password" autocomplete="current-password" placeholder="비밀번호" /></div>' +
         '<button class="sync-gate-login" id="syncLoginBtn">로그인</button>' +
-        '<div class="sync-gate-note">Firebase에 만들어둔 이메일/비밀번호로 로그인합니다. 비밀번호는 코드에 저장하지 않습니다.</div>' + errorHtml + '</div>';
+        '<div class="sync-gate-note">로그아웃하기 전까지 다시 묻지 않아요.</div>' + errorHtml + '</div>';
       bindSyncLogin();
     }
     function renderSyncNotice(){
@@ -1952,7 +1975,7 @@
     }
     async function pushCloudState(force){
       if(!currentUser || !syncRef)return;
-      const payloadState = cloudState();
+      const payloadState = sanitizeForFirestore(cloudState());
       const hash = cloudHash(payloadState);
       if(!force && hash === lastCloudHash)return;
       const revision = Date.now();
