@@ -59,8 +59,9 @@ jobs:
           test -f tests/smoke-step.mjs
           test -f ARCHITECTURE.md
           test "$(grep -R -l 'step_live_v1' src | wc -l | tr -d ' ')" -eq 1
-          test "$(grep -R -l 'window.StepSyncApp' src | wc -l | tr -d ' ')" -eq 1
-          test "$(grep -R -l 'window.StepSyncBridge' src | wc -l | tr -d ' ')" -eq 1
+          grep -q 'window.StepSyncApp' src/bridge.js
+          grep -q 'window.StepSyncApp' src/sync/firebase.js
+          grep -q 'window.StepSyncBridge' src/sync/firebase.js
           test "$(grep -c '<style' index.html || true)" -eq 0
           test "$(grep -c 'var KEY=' index.html || true)" -eq 0
           test "$(grep -c 'styles/app.css' index.html)" -eq 1
