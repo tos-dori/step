@@ -1,0 +1,17 @@
+
+    var APP_VERSION="0.6.58";
+var KEY="step_live_v1";
+    var TYPE={STUDY:0,ASSIGNMENT:1,ETC:2};
+    var TYPE_NAMES=["공부","과제","기타"];
+    var STATUS={PENDING:"pending",SUCCESS:"success",INCOMPLETE:"incomplete",BLOCKED:"blocked"};
+    var KIND={PREP:"prep",START:"start",CONTINUE:"continue",WRAP:"wrap",SUBMIT:"submit",INCOMPLETE:"incomplete",BLOCKED:"blocked"};
+    var TIMER={FOCUS:"focus",BREAK:"break",OFF:"off"};
+    var TIMER_MS={focus:25*60*1000,break:5*60*1000};
+    var CIRCLE_LEN=150.8;
+    var HOLD_MS=1150;
+    var TIMER_HOLD_MS=800;
+    var MEMO_LINE=18;
+    var MEMO_MIN_LINES=2;
+    var MEMO_MAX_LINES=6;
+    var MEMO_MAX_HEIGHT=MEMO_LINE*MEMO_MAX_LINES;
+    var MEMO_TOLERANCE=2;
