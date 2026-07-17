@@ -1,0 +1,104 @@
+name: One-time Step modular refactor v0.6.58
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  refactor:
+    if: github.head_ref == 'codex/modular-architecture-v0-6-58'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/modular-architecture-v0-6-58
+          fetch-depth: 0
+
+      - name: Check whether refactor is pending
+        id: gate
+        shell: bash
+        run: |
+          if [ -f tools/refactor-step-v0658.js ]; then
+            echo 'needed=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'needed=false' >> "$GITHUB_OUTPUT"
+            echo 'Refactor already applied.'
+          fi
+
+      - name: Preserve baseline
+        if: steps.gate.outputs.needed == 'true'
+        shell: bash
+        run: |
+          mkdir -p /tmp/step-baseline
+          cp index.html /tmp/step-baseline/index.html
+          for file in *.png *.svg *.ico *.webmanifest; do
+            [ -e "$file" ] && cp "$file" /tmp/step-baseline/
+          done
+
+      - name: Install validation tools
+        if: steps.gate.outputs.needed == 'true'
+        run: npm install --no-save acorn@8 playwright@1.52.0 pixelmatch@6 pngjs@7
+
+      - name: Generate modular architecture
+        if: steps.gate.outputs.needed == 'true'
+        run: node tools/refactor-step-v0658.js
+
+      - name: Validate generated structure
+        if: steps.gate.outputs.needed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f styles/app.css
+          test -f src/app.js
+          test -f src/config.js
+          test -f src/sync/firebase.js
+          test -f tests/smoke-step.mjs
+          test -f ARCHITECTURE.md
+          test "$(grep -R -l 'step_live_v1' src | wc -l | tr -d ' ')" -eq 1
+          test "$(grep -R -l 'window.StepSyncApp' src | wc -l | tr -d ' ')" -eq 1
+          test "$(grep -R -l 'window.StepSyncBridge' src | wc -l | tr -d ' ')" -eq 1
+          test "$(grep -c '<style' index.html || true)" -eq 0
+          test "$(grep -c 'var KEY=' index.html || true)" -eq 0
+          test "$(grep -c 'styles/app.css' index.html)" -eq 1
+          test "$(grep -c 'src/app.js' index.html)" -eq 1
+          find src -name '*.js' -print0 | xargs -0 -n1 node --check
+          python3 -m json.tool site.webmanifest >/dev/null
+
+      - name: Install preview browser
+        if: steps.gate.outputs.needed == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Compare baseline and modular Preview
+        if: steps.gate.outputs.needed == 'true'
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --directory /tmp/step-baseline >/tmp/step-baseline-http.log 2>&1 &
+          BASELINE_PID=$!
+          python3 -m http.server 4174 >/tmp/step-candidate-http.log 2>&1 &
+          CANDIDATE_PID=$!
+          trap 'kill $BASELINE_PID $CANDIDATE_PID' EXIT
+          BASELINE_URL=http://127.0.0.1:4173/ CANDIDATE_URL=http://127.0.0.1:4174/ node tools/compare-step-v0658.mjs
+          STEP_URL=http://127.0.0.1:4174/ node tests/smoke-step.mjs
+
+      - name: Remove temporary refactor files
+        if: steps.gate.outputs.needed == 'true'
+        shell: bash
+        run: |
+          rm -rf node_modules package-lock.json tools
+          rm -f STEP_ARCHITECTURE_OUTLINE.tmp
+          rm -f .github/workflows/one-time-step-outline-v0658.yml
+          rm -f .github/workflows/one-time-step-refactor-v0658.yml
+
+      - name: Commit modular architecture
+        if: steps.gate.outputs.needed == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Refactor Step into maintainable modules"
+          git push origin HEAD:codex/modular-architecture-v0-6-58
