@@ -41,7 +41,7 @@ jobs:
 
       - name: Install validation tools
         if: steps.gate.outputs.needed == 'true'
-        run: npm install --no-save acorn@8 playwright@1.52.0 pixelmatch@6 pngjs@7
+        run: npm install --no-save acorn@8 playwright@1.52.0 pixelmatch@6 pngjs@7 >/dev/null 2>&1
 
       - name: Generate modular architecture
         if: steps.gate.outputs.needed == 'true'
@@ -71,19 +71,20 @@ jobs:
 
       - name: Install preview browser
         if: steps.gate.outputs.needed == 'true'
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium >/dev/null 2>&1
 
       - name: Compare baseline and modular Preview
         if: steps.gate.outputs.needed == 'true'
         shell: bash
         run: |
+          set -o pipefail
           python3 -m http.server 4173 --directory /tmp/step-baseline >/tmp/step-baseline-http.log 2>&1 &
           BASELINE_PID=$!
           python3 -m http.server 4174 >/tmp/step-candidate-http.log 2>&1 &
           CANDIDATE_PID=$!
           trap 'kill $BASELINE_PID $CANDIDATE_PID' EXIT
-          BASELINE_URL=http://127.0.0.1:4173/ CANDIDATE_URL=http://127.0.0.1:4174/ node tools/compare-step-v0658.mjs
-          STEP_URL=http://127.0.0.1:4174/ node tests/smoke-step.mjs
+          BASELINE_URL=http://127.0.0.1:4173/ CANDIDATE_URL=http://127.0.0.1:4174/ node tools/compare-step-v0658.mjs 2>&1 | tee /tmp/step-compare.log
+          STEP_URL=http://127.0.0.1:4174/ node tests/smoke-step.mjs 2>&1 | tee /tmp/step-smoke.log
 
       - name: Remove temporary refactor files
         if: steps.gate.outputs.needed == 'true'
