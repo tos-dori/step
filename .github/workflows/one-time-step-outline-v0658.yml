@@ -1,0 +1,38 @@
+name: One-time Step architecture outline v0.6.58
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  outline:
+    if: github.head_ref == 'codex/modular-architecture-v0-6-58'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/modular-architecture-v0-6-58
+          fetch-depth: 0
+
+      - name: Generate outline
+        if: hashFiles('STEP_ARCHITECTURE_OUTLINE.tmp') == ''
+        run: |
+          npm install --no-save acorn@8
+          node tools/outline-step-v0658.js
+
+      - name: Commit outline
+        if: hashFiles('STEP_ARCHITECTURE_OUTLINE.tmp') != ''
+        run: |
+          if git diff --quiet && git diff --cached --quiet && [ -z "$(git status --porcelain)" ]; then
+            echo 'Outline already committed.'
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add STEP_ARCHITECTURE_OUTLINE.tmp
+          git commit -m "Add temporary Step architecture outline"
+          git push origin HEAD:codex/modular-architecture-v0-6-58
