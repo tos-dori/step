@@ -92,8 +92,7 @@ jobs:
         run: |
           rm -rf node_modules package-lock.json tools
           rm -f STEP_ARCHITECTURE_OUTLINE.tmp
-          rm -f .github/workflows/one-time-step-outline-v0658.yml
-          rm -f .github/workflows/one-time-step-refactor-v0658.yml
+          rm -f .github/workflows/validate-step.yml
 
       - name: Commit modular architecture
         if: steps.gate.outputs.needed == 'true'
