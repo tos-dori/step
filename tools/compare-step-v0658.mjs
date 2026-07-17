@@ -14,6 +14,7 @@ async function capture(url, mode, output) {
   await page.route('https://www.gstatic.com/**', (route) => route.abort());
   await page.goto(url, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => typeof window.renderAll === 'function' && typeof window.baseState === 'function', null, { timeout: 20000 });
+  await page.waitForFunction(() => document.styleSheets.length > 0, null, { timeout: 10000 });
   await page.addStyleTag({ content: '*{animation:none!important;transition:none!important;caret-color:transparent!important}' });
   await page.evaluate((screenMode) => {
     document.body.classList.remove('sync-locked');
@@ -40,6 +41,9 @@ async function capture(url, mode, output) {
     syncInputs();
     window.scrollTo(0, 0);
   }, mode);
+  await page.evaluate(() => document.fonts?.ready);
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await page.waitForTimeout(120);
   await page.screenshot({ path: output, fullPage: true });
   const fatal = pageErrors.filter((message) => /ReferenceError|SyntaxError/.test(message));
   if (fatal.length) throw new Error(`${url} runtime errors: ${fatal.join(' | ')}`);
@@ -56,6 +60,7 @@ function compare(leftPath, rightPath, diffPath) {
   const changed = pixelmatch(left.data, right.data, diff.data, left.width, left.height, { threshold: 0.1 });
   fs.writeFileSync(diffPath, PNG.sync.write(diff));
   const ratio = changed / (left.width * left.height);
+  console.log(`${leftPath} changed=${changed} ratio=${ratio}`);
   if (ratio > 0.0005) throw new Error(`Visual diff ratio ${ratio} exceeded 0.0005 for ${leftPath}`);
   return ratio;
 }
