@@ -41,7 +41,9 @@ Step은 **다시 시작하기 쉽게 만드는 실행 보조 앱**이다. 기능
 - 현재·추가·완료·편집·보관함·끝낸 일 화면과 집중·휴식 타이머가 모듈 구조로 존재한다.
 - `window.StepSyncApp`과 `window.StepSyncBridge`는 core와 Firebase 사이의 보존 대상 계약이다.
 - `.github/workflows/validate-step.yml`과 `tests/smoke-step.mjs`가 자동 검증 경로로 존재한다.
-- 기준 커밋: `2fcbac13c6962ca2bd60778208865f5cae025c07` (`Record completed source-of-truth sandbox checks`).
+- 제품 코드 기준 커밋은 `cfc238864c3a37b0678401226af7653880138748` (`Improve Step architecture and patch guide`)이며, 이후 확인된 커밋은 continuity·sandbox 문서만 변경했다.
+- `src/sync/firebase.js`의 최초 snapshot 처리에서 같은 계정의 연결 이력만 있으면 local/cloud 데이터 유무·최신성 확인보다 먼저 remote state를 자동 적용한다.
+- remote가 비어 있거나 local보다 오래된 경우에도 `applyCloudState()`가 local `step_live_v1`을 remote task 목록으로 덮어쓸 수 있는 데이터 소실 경로가 코드상 확인됐다.
 
 ## 결정된 방향
 
@@ -59,18 +61,20 @@ Step은 **다시 시작하기 쉽게 만드는 실행 보조 앱**이다. 기능
 - Step 코드를 유지보수 가능한 모듈 구조로 분리하고 `ARCHITECTURE.md`에 안전한 패치 계약을 정리했다.
 - `ai-sot-sandbox/`에서 GitHub 파일 생성·재조회·SHA 기반 수정·임시 파일 삭제와 diff 검증을 완료했다.
 - 이 파일을 공식 프로젝트 연속성 원본으로 도입했다.
+- 할 일 소실 신고를 조사해 최근 GitHub 제품 코드 변경은 없음을 확인했고, 최초 Firebase 동기화가 local state를 무조건 remote로 덮을 수 있는 경로를 확인했다.
 
 ## 현재 미해결·미확인
 
-- `토스` 호출 후 다른 새 채팅에서 이 파일을 자동으로 찾아 맥락을 복구하는 end-to-end 검증은 아직 필요하다.
-- 같은 채팅에서 의미 있는 패치 완료 뒤 이 파일이 자동 checkpoint되는 실제 검증은 아직 필요하다.
+- 이번 실제 할 일 소실이 확인된 동기화 경로로 발생했는지는 사용자 기기의 `localStorage`와 현재 Firestore 문서를 확인하지 못해 확정되지 않았다.
+- 다른 기기·브라우저에 아직 열리지 않은 `step_live_v1` 사본이 남아 있는지와 복구 가능성은 미확인이다.
+- 현재 smoke test는 Firebase module 요청을 차단하므로 local/cloud 충돌과 데이터 보존 회귀를 검증하지 않는다.
 - 자동 Workflow 통과는 실제 모바일 Preview의 UX 검증을 대체하지 않는다.
-- 현재 특정 제품 패치가 진행 중이라고 확정할 근거는 없다.
+- 데이터 보존 패치는 아직 수행되지 않았다.
 
 ## 다음 시작점
 
-1. 새 채팅에서 `@GitHub 토스 스텝 현재 상태 확인하기`로 이 파일과 필요한 실제 코드를 읽는다.
-2. 제품 작업을 수행한다.
-3. 자동 검증과 관련 모바일 흐름을 실제로 확인한다.
-4. 검증된 상태 변화가 있으면 이 파일의 관련 섹션만 최소 갱신한다.
-5. 다음 새 채팅에서 갱신된 상태가 복구되는지 확인한다.
+1. 다른 기기에서 Step을 추가로 열지 말고, 기존 local state가 남아 있을 가능성을 보존한다.
+2. 남아 있는 기기·브라우저에서 `localStorage['step_live_v1']`을 먼저 백업하고 현재 Firestore `stepUsers/{uid}/states/main` snapshot과 비교한다.
+3. 최초 동기화에서 local 비어 있음/remote 비어 있음/local 최신/remote 최신을 분리하고, 빈 remote 또는 오래된 remote가 local을 자동 덮지 못하도록 최소 패치한다.
+4. local non-empty + remote empty, local newer + remote older, initial conflict 선택 흐름을 자동 테스트에 추가한다.
+5. Workflow와 실제 모바일 흐름을 검증한 뒤 관련 상태만 최소 checkpoint한다.
