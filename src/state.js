@@ -103,7 +103,7 @@ function baseTimer(){return{mode:TIMER.FOCUS,running:false,startedAt:null,elapse
     function cleanMemo(text){return str(text).trim()}
     function safe(text){return str(text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
     function attr(text){return safe(text).replace(/"/g,"&quot;")}
-    var state=loadState();
+    var state=null;
     var armedDeleteId=null;
     var armedDraftClear=false;
     var toastTimer=null;
