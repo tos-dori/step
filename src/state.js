@@ -51,14 +51,18 @@ function baseTimer(){return{mode:TIMER.FOCUS,running:false,startedAt:null,elapse
     }
     function hasOpenTaskEditor(){return state.tasks.some(function(task){return !!task.settingsOpen})}
     function isLocalInputActive(){return isTextEditingNode(document.activeElement)||state.screen==="add"||!!editDraft||hasOpenTaskEditor()}
+    function hasTaskId(tasks,id){
+      id=String(id||"");
+      return Array.isArray(tasks)&&tasks.some(function(task){return task&&String(task.id)===id});
+    }
     function normalizeState(saved){
       var next=baseState(); saved=saved||{};
       next.screen=saved.screen==="add"?"add":"do";
       next.draft=str(saved.draft); next.startText=str(saved.startText); next.memoText=str(saved.memoText); next.finishText=str(saved.finishText);
       next.type=clamp(saved.type,TYPE.STUDY,TYPE.ETC); next.count=clamp(saved.count,1,6); next.prep=!!(saved.prep||saved.criteria&&saved.criteria.unclear); next.addSettingsOpen=!!saved.addSettingsOpen;
       next.libraryOpen=!!saved.libraryOpen; next.doneShelfOpen=!!saved.doneShelfOpen; next.tasks=Array.isArray(saved.tasks)?saved.tasks.map(normalizeTask).filter(Boolean):[];
-      next.activeId=saved.activeId&&findTaskInList(String(saved.activeId),next.tasks)?String(saved.activeId):null;
-      next.selectedLibraryId=saved.libraryOpen&&saved.selectedLibraryId&&String(saved.selectedLibraryId)!==next.activeId&&findTaskInList(String(saved.selectedLibraryId),next.tasks)?String(saved.selectedLibraryId):null;
+      next.activeId=saved.activeId&&hasTaskId(next.tasks,saved.activeId)?String(saved.activeId):null;
+      next.selectedLibraryId=saved.libraryOpen&&saved.selectedLibraryId&&String(saved.selectedLibraryId)!==next.activeId&&hasTaskId(next.tasks,saved.selectedLibraryId)?String(saved.selectedLibraryId):null;
       next.timer=normalizeTimer(saved.timer);
       return next;
     }
