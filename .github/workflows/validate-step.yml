@@ -25,12 +25,16 @@ jobs:
           test -f src/sync/firebase.js
           test -f firestore.rules
           test -f firebase.json
+          test -f docs/firebase-rules-archive/2026-07-28-console-before-data-safety.rules
           test -f ARCHITECTURE.md
           test "$(grep -R -l 'step_live_v1' src | wc -l | tr -d ' ')" -eq 1
           grep -q 'window.StepSyncApp' src/bridge.js
           grep -q 'window.StepSyncApp' src/sync/firebase.js
           grep -q 'window.StepSyncBridge' src/sync/firebase.js
           grep -q 'request.auth.uid == uid' firestore.rules
+          grep -q 'match /history/{historyId}' firestore.rules
+          grep -q 'stateId == "main"' firestore.rules
+          grep -q 'match /stepUsers/{userId}/states/{stateId}' docs/firebase-rules-archive/2026-07-28-console-before-data-safety.rules
           test "$(grep -c '<style' index.html || true)" -eq 0
           test "$(grep -c 'var KEY=' index.html || true)" -eq 0
           test "$(grep -c 'styles/app.css' index.html)" -eq 1
