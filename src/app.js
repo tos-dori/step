@@ -3,6 +3,7 @@
   const baseUrl = new URL('./', loaderScript.src);
   const classicModules = [
   "config.js",
+  "data-safety.js",
   "dom.js",
   "state.js",
   "feedback.js",
