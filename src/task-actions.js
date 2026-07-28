@@ -20,9 +20,10 @@ function addTask(){
     function deleteDoneShelfTask(taskId){
       var task=findTask(taskId);if(!task||!task.doneShelf)return;
       if(armedDeleteId!==taskId){armedDeleteId=taskId;state.libraryOpen=true;saveState();renderTaskListStable();return}
+      if(window.StepDataSafety)window.StepDataSafety.allowDestructiveOnce("task-delete");
       state.tasks=state.tasks.filter(function(item){return item.id!==task.id});
       if(state.selectedLibraryId===task.id)state.selectedLibraryId=null;
-      armedDeleteId=null;state.libraryOpen=true;saveState();renderTaskListStable();toast("삭제했어요.");
+      armedDeleteId=null;state.libraryOpen=true;saveState("task-delete");renderTaskListStable();toast("삭제했어요.");
     }
     function openAddView(){armedDeleteId=null;armedDraftClear=false;editDraft=null;state.screen="add";saveState();renderScreen();renderAddControls();syncInputs();focusTaskInput()}
     function markCurrent(status){
@@ -45,7 +46,8 @@ function addTask(){
     function deleteTask(taskId){
       if(armedDeleteId!==taskId){armedDeleteId=taskId;renderCurrent();return}
       editDraft=null;
-      state.tasks=state.tasks.filter(function(task){return task.id!==taskId});if(state.activeId===taskId){state.activeId=null;resetTimer(TIMER.FOCUS)}armedDeleteId=null;saveState();renderAll();toast("삭제했어요.");
+      if(window.StepDataSafety)window.StepDataSafety.allowDestructiveOnce("task-delete");
+      state.tasks=state.tasks.filter(function(task){return task.id!==taskId});if(state.activeId===taskId){state.activeId=null;resetTimer(TIMER.FOCUS)}armedDeleteId=null;saveState("task-delete");renderAll();toast("삭제했어요.");
     }
     function toggleStep(index){
       var task=activeTask(),piece=viewPiece(task);
