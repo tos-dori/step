@@ -49,6 +49,9 @@ jobs:
           python3 -m json.tool site.webmanifest >/dev/null
           python3 -m json.tool firebase.json >/dev/null
 
+      - name: Test local safety failures
+        run: node tests/data-safety-v2.mjs
+
       - name: Test Firestore rules in emulator
         run: npm run test:rules
 
