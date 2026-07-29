@@ -20,9 +20,12 @@ function addTask(){
     function deleteDoneShelfTask(taskId){
       var task=findTask(taskId);if(!task||!task.doneShelf)return;
       if(armedDeleteId!==taskId){armedDeleteId=taskId;state.libraryOpen=true;saveState();renderTaskListStable();return}
+      var previousTasks=state.tasks.slice(),previousSelected=state.selectedLibraryId,previousArmed=armedDeleteId;
       state.tasks=state.tasks.filter(function(item){return item.id!==task.id});
       if(state.selectedLibraryId===task.id)state.selectedLibraryId=null;
-      armedDeleteId=null;state.libraryOpen=true;saveState("task-delete");renderTaskListStable();toast("삭제했어요.");
+      armedDeleteId=null;state.libraryOpen=true;
+      if(!saveState("task-delete")){state.tasks=previousTasks;state.selectedLibraryId=previousSelected;armedDeleteId=previousArmed;renderTaskListStable();toast("복구본을 남기지 못해 삭제를 중단했어요.");return}
+      renderTaskListStable();toast("삭제했어요.");
     }
     function openAddView(){armedDeleteId=null;armedDraftClear=false;editDraft=null;state.screen="add";saveState();renderScreen();renderAddControls();syncInputs();focusTaskInput()}
     function markCurrent(status){
@@ -44,8 +47,11 @@ function addTask(){
     }
     function deleteTask(taskId){
       if(armedDeleteId!==taskId){armedDeleteId=taskId;renderCurrent();return}
+      var previousTasks=state.tasks.slice(),previousActive=state.activeId,previousTimer=normalizeTimer(state.timer),previousArmed=armedDeleteId,previousEdit=editDraft;
       editDraft=null;
-      state.tasks=state.tasks.filter(function(task){return task.id!==taskId});if(state.activeId===taskId){state.activeId=null;resetTimer(TIMER.FOCUS)}armedDeleteId=null;saveState("task-delete");renderAll();toast("삭제했어요.");
+      state.tasks=state.tasks.filter(function(task){return task.id!==taskId});if(state.activeId===taskId){state.activeId=null;resetTimer(TIMER.FOCUS)}armedDeleteId=null;
+      if(!saveState("task-delete")){state.tasks=previousTasks;state.activeId=previousActive;state.timer=previousTimer;armedDeleteId=previousArmed;editDraft=previousEdit;renderAll();toast("복구본을 남기지 못해 삭제를 중단했어요.");return}
+      renderAll();toast("삭제했어요.");
     }
     function toggleStep(index){
       var task=activeTask(),piece=viewPiece(task);
