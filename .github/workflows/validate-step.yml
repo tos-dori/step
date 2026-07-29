@@ -31,6 +31,7 @@ jobs:
           test -f src/config.js
           test -f src/data-safety.js
           test -f src/sync/firebase.js
+          test -f src/sync/conflict-maintenance.js
           test -f firestore.rules
           test -f firebase.json
           test -f DATA_SAFETY.md
@@ -40,6 +41,7 @@ jobs:
           grep -q 'window.StepSyncApp' src/bridge.js
           grep -q 'window.StepSyncBridge' src/sync/firebase.js
           grep -q 'HISTORY_SLOTS=50' src/sync/firebase.js
+          grep -q 'MAX_CONFLICT_COPIES = 20' src/sync/conflict-maintenance.js
           grep -q 'PERIODIC_MS=10\*60\*1000' src/data-safety.js
           test "$(grep -c '<style' index.html || true)" -eq 0
           test "$(grep -c 'var KEY=' index.html || true)" -eq 0
