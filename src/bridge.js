@@ -2,7 +2,7 @@ window.StepSyncApp={
       key:function(){return KEY},
       getCloudState:function(){return stateForCloud()},
       hasLocalCloudData:function(){var data=stateForCloud();return !!(data.activeId||(Array.isArray(data.tasks)&&data.tasks.length))},
-      applyCloudState:function(remote,reason){applyCloudState(remote,reason);renderAll()},
+      applyCloudState:function(remote,reason){var ok=applyCloudState(remote,reason);if(ok!==false)renderAll();return ok!==false},
       isLocalInputActive:isLocalInputActive,
       isLocalStateSafe:function(){return !window.StepDataSafety||window.StepDataSafety.isSafe()},
       localSafetyIssue:function(){return window.StepDataSafety?window.StepDataSafety.issue():""},
