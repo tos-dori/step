@@ -11,7 +11,9 @@
 7. A non-empty cloud task list can become empty only through an explicit delete or restore operation.
 8. Cloud state larger than 750 KiB is rejected client-side before reaching Firestore's 1 MiB document limit.
 9. Offline transaction failure leaves the local copy intact and queued for retry when connectivity returns.
-10. Firestore rules keep the legacy client usable until the first schema-3 write, then reject legacy overwrites.
+10. Explicit offline operations are stored with the canonical hash of the exact local state and discarded if that state changes.
+11. Object keys are recursively sorted before hashing, so equivalent Firestore maps produce the same compact 16-hex hash regardless of key order.
+12. Firestore rules keep the legacy client usable until the first schema-3 write, then reject legacy overwrites.
 
 ## Failure handling
 
@@ -19,9 +21,11 @@
 | --- | --- |
 | Corrupt current local JSON | Quarantine it; restore newest valid independent checkpoint; block cloud writes if none exists |
 | Storage quota/write failure | Keep the previous stored value; show a blocking error; do not sync |
+| Forced checkpoint cannot be written | Abort and roll back delete, restore or remote replacement |
 | Cloud document has invalid shape | Do not overwrite it automatically |
 | Concurrent edit on another tab/device | Preserve local candidate under `conflicts/{clientId}`; leave canonical main unchanged |
 | Offline during transaction | Keep local data and retry on the browser `online` event |
+| User closes the app after an offline delete | Recover the persisted operation only when its saved hash still matches the current state |
 | User deletes the final task | Save with explicit `task-delete`, archive the previous cloud state, then permit empty state |
 | User restores a version | Checkpoint the current local state, archive current cloud main, then write the chosen version as a new revision |
 
@@ -29,7 +33,7 @@
 
 - Local: 12 independent checkpoints, deduplicated by hash.
 - Cloud: 50 previous canonical revisions, deterministic ring slots.
-- Conflicts: one current candidate per browser tab session; removed after resolution.
+- Conflicts: current conflict shown immediately; stale session candidates are kept separately and automatically bounded to the newest 20 once per day.
 
 ## Deployment order
 
