@@ -8,7 +8,11 @@ window.StepSyncApp={
       localSafetyIssue:function(){return window.StepDataSafety?window.StepDataSafety.issue():""},
       checkpointLocal:function(reason,force){return window.StepDataSafety?window.StepDataSafety.checkpointCurrent(reason,force):false},
       listLocalCheckpoints:function(){return window.StepDataSafety?window.StepDataSafety.listCheckpoints():[]},
-      restoreLocalCheckpoint:function(slot){return window.StepDataSafety?window.StepDataSafety.restoreLocal(slot):null},
+      restoreLocalCheckpoint:function(slot){
+        if(!window.StepDataSafety)return null;
+        var parsed=window.StepDataSafety.restoreLocal(slot);
+        state=normalizeState(parsed);renderAll();return stateForCloud();
+      },
       cloudStateSafe:function(value){return !window.StepDataSafety||window.StepDataSafety.cloudStateSafe(value)},
       cloudStateSize:function(value){return window.StepDataSafety?window.StepDataSafety.cloudSize(value):0},
       nonEmptyToEmpty:function(previous,next){return window.StepDataSafety?window.StepDataSafety.nonEmptyToEmpty(previous,next):false},
