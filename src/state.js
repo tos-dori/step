@@ -35,14 +35,15 @@ function baseTimer(){return{mode:TIMER.FOCUS,running:false,startedAt:null,elapse
       return{schema:2,activeId:state.activeId,tasks:state.tasks.map(taskForCloud)};
     }
     function applyCloudState(remote,reason){
-      var local=currentLocalUiState(),next=baseState();
+      var previous=state,local=currentLocalUiState(),next=baseState();
       remote=remote||{};
       next.screen=local.screen;next.draft=local.draft;next.startText=local.startText;next.memoText=local.memoText;next.finishText=local.finishText;
       next.type=local.type;next.count=local.count;next.prep=local.prep;next.addSettingsOpen=local.addSettingsOpen;next.libraryOpen=local.libraryOpen;next.doneShelfOpen=local.doneShelfOpen;next.selectedLibraryId=local.selectedLibraryId;next.timer=local.timer;
       next.activeId=remote.activeId?String(remote.activeId):null;
       next.tasks=Array.isArray(remote.tasks)?remote.tasks.map(normalizeTask).filter(Boolean):[];
       state=normalizeState(next);
-      saveLocalState(reason||"remote-apply");
+      if(saveLocalState(reason||"remote-apply")===false){state=previous;return false}
+      return true;
     }
     function isTextEditingNode(node){
       if(!node)return false;
