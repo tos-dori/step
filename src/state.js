@@ -16,7 +16,7 @@ function baseTimer(){return{mode:TIMER.FOCUS,running:false,startedAt:null,elapse
     function notifyCloudStateChanged(reason){
       if(window.StepSyncBridge&&typeof window.StepSyncBridge.onLocalStateChanged==="function")window.StepSyncBridge.onLocalStateChanged(reason||"local-change");
     }
-    function saveState(reason){if(saveLocalState(reason)!==false)notifyCloudStateChanged(reason)}
+    function saveState(reason){var ok=saveLocalState(reason)!==false;if(ok)notifyCloudStateChanged(reason);return ok}
     function currentLocalUiState(){
       return{screen:state.screen,draft:state.draft,startText:state.startText,memoText:state.memoText,finishText:state.finishText,type:state.type,count:state.count,prep:state.prep,addSettingsOpen:state.addSettingsOpen,libraryOpen:state.libraryOpen,doneShelfOpen:state.doneShelfOpen,selectedLibraryId:state.selectedLibraryId,timer:normalizeTimer(state.timer)};
     }
