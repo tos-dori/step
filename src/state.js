@@ -1,18 +1,22 @@
 function baseTimer(){return{mode:TIMER.FOCUS,running:false,startedAt:null,elapsed:0}}
     function baseState(){return{screen:"do",draft:"",startText:"",memoText:"",finishText:"",type:TYPE.STUDY,count:1,prep:false,addSettingsOpen:false,activeId:null,libraryOpen:false,doneShelfOpen:false,selectedLibraryId:null,timer:baseTimer(),tasks:[]}}
     function storageGet(key){try{return localStorage.getItem(key)}catch(e){return null}}
-    function storageSet(key,value){try{localStorage.setItem(key,value)}catch(e){}}
+    function storageSet(key,value,reason){
+      if(window.StepDataSafety&&typeof window.StepDataSafety.write==="function")return window.StepDataSafety.write(key,value,reason);
+      try{localStorage.setItem(key,value);return true}catch(e){return false}
+    }
     function loadState(){
       var raw=storageGet(KEY);
+      if(window.StepDataSafety&&typeof window.StepDataSafety.load==="function")return window.StepDataSafety.load(KEY,raw,baseState,normalizeState);
       if(!raw)return baseState();
       try{return normalizeState(JSON.parse(raw))}catch(e){return baseState()}
     }
     function serializeStateForLocal(value){return JSON.stringify(value)}
-    function saveLocalState(){storageSet(KEY,serializeStateForLocal(state))}
-    function notifyCloudStateChanged(){
-      if(window.StepSyncBridge&&typeof window.StepSyncBridge.onLocalStateChanged==="function")window.StepSyncBridge.onLocalStateChanged();
+    function saveLocalState(reason){return storageSet(KEY,serializeStateForLocal(state),reason||"local-change")}
+    function notifyCloudStateChanged(reason){
+      if(window.StepSyncBridge&&typeof window.StepSyncBridge.onLocalStateChanged==="function")window.StepSyncBridge.onLocalStateChanged(reason||"local-change");
     }
-    function saveState(){saveLocalState();notifyCloudStateChanged()}
+    function saveState(reason){var ok=saveLocalState(reason)!==false;if(ok)notifyCloudStateChanged(reason);return ok}
     function currentLocalUiState(){
       return{screen:state.screen,draft:state.draft,startText:state.startText,memoText:state.memoText,finishText:state.finishText,type:state.type,count:state.count,prep:state.prep,addSettingsOpen:state.addSettingsOpen,libraryOpen:state.libraryOpen,doneShelfOpen:state.doneShelfOpen,selectedLibraryId:state.selectedLibraryId,timer:normalizeTimer(state.timer)};
     }
@@ -28,17 +32,18 @@ function baseTimer(){return{mode:TIMER.FOCUS,running:false,startedAt:null,elapse
       return cloudTask;
     }
     function stateForCloud(){
-      return{schema:1,activeId:state.activeId,tasks:state.tasks.map(taskForCloud)};
+      return{schema:2,activeId:state.activeId,tasks:state.tasks.map(taskForCloud)};
     }
-    function applyCloudState(remote){
-      var local=currentLocalUiState(),next=baseState();
+    function applyCloudState(remote,reason){
+      var previous=state,local=currentLocalUiState(),next=baseState();
       remote=remote||{};
       next.screen=local.screen;next.draft=local.draft;next.startText=local.startText;next.memoText=local.memoText;next.finishText=local.finishText;
       next.type=local.type;next.count=local.count;next.prep=local.prep;next.addSettingsOpen=local.addSettingsOpen;next.libraryOpen=local.libraryOpen;next.doneShelfOpen=local.doneShelfOpen;next.selectedLibraryId=local.selectedLibraryId;next.timer=local.timer;
       next.activeId=remote.activeId?String(remote.activeId):null;
       next.tasks=Array.isArray(remote.tasks)?remote.tasks.map(normalizeTask).filter(Boolean):[];
       state=normalizeState(next);
-      saveLocalState();
+      if(saveLocalState(reason||"remote-apply")===false){state=previous;return false}
+      return true;
     }
     function isTextEditingNode(node){
       if(!node)return false;
@@ -47,14 +52,15 @@ function baseTimer(){return{mode:TIMER.FOCUS,running:false,startedAt:null,elapse
     }
     function hasOpenTaskEditor(){return state.tasks.some(function(task){return !!task.settingsOpen})}
     function isLocalInputActive(){return isTextEditingNode(document.activeElement)||state.screen==="add"||!!editDraft||hasOpenTaskEditor()}
+    function hasTaskId(tasks,id){id=String(id||"");return Array.isArray(tasks)&&tasks.some(function(task){return task&&String(task.id)===id})}
     function normalizeState(saved){
       var next=baseState(); saved=saved||{};
       next.screen=saved.screen==="add"?"add":"do";
       next.draft=str(saved.draft); next.startText=str(saved.startText); next.memoText=str(saved.memoText); next.finishText=str(saved.finishText);
       next.type=clamp(saved.type,TYPE.STUDY,TYPE.ETC); next.count=clamp(saved.count,1,6); next.prep=!!(saved.prep||saved.criteria&&saved.criteria.unclear); next.addSettingsOpen=!!saved.addSettingsOpen;
       next.libraryOpen=!!saved.libraryOpen; next.doneShelfOpen=!!saved.doneShelfOpen; next.tasks=Array.isArray(saved.tasks)?saved.tasks.map(normalizeTask).filter(Boolean):[];
-      next.activeId=saved.activeId&&findTaskInList(String(saved.activeId),next.tasks)?String(saved.activeId):null;
-      next.selectedLibraryId=saved.libraryOpen&&saved.selectedLibraryId&&String(saved.selectedLibraryId)!==next.activeId&&findTaskInList(String(saved.selectedLibraryId),next.tasks)?String(saved.selectedLibraryId):null;
+      next.activeId=saved.activeId&&hasTaskId(next.tasks,saved.activeId)?String(saved.activeId):null;
+      next.selectedLibraryId=saved.libraryOpen&&saved.selectedLibraryId&&String(saved.selectedLibraryId)!==next.activeId&&hasTaskId(next.tasks,saved.selectedLibraryId)?String(saved.selectedLibraryId):null;
       next.timer=normalizeTimer(saved.timer);
       return next;
     }
@@ -95,7 +101,7 @@ function baseTimer(){return{mode:TIMER.FOCUS,running:false,startedAt:null,elapse
     function cleanMemo(text){return str(text).trim()}
     function safe(text){return str(text).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
     function attr(text){return safe(text).replace(/"/g,"&quot;")}
-    var state=loadState();
+    var state=null;
     var armedDeleteId=null;
     var armedDraftClear=false;
     var toastTimer=null;

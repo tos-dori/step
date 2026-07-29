@@ -14,6 +14,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install validation dependencies
+        run: npm install --no-package-lock
+
       - name: Validate static structure
         shell: bash
         run: |
@@ -21,28 +29,53 @@ jobs:
           test -f styles/app.css
           test -f src/app.js
           test -f src/config.js
+          test -f src/data-safety.js
           test -f src/sync/firebase.js
+          test -f src/sync/conflict-maintenance.js
+          test -f firestore.rules
+          test -f firebase.json
+          test -f DATA_SAFETY.md
+          test -f docs/firebase-rules-archive/2026-07-28-console-before-data-safety.rules
           test -f ARCHITECTURE.md
           test "$(grep -R -l 'step_live_v1' src | wc -l | tr -d ' ')" -eq 1
           grep -q 'window.StepSyncApp' src/bridge.js
-          grep -q 'window.StepSyncApp' src/sync/firebase.js
           grep -q 'window.StepSyncBridge' src/sync/firebase.js
+          grep -q 'HISTORY_SLOTS=50' src/sync/firebase.js
+          grep -q 'MAX_CONFLICT_COPIES = 20' src/sync/conflict-maintenance.js
+          grep -q 'PERIODIC_MS=10\*60\*1000' src/data-safety.js
           test "$(grep -c '<style' index.html || true)" -eq 0
           test "$(grep -c 'var KEY=' index.html || true)" -eq 0
           test "$(grep -c 'styles/app.css' index.html)" -eq 1
           test "$(grep -c 'src/app.js' index.html)" -eq 1
           find src -name '*.js' -print0 | xargs -0 -n1 node --check
           python3 -m json.tool site.webmanifest >/dev/null
+          python3 -m json.tool firebase.json >/dev/null
+
+      - name: Test local safety failures
+        run: node tests/data-safety-v2.mjs
+
+      - name: Test Firestore rules in emulator
+        run: npm run test:rules
 
       - name: Install browser
-        run: |
-          npm install --no-save playwright@1.52.0 >/dev/null 2>&1
-          npx playwright install --with-deps chromium >/dev/null 2>&1
+        run: npx playwright install --with-deps chromium >/dev/null 2>&1
 
-      - name: Run 390x844 smoke test
+      - name: Run 390x844 recovery smoke test
         shell: bash
         run: |
+          set -o pipefail
           python3 -m http.server 4174 >/tmp/step-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          STEP_URL=http://127.0.0.1:4174/ node tests/smoke-step.mjs
+          STEP_URL=http://127.0.0.1:4174/ node tests/smoke-step.mjs 2>&1 | tee /tmp/step-smoke.log
+
+      - name: Upload smoke diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: step-v2-diagnostics
+          path: |
+            /tmp/step-smoke.log
+            /tmp/step-http.log
+            /tmp/step-v0659-smoke.png
+          if-no-files-found: ignore

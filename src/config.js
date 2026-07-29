@@ -1,5 +1,4 @@
-
-    var APP_VERSION="0.6.58";
+    var APP_VERSION="0.6.59";
 var KEY="step_live_v1";
     var TYPE={STUDY:0,ASSIGNMENT:1,ETC:2};
     var TYPE_NAMES=["공부","과제","기타"];

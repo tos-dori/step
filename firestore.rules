@@ -1,0 +1,105 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function validState(value) {
+      return value is map
+        && value.get('schema', 0) is int
+        && value.get('tasks', []) is list
+        && (value.get('activeId', null) == null || value.get('activeId', '') is string);
+    }
+
+    function validLegacyMain(data) {
+      return data.keys().hasAll(['schema', 'state', 'revision', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['schema', 'state', 'revision', 'updatedAt', 'updatedBy'])
+        && data.schema == 1
+        && validState(data.state)
+        && data.revision is int
+        && data.updatedAt is timestamp
+        && data.updatedBy is string;
+    }
+
+    function validMain(data) {
+      return data.keys().hasAll(['schema', 'state', 'stateHash', 'revision', 'operation', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['schema', 'state', 'stateHash', 'revision', 'operation', 'updatedAt', 'updatedBy'])
+        && data.schema == 3
+        && validState(data.state)
+        && data.stateHash is string
+        && data.stateHash.size() <= 64
+        && data.revision is int
+        && data.revision >= 1
+        && data.operation is string
+        && data.operation.size() <= 64
+        && data.updatedAt is timestamp
+        && data.updatedBy is string
+        && data.updatedBy.size() <= 64;
+    }
+
+    function validHistory(data) {
+      return data.keys().hasAll(['schema', 'state', 'stateHash', 'archivedRevision', 'operation', 'archivedAt', 'archivedBy'])
+        && data.keys().hasOnly(['schema', 'state', 'stateHash', 'archivedRevision', 'operation', 'archivedAt', 'archivedBy'])
+        && data.schema == 1
+        && validState(data.state)
+        && data.stateHash is string
+        && data.stateHash.size() <= 64
+        && data.archivedRevision is int
+        && data.archivedRevision >= 0
+        && data.operation is string
+        && data.archivedAt is timestamp
+        && data.archivedBy is string;
+    }
+
+    function validConflict(data) {
+      return data.keys().hasAll(['schema', 'state', 'stateHash', 'baseRevision', 'baseHash', 'observedRevision', 'observedHash', 'operation', 'createdAt', 'updatedBy'])
+        && data.keys().hasOnly(['schema', 'state', 'stateHash', 'baseRevision', 'baseHash', 'observedRevision', 'observedHash', 'operation', 'createdAt', 'updatedBy'])
+        && data.schema == 1
+        && validState(data.state)
+        && data.stateHash is string
+        && data.stateHash.size() <= 64
+        && data.baseRevision is int
+        && data.baseHash is string
+        && data.baseHash.size() <= 64
+        && data.observedRevision is int
+        && data.observedHash is string
+        && data.observedHash.size() <= 64
+        && data.operation is string
+        && data.createdAt is timestamp
+        && data.updatedBy is string;
+    }
+
+    match /stepUsers/{uid}/states/main {
+      allow read: if owner(uid);
+      allow create: if owner(uid) && (validLegacyMain(request.resource.data) || validMain(request.resource.data));
+      allow update: if owner(uid) && (
+        (resource.data.get('schema', 0) < 3 && validLegacyMain(request.resource.data))
+        || (validMain(request.resource.data)
+          && request.resource.data.revision == resource.data.get('revision', 0) + 1)
+      );
+      allow delete: if false;
+
+      match /history/{slotId} {
+        allow read: if owner(uid);
+        allow create, update: if owner(uid)
+          && slotId.matches('slot-(0[0-9]|[1-4][0-9])')
+          && validHistory(request.resource.data);
+        allow delete: if false;
+      }
+
+      match /conflicts/{conflictId} {
+        allow read: if owner(uid);
+        allow create, update: if owner(uid)
+          && conflictId.matches('[A-Za-z0-9_-]{1,64}')
+          && validConflict(request.resource.data);
+        allow delete: if owner(uid);
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

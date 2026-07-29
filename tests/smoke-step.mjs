@@ -36,6 +36,7 @@ const result = await page.evaluate(() => {
   const timerStarted = state.timer.running;
   toggleTimer();
   const timerStopped = !state.timer.running;
+  window.StepDataSafety.checkpointCurrent('smoke-checkpoint', true);
 
   return {
     version: APP_VERSION,
@@ -48,19 +49,32 @@ const result = await page.evaluate(() => {
     memoToggled: !!created && created.memoText.startsWith('●A'),
     timerStarted,
     timerStopped,
+    checkpointCount: window.StepDataSafety.listCheckpoints().length,
     horizontalOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth
   };
 });
 
-if (result.version !== '0.6.58' || result.versionText !== 'v0.6.58') throw new Error(`Unexpected version: ${JSON.stringify(result)}`);
+if (result.version !== '0.6.59' || result.versionText !== 'v0.6.59') throw new Error(`Unexpected version: ${JSON.stringify(result)}`);
 if (result.key !== 'step_live_v1') throw new Error(`Storage key changed: ${result.key}`);
-if (result.moduleCount !== 15) throw new Error(`Unexpected module count: ${result.moduleCount}`);
+if (result.moduleCount !== 16) throw new Error(`Unexpected module count: ${result.moduleCount}`);
 if (!result.stylesheetLoaded || !result.bridgeReady) throw new Error(`Core resources unavailable: ${JSON.stringify(result)}`);
-if (!result.taskCreated || !result.memoToggled || !result.timerStarted || !result.timerStopped) throw new Error(`Core flow failed: ${JSON.stringify(result)}`);
+if (!result.taskCreated || !result.memoToggled || !result.timerStarted || !result.timerStopped || result.checkpointCount < 1) throw new Error(`Core flow failed: ${JSON.stringify(result)}`);
 if (result.horizontalOverflow) throw new Error('Unexpected horizontal overflow at 390px');
+
+await page.evaluate(() => localStorage.setItem('step_live_v1', '{corrupt'));
+await page.reload({ waitUntil: 'domcontentloaded' });
+await page.waitForFunction(() => document.documentElement.dataset.stepCoreLoaded === 'true', null, { timeout: 20000 });
+const recovered = await page.evaluate(() => ({
+  tasks: state.tasks.map((task) => task.title),
+  safe: window.StepDataSafety.isSafe(),
+  issue: window.StepDataSafety.issue(),
+  corruptSlots: Object.keys(localStorage).filter((key) => key.startsWith('step_corrupt_v2_')).length
+}));
+if (!recovered.safe || recovered.tasks[0] !== '구조 검수' || recovered.corruptSlots < 1) throw new Error(`Corrupt recovery failed: ${JSON.stringify(recovered)}`);
+
 if (badLocalResponses.length) throw new Error(`Local resource errors: ${badLocalResponses.join(', ')}`);
 const fatalErrors = pageErrors.filter((message) => /ReferenceError|SyntaxError/.test(message));
 if (fatalErrors.length) throw new Error(`Runtime errors: ${fatalErrors.join(' | ')}`);
 
-await page.screenshot({ path: '/tmp/step-v0658-smoke.png', fullPage: true });
+await page.screenshot({ path: '/tmp/step-v0659-smoke.png', fullPage: true });
 await browser.close();
