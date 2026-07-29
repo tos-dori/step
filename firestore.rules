@@ -29,7 +29,7 @@ service cloud.firestore {
         && data.schema == 3
         && validState(data.state)
         && data.stateHash is string
-        && data.stateHash.size() <= 800000
+        && data.stateHash.size() <= 64
         && data.revision is int
         && data.revision >= 1
         && data.operation is string
@@ -45,6 +45,7 @@ service cloud.firestore {
         && data.schema == 1
         && validState(data.state)
         && data.stateHash is string
+        && data.stateHash.size() <= 64
         && data.archivedRevision is int
         && data.archivedRevision >= 0
         && data.operation is string
@@ -58,10 +59,13 @@ service cloud.firestore {
         && data.schema == 1
         && validState(data.state)
         && data.stateHash is string
+        && data.stateHash.size() <= 64
         && data.baseRevision is int
         && data.baseHash is string
+        && data.baseHash.size() <= 64
         && data.observedRevision is int
         && data.observedHash is string
+        && data.observedHash.size() <= 64
         && data.operation is string
         && data.createdAt is timestamp
         && data.updatedBy is string;
