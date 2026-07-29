@@ -2,7 +2,7 @@ function addTask(){
       var title=clean(state.draft);if(!title){toast("할 일을 먼저 입력해 주세요.");return}
       var task={id:uid(),title:title,startText:clean(state.startText),memoText:cleanMemo(state.memoText),finishText:clean(state.finishText),type:state.type,prep:!!state.prep,count:clamp(state.count,1,6),now:0,view:0,settingsOpen:false,pieces:[]};
       task.pieces=makePieces(task);task.count=task.pieces.length;state.tasks.unshift(task);state.activeId=task.id;state.libraryOpen=false;state.selectedLibraryId=null;clearDraft();resetTimer(TIMER.FOCUS);state.screen="do";
-      saveState();syncInputs();renderAll();toast("할 일을 추가했어요.");
+      saveState("task-add");syncInputs();renderAll();toast("할 일을 추가했어요.");
     }
     function resetAddSettings(){state.startText="";state.finishText="";state.count=1;state.prep=false;state.addSettingsOpen=false}
     function clearDraft(){armedDraftClear=false;state.draft="";state.memoText="";state.type=TYPE.STUDY;resetAddSettings()}
@@ -22,7 +22,7 @@ function addTask(){
       if(armedDeleteId!==taskId){armedDeleteId=taskId;state.libraryOpen=true;saveState();renderTaskListStable();return}
       state.tasks=state.tasks.filter(function(item){return item.id!==task.id});
       if(state.selectedLibraryId===task.id)state.selectedLibraryId=null;
-      armedDeleteId=null;state.libraryOpen=true;saveState();renderTaskListStable();toast("삭제했어요.");
+      armedDeleteId=null;state.libraryOpen=true;saveState("task-delete");renderTaskListStable();toast("삭제했어요.");
     }
     function openAddView(){armedDeleteId=null;armedDraftClear=false;editDraft=null;state.screen="add";saveState();renderScreen();renderAddControls();syncInputs();focusTaskInput()}
     function markCurrent(status){
@@ -45,7 +45,7 @@ function addTask(){
     function deleteTask(taskId){
       if(armedDeleteId!==taskId){armedDeleteId=taskId;renderCurrent();return}
       editDraft=null;
-      state.tasks=state.tasks.filter(function(task){return task.id!==taskId});if(state.activeId===taskId){state.activeId=null;resetTimer(TIMER.FOCUS)}armedDeleteId=null;saveState();renderAll();toast("삭제했어요.");
+      state.tasks=state.tasks.filter(function(task){return task.id!==taskId});if(state.activeId===taskId){state.activeId=null;resetTimer(TIMER.FOCUS)}armedDeleteId=null;saveState("task-delete");renderAll();toast("삭제했어요.");
     }
     function toggleStep(index){
       var task=activeTask(),piece=viewPiece(task);
