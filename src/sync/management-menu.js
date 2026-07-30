@@ -3,22 +3,24 @@ const trigger=document.getElementById('versionTap');
 const title=document.querySelector('.brand-title');
 const app=window.StepSyncApp;
 
+function storageKey(){return app?.key?.()||''}
+
 function statusText(){
   if(app?.isLocalStateSafe?.()===false)return{label:'기기 저장 확인 필요',tone:'danger'};
   if(!navigator.onLine)return{label:'오프라인 · 기기 저장 정상',tone:''};
-  if(!document.body.classList.contains('sync-locked'))return{label:'동기화됨 · 기기 저장 정상',tone:''};
+  if(!document.body.classList.contains('sync-locked'))return{label:'계정 연결됨 · 기기 저장 정상',tone:''};
   return{label:'기기 저장 정상',tone:''};
 }
 
 function backupPayload(){
-  return{tag:'STEP_BACKUP_V1',app:'step',schema:1,storageKey:app?.key?.()||'step_live_v1',appVersion:String(window.APP_VERSION||''),exportedAt:new Date().toISOString(),state:app?.getCloudState?.()};
+  return{tag:'STEP_BACKUP_V1',app:'step',schema:1,storageKey:storageKey(),appVersion:String(window.APP_VERSION||''),exportedAt:new Date().toISOString(),state:app?.getCloudState?.()};
 }
 
 function parseBackup(text){
   try{
     const payload=JSON.parse(String(text||'').trim());
     if(!payload||payload.tag!=='STEP_BACKUP_V1'||payload.app!=='step'||payload.schema!==1)return null;
-    if(payload.storageKey!==(app?.key?.()||'step_live_v1'))return null;
+    if(!storageKey()||payload.storageKey!==storageKey())return null;
     if(!app?.cloudStateSafe?.(payload.state))return null;
     return payload.state;
   }catch{return null}
@@ -46,6 +48,7 @@ function decorate(){
   if(!recovery||!logout)return;
 
   const state=statusText();
+  const wasLogoutArmed=logout.classList.contains('armed');
   const head=document.createElement('div');
   head.className='management-menu-head';
   head.innerHTML=`<div><strong>Step!</strong><span>v${String(window.APP_VERSION||'')}</span></div><div class="management-menu-status" data-tone="${state.tone}">${state.label}</div>`;
@@ -62,8 +65,8 @@ function decorate(){
   importToggle.type='button';
   importToggle.className='management-menu-action';
   importToggle.textContent='가져오기';
-  logout.className=`management-menu-action danger${logout.classList.contains('armed')?' armed':''}`;
-  if(logout.classList.contains('armed'))logout.textContent='한 번 더';
+  logout.className=`management-menu-action danger${wasLogoutArmed?' armed':''}`;
+  if(wasLogoutArmed)logout.textContent='한 번 더';
   actions.append(recovery,exportButton,importToggle,logout);
 
   const body=document.createElement('div');
