@@ -27,11 +27,15 @@ jobs:
         run: |
           set -euo pipefail
           test -f styles/app.css
+          test -f styles/management-menu.css
           test -f src/app.js
           test -f src/config.js
           test -f src/data-safety.js
           test -f src/sync/firebase.js
           test -f src/sync/conflict-maintenance.js
+          test -f src/sync/management-menu.js
+          test -f tests/management-menu.mjs
+          test -f tests/management-menu-browser.mjs
           test -f firestore.rules
           test -f firebase.json
           test -f DATA_SAFETY.md
@@ -40,12 +44,14 @@ jobs:
           test "$(grep -R -l 'step_live_v1' src | wc -l | tr -d ' ')" -eq 1
           grep -q 'window.StepSyncApp' src/bridge.js
           grep -q 'window.StepSyncBridge' src/sync/firebase.js
+          grep -q 'sync/management-menu.js' src/app.js
           grep -q 'HISTORY_SLOTS=50' src/sync/firebase.js
           grep -q 'MAX_CONFLICT_COPIES = 20' src/sync/conflict-maintenance.js
           grep -q 'PERIODIC_MS=10\*60\*1000' src/data-safety.js
           test "$(grep -c '<style' index.html || true)" -eq 0
           test "$(grep -c 'var KEY=' index.html || true)" -eq 0
           test "$(grep -c 'styles/app.css' index.html)" -eq 1
+          test "$(grep -c 'styles/management-menu.css' index.html)" -eq 1
           test "$(grep -c 'src/app.js' index.html)" -eq 1
           find src -name '*.js' -print0 | xargs -0 -n1 node --check
           python3 -m json.tool site.webmanifest >/dev/null
@@ -54,13 +60,16 @@ jobs:
       - name: Test local safety failures
         run: node tests/data-safety-v2.mjs
 
+      - name: Test management menu structure
+        run: node tests/management-menu.mjs
+
       - name: Test Firestore rules in emulator
         run: npm run test:rules
 
       - name: Install browser
         run: npx playwright install --with-deps chromium >/dev/null 2>&1
 
-      - name: Run 390x844 recovery smoke test
+      - name: Run 390x844 recovery and menu tests
         shell: bash
         run: |
           set -o pipefail
@@ -68,6 +77,7 @@ jobs:
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
           STEP_URL=http://127.0.0.1:4174/ node tests/smoke-step.mjs 2>&1 | tee /tmp/step-smoke.log
+          STEP_URL=http://127.0.0.1:4174/ node tests/management-menu-browser.mjs 2>&1 | tee /tmp/step-management-menu.log
 
       - name: Upload smoke diagnostics
         if: always()
@@ -76,6 +86,7 @@ jobs:
           name: step-v2-diagnostics
           path: |
             /tmp/step-smoke.log
+            /tmp/step-management-menu.log
             /tmp/step-http.log
             /tmp/step-v0659-smoke.png
           if-no-files-found: ignore
