@@ -38,6 +38,7 @@
     try {
       await import(new URL('sync/firebase.js', baseUrl).href);
       await import(new URL('sync/conflict-maintenance.js', baseUrl).href);
+      await import(new URL('sync/management-menu.js', baseUrl).href);
       document.documentElement.dataset.stepSyncLoaded = 'true';
     } catch (error) {
       document.documentElement.dataset.stepSyncLoaded = 'false';
