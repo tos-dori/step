@@ -38,6 +38,7 @@ const root = await page.evaluate(() => {
 if (JSON.stringify(root.labels) !== JSON.stringify(['복구본', '내보내기', '가져오기', '로그아웃'])) throw new Error(`Wrong menu actions: ${JSON.stringify(root)}`);
 if (root.title !== 'Step!' || root.version !== 'v0.6.59' || !root.status.includes('저장 정상')) throw new Error(`Wrong menu header: ${JSON.stringify(root)}`);
 if (!root.importHidden || root.triggerPosition !== 'absolute' || root.triggerFontSize !== '0px' || root.titleRole !== 'button' || root.horizontalOverflow) throw new Error(`Wrong menu layout: ${JSON.stringify(root)}`);
+await page.screenshot({ path: '/tmp/step-management-menu.png', fullPage: true });
 
 await page.click('.management-menu-actions button:nth-child(3)');
 const importMode = await page.evaluate(() => {
