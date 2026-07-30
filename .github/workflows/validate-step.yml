@@ -87,6 +87,7 @@ jobs:
           path: |
             /tmp/step-smoke.log
             /tmp/step-management-menu.log
+            /tmp/step-management-menu.png
             /tmp/step-http.log
             /tmp/step-v0659-smoke.png
           if-no-files-found: ignore
