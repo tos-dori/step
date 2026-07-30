@@ -8,10 +8,10 @@ const css = fs.readFileSync('styles/management-menu.css', 'utf8');
 const checks = [
   [index, 'styles/management-menu.css'],
   [app, 'sync/management-menu.js'],
-  [menu, "['복구본'"],
+  [menu, "recovery.textContent='복구본'"],
   [menu, "textContent='내보내기'"],
   [menu, "textContent='가져오기'"],
-  [menu, "STEP_BACKUP_V1"],
+  [menu, 'STEP_BACKUP_V1'],
   [menu, "checkpointLocal?.('import-backup',true)"],
   [menu, "aria-label','관리 메뉴 열기'"],
   [css, '.sync-popover.management-menu'],
