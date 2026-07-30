@@ -76,7 +76,7 @@
 
 .management-menu-status {
   max-width: 58%;
-  color: var(--view);
+  color: #3c7d66;
   font-size: 10px;
   font-weight: 820;
   line-height: 1.25;
@@ -91,35 +91,38 @@
   gap: 6px;
 }
 
-.management-menu-action,
-.management-menu-confirm {
+.sync-popover.management-menu .management-menu-action,
+.sync-popover.management-menu .management-menu-confirm {
   min-width: 0;
   height: 38px;
   padding: 0 7px;
-  border: 0;
+  border: 0 !important;
   border-radius: 13px;
-  background: rgba(77, 66, 52, 0.075);
-  color: color-mix(in srgb, var(--ink) 68%, var(--muted));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.76), 0 1px 2px rgba(77,55,28,0.07);
+  background: rgba(77, 66, 52, 0.075) !important;
+  color: color-mix(in srgb, var(--ink) 68%, var(--muted)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.76), 0 1px 2px rgba(77,55,28,0.07) !important;
   font-size: 11px;
   font-weight: 840;
   letter-spacing: -0.02em;
 }
 
-.management-menu-action.primary,
-.management-menu-confirm {
-  background: var(--view);
-  color: #fff;
+.sync-popover.management-menu .management-menu-action.primary,
+.sync-popover.management-menu .management-menu-confirm {
+  background: var(--view) !important;
+  color: #fff !important;
 }
 
-.management-menu-action.danger { color: var(--blocked); }
-.management-menu-action.danger.armed {
-  background: rgba(239, 68, 68, 0.14);
-  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.22);
+.sync-popover.management-menu .management-menu-action.danger {
+  background: rgba(77, 66, 52, 0.075) !important;
+  color: var(--blocked) !important;
+}
+.sync-popover.management-menu .management-menu-action.danger.armed {
+  background: rgba(239, 68, 68, 0.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.22) !important;
 }
 
-.management-menu-action:active,
-.management-menu-confirm:active { transform: translateY(1px) scale(0.98); }
+.sync-popover.management-menu .management-menu-action:active,
+.sync-popover.management-menu .management-menu-confirm:active { transform: translateY(1px) scale(0.98); }
 
 .management-menu-body {
   min-height: 0;
@@ -158,17 +161,17 @@
 }
 .management-menu-input:focus { border-color: var(--view); }
 
-.management-menu-confirm {
+.sync-popover.management-menu .management-menu-confirm {
   width: 100%;
   margin-top: 7px;
 }
-.management-menu-confirm:disabled {
+.sync-popover.management-menu .management-menu-confirm:disabled {
   opacity: 0.36;
-  background: rgba(77, 66, 52, 0.075);
-  color: var(--muted);
+  background: rgba(77, 66, 52, 0.075) !important;
+  color: var(--muted) !important;
 }
 
 @media (max-width: 360px) {
   .management-menu-actions { gap: 4px; }
-  .management-menu-action { font-size: 10px; padding: 0 4px; }
+  .sync-popover.management-menu .management-menu-action { font-size: 10px; padding: 0 4px; }
 }
