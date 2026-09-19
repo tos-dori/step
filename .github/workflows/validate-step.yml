@@ -28,7 +28,9 @@ jobs:
           set -euo pipefail
           test -f styles/app.css
           test -f styles/management-menu.css
+          test -f styles/experience.css
           test -f src/app.js
+          test -f src/experience.js
           test -f src/config.js
           test -f src/data-safety.js
           test -f src/sync/firebase.js
@@ -36,6 +38,7 @@ jobs:
           test -f src/sync/management-menu.js
           test -f tests/management-menu.mjs
           test -f tests/management-menu-browser.mjs
+          test -f tests/experience-browser.mjs
           test -f firestore.rules
           test -f firebase.json
           test -f DATA_SAFETY.md
@@ -69,7 +72,7 @@ jobs:
       - name: Install browser
         run: npx playwright install --with-deps chromium >/dev/null 2>&1
 
-      - name: Run 390x844 recovery and menu tests
+      - name: Run 390x844 recovery, menu and execution tests
         shell: bash
         run: |
           set -o pipefail
@@ -78,16 +81,20 @@ jobs:
           trap 'kill $SERVER_PID' EXIT
           STEP_URL=http://127.0.0.1:4174/ node tests/smoke-step.mjs 2>&1 | tee /tmp/step-smoke.log
           STEP_URL=http://127.0.0.1:4174/ node tests/management-menu-browser.mjs 2>&1 | tee /tmp/step-management-menu.log
+          STEP_URL=http://127.0.0.1:4174/ node tests/experience-browser.mjs 2>&1 | tee /tmp/step-experience.log
 
       - name: Upload smoke diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: step-v2-diagnostics
+          name: step-v0660-diagnostics
           path: |
             /tmp/step-smoke.log
             /tmp/step-management-menu.log
+            /tmp/step-experience.log
             /tmp/step-management-menu.png
+            /tmp/step-experience-mobile.png
+            /tmp/step-experience-desktop.png
             /tmp/step-http.log
-            /tmp/step-v0659-smoke.png
+            /tmp/step-v0660-smoke.png
           if-no-files-found: ignore
