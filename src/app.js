@@ -1,24 +1,31 @@
 (() => {
   const loaderScript = document.currentScript;
   const baseUrl = new URL('./', loaderScript.src);
+  const style = document.createElement('link');
+  style.rel = 'stylesheet';
+  style.href = new URL('../styles/experience.css', baseUrl).href;
+  document.head.appendChild(style);
+
   const classicModules = [
-  "config.js",
-  "data-safety.js",
-  "dom.js",
-  "state.js",
-  "feedback.js",
-  "task-model.js",
-  "memo.js",
-  "step-flow.js",
-  "timer.js",
-  "task-actions.js",
-  "editor.js",
-  "render.js",
-  "library.js",
-  "events.js",
-  "bridge.js",
-  "bootstrap.js"
-];
+    "config.js",
+    "data-safety.js",
+    "dom.js",
+    "state.js",
+    "feedback.js",
+    "task-model.js",
+    "memo.js",
+    "step-flow.js",
+    "timer.js",
+    "task-actions.js",
+    "editor.js",
+    "render.js",
+    "library.js",
+    "events.js",
+    "bridge.js",
+    "experience.js",
+    "experience-sync.js",
+    "bootstrap.js"
+  ];
 
   function loadClassicScript(relativePath) {
     return new Promise((resolve, reject) => {
