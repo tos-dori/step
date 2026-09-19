@@ -23,6 +23,7 @@
     "events.js",
     "bridge.js",
     "experience.js",
+    "experience-sync.js",
     "bootstrap.js"
   ];
 
