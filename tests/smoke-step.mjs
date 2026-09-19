@@ -50,14 +50,14 @@ const result = await page.evaluate(() => {
     memoToggled: !!created && created.memoText.startsWith('●A'),
     timerStarted,
     timerStopped,
-    checkpointCount: window.StepDataSafety.listLocalCheckpoints?.().length ?? window.StepDataSafety.listCheckpoints().length,
+    checkpointCount: window.StepDataSafety.listCheckpoints().length,
     horizontalOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth
   };
 });
 
 if (result.version !== '0.6.60' || result.versionText !== 'v0.6.60') throw new Error(`Unexpected version: ${JSON.stringify(result)}`);
 if (result.key !== 'step_live_v1') throw new Error(`Storage key changed: ${result.key}`);
-if (result.moduleCount !== 17) throw new Error(`Unexpected module count: ${result.moduleCount}`);
+if (result.moduleCount !== 18) throw new Error(`Unexpected module count: ${result.moduleCount}`);
 if (!result.stylesheetLoaded || !result.experienceReady || !result.bridgeReady) throw new Error(`Core resources unavailable: ${JSON.stringify(result)}`);
 if (!result.taskCreated || !result.memoToggled || !result.timerStarted || !result.timerStopped || result.checkpointCount < 1) throw new Error(`Core flow failed: ${JSON.stringify(result)}`);
 if (result.horizontalOverflow) throw new Error('Unexpected horizontal overflow at 390px');
