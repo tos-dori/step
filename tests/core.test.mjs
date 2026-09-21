@@ -102,3 +102,6 @@ test('memo token offsets, labels, linebreaks and HTML escaping remain correct',(
   const text='○1 회로\n●A 검토 <script>alert(1)</script>',changed=toggleToken(text,0); assert.equal(changed,'●1 회로\n●A 검토 <script>alert(1)</script>');
   const html=renderMemo(changed); assert.match(html,/data-index="0"/); assert.match(html,/aria-pressed="true"/); assert.ok(!html.includes('<script>')); assert.match(html,/&lt;script&gt;/);
 });
+test('completed Step retains its action text when later criteria change',()=>{
+  const {task}=fixture(1); const before=M.checklist(task); M.completeStep(task); task.startText='다른 시작점'; task.finishText='다른 끝 기준'; assert.deepEqual(M.checklist(task),before);
+});

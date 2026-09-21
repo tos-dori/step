@@ -58,14 +58,14 @@ export function executionFields(draft, task = null) {
 export function listView(state, ui) {
   const resumable = taskById(state, state.resumeId);
   const hasResume = resumable && !resumable.finalized && (started(resumable) || state.activeId === resumable.id);
-  return `<section class="list-page"><div class="page-heading"><div><p class="eyebrow">MY STEPS</p><h1>어디부터 시작할까?</h1><p class="page-description">지금 보고 싶은 일만 펼쳐두세요.</p></div>${button('capture', ui.capture ? icons.close : `${icons.plus}<span>할 일 추가</span>`, `button ${state.tasks.length ? 'secondary' : 'primary'}`, `aria-label="${ui.capture ? '추가 닫기' : '새 할 일 추가'}"`)}</div>
+  return `<section class="list-page"><div class="page-heading"><div><p class="eyebrow">내 할 일</p><h1>어디부터 시작할까?</h1><p class="page-description">지금 보고 싶은 일만 펼쳐두세요.</p></div>${button('capture', ui.capture ? icons.close : `${icons.plus}<span>할 일 추가</span>`, `button ${state.tasks.length ? 'secondary' : 'primary'}`, `aria-label="${ui.capture ? '추가 닫기' : '새 할 일 추가'}"`)}</div>
     ${hasResume && !ui.capture ? `<div class="resume-banner"><div><span class="eyebrow">이어서 할 일 · ${position(resumable)}</span><strong>${e(resumable.title)}</strong>${resumable.resumeText ? `<p>${e(resumable.resumeText)}</p>` : '<p>체크한 자리부터 이어갈 수 있어요.</p>'}</div>${button('run', `이어서 ${icons.play}`, 'button primary small', `data-id="${e(resumable.id)}"`)}</div>` : ''}
     ${state.editorDraft ? `<div class="draft-banner"><span>편집 중이던 내용이 있어요.</span>${button('resume-edit', '이어서 편집', 'text-button')}</div>` : ''}
     ${ui.capture ? capture(state) : ''}${collection(state, ui)}
   </section>`;
 }
 function history(task) {
-  if (!started(task)) return '';
+  if (!task.pieces.some(p => p.status !== 'pending')) return '';
   const names = {pending: '진행 전', success: '마침', incomplete: '이어감', blocked: '막힘'};
   return `<details class="history"><summary>Step 기록 <span>${currentIndex(task)}개 처리</span></summary><ol>${task.pieces.map((p, i) => `<li><div><strong>${i + 1} Step</strong><span>${names[p.status]}</span></div><p>${checklist(task, i).map((item, j) => `${p.done[j] ? '✓' : '○'} ${e(item.text)}`).join(' · ')}</p></li>`).join('')}</ol></details>`;
 }
@@ -90,7 +90,7 @@ export function focusView(state, ui) {
   ${task.finishText ? `<p class="finish-criterion"><span>끝 기준</span>${e(task.finishText)}</p>` : ''}
   <div class="quiet-progress" aria-hidden="true"><span style="width:${currentIndex(task) / task.pieces.length * 100}%"></span></div>
   ${task.resumeText && !isFinal ? `<div class="resume-note"><span>이어서 할 곳</span><p>${e(task.resumeText)}</p>${button('pause-note', icons.edit, 'icon-button', 'aria-label="이어갈 곳 수정"')}</div>` : ''}
-  <div class="focus-grid"><section class="execution" aria-label="이번 Step"><div class="section-heading"><h2>${isFinal ? '해낸 행동' : isReady ? '마지막 Step까지 마쳤어요' : '지금 할 작은 행동'}</h2>${!isReady ? '<span>체크는 자유롭게</span>' : ''}</div><div class="action-list">${actions}</div>
+  <div class="focus-grid"><section class="execution" aria-label="이번 Step"><div class="section-heading"><h2>${isFinal ? '마지막 Step' : isReady ? '마지막 Step까지 마쳤어요' : '지금 할 작은 행동'}</h2>${!isReady ? '<span>체크는 자유롭게</span>' : ''}</div><div class="action-list">${actions}</div>
   ${isFinal ? `<div class="completion"><span class="completion-symbol">${icons.check}</span><h2>하나, 해냈어요.</h2><p>이 할 일을 마쳤어요.</p><div class="completion-actions">${button('complete-new', `${icons.plus} 새 할 일`, 'button primary')}${button('complete-keep', '보관함에 두기', 'button secondary')}${button('complete-shelf', '끝낸 일로 치우기', 'text-button')}${button('delete', '삭제', 'text-button danger', `data-id="${e(task.id)}"`)}</div>${button('extend', '더 할 일이 생겼어요 · Step 추가', 'text-button')}</div>` : isReady ? `<div class="result-area final-ready"><p>할 일도 끝났다면</p>${button('finalize', `${icons.check} 완료`, 'button primary finish-button')}${button('extend', `${icons.plus} 아직 남았어요 · Step 추가`, 'text-button')}${button('undo-last', '마지막 Step 되돌리기', 'text-button quiet')}</div>` : `<div class="result-area">${button('step-success', `${icons.check} 이번 Step 마침`, `button ${allChecked ? 'primary' : 'secondary'} step-finish`)}<div class="result-secondary">${button('continue', '같은 일 더 이어서', 'text-button')}${button('blocked', '막혔어요', 'text-button')}</div></div>`}
   </section><aside class="support" aria-label="실행 메모와 보조 도구"><section class="memo-section"><div class="section-heading"><h2>메모</h2>${button('memo-edit', icons.edit, 'icon-button', 'aria-label="실행 메모 편집"')}</div><div class="memo-content" tabindex="0">${task.memoText ? renderMemo(task.memoText, !isFinal) : '<span class="memo-placeholder">다음에 볼 곳, 떠오른 생각을 남겨두세요.</span>'}</div></section>${!isFinal ? timer(task, ui) : ''}${history(task)}</aside></div>
   </article>

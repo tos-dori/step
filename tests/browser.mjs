@@ -54,6 +54,12 @@ try {
     assert.equal(await page.locator('.step-position').innerText(),'1/2');
     const first=page.locator('[data-action="small-check"][data-index="0"]');
     await first.click(); assert.equal(await first.getAttribute('aria-pressed'),'true');
+    const checkedContrast = await first.evaluate(el => {
+      const luminance = color => {const rgb = color.match(/[\d.]+/g).slice(0,3).map(Number).map(v => v/255).map(v => v <= .04045 ? v/12.92 : ((v+.055)/1.055)**2.4); return rgb.reduce((n,v,i) => n + v*[.2126,.7152,.0722][i],0);};
+      const style = getComputedStyle(el), text = luminance(style.color), background = luminance(style.backgroundColor);
+      return (Math.max(text,background)+.05)/(Math.min(text,background)+.05);
+    });
+    assert.ok(checkedContrast >= 4.5, `completed action contrast: ${checkedContrast}`);
     await first.click(); assert.equal(await first.getAttribute('aria-pressed'),'false');
     await first.click();
     await by('button','메모 체크 1').click();
