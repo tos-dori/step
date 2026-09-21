@@ -1,105 +1,28 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Step!</title>
-  <meta name="description" content="막연한 할 일을 작은 Step으로 바꾸는 미니 앱." />
-
-  <meta property="og:title" content="Step!" />
-  <meta property="og:description" content="막연한 할 일을 작은 Step으로 바꾸는 미니 앱." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://네아이디.github.io/저장소이름/" />
-
-  <meta name="apple-mobile-web-app-title" content="Step!" />
-  <link rel="icon" type="image/svg+xml" href="./step-icon.svg" />
-  <link rel="icon" href="./favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
-  <link rel="manifest" href="./site.webmanifest" />
-  <meta name="theme-color" content="#EEF7FF" />
-  <link rel="stylesheet" href="./styles/app.css" />
-  <link rel="stylesheet" href="./styles/management-menu.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f5f0">
+  <meta name="description" content="지금 할 일 하나. 로그인 없이 시작하고, 멈췄다가 이어가는 Step!">
+  <title>Step! · 지금 하나씩</title>
+  <link rel="icon" href="./icons/step.svg" type="image/svg+xml">
+  <link rel="manifest" href="./site.webmanifest">
+  <link rel="stylesheet" href="./styles/app.css">
+  <script type="module" src="./src/app.js"></script>
 </head>
-<body class="sync-locked">
-  <section id="syncGate" class="sync-gate" aria-live="polite">
-    <div class="sync-gate-card">
-      <div class="sync-gate-brand"><img src="./step-icon.svg" alt="" aria-hidden="true" /><span>Step!</span></div>
-      <p class="sync-gate-title">로그인</p>
-      <p class="sync-gate-subtitle">한 번 로그인하면 계속 유지돼요.</p>
-    </div>
-  </section>
-  <div id="syncPopover" class="sync-popover" hidden></div>
-  <main class="app">
-    <header>
-      <div>
-        <h1 class="brand-title"><img src="./step-icon.svg" alt="" class="brand-icon" aria-hidden="true" /><span>Step!</span><span class="version" id="versionTap"></span></h1>
-        <p class="subtitle" id="subtitle">지금 할 것만 보기</p>
-      </div>
-      <div class="top-actions"><button class="clear-draft-btn" id="clearDraftBtn" hidden>🗑 비우기</button><button class="top-btn" id="topBtn">＋</button></div>
-    </header>
-
-    <section id="syncCard" class="sync-card" hidden></section>
-
-    <section id="doView" class="view active">
-      <section class="card focus" id="currentCard"></section>
-      <section class="library" id="listCard"></section>
-    </section>
-
-    <section id="addView" class="view">
-      <section class="card add-main-card">
-        <div class="label">새 할 일</div>
-        <div class="add-type-row">
-          <button class="chip" data-type="0">공부</button>
-          <button class="chip" data-type="1">과제</button>
-          <button class="chip" data-type="2">기타</button>
-        </div>
-        <input id="taskInput" class="add-title-field" type="text" placeholder="예: 회로 과제 3번 풀기" autocomplete="off" />
-        <div class="add-field-label">메모</div>
-        <div class="memo-helper-row"><div class="memo-help" id="memoHelp"></div><button type="button" class="memo-check-insert" id="memoInsertBtn">○ 체크</button></div>
-        <label class="add-memo-shell">
-          <textarea id="memoInput" class="memo-field add-memo-field" rows="2"></textarea>
-        </label>
-      </section>
-      <section class="card step-settings-card collapsed" id="addSettingsCard">
-        <button type="button" class="add-settings-toggle" id="addSettingsToggle" aria-expanded="false">
-          <span>세부 설정</span>
-          <span class="add-settings-right"><span class="add-settings-state" id="addSettingsState">열기</span><span class="add-settings-chevron" aria-hidden="true"></span></span>
-        </button>
-        <div class="settings-grid">
-          <div class="setting-section">
-            <div class="label">시작·끝 기준</div>
-            <div class="range-box">
-              <label class="range-row">
-                <span>시작</span>
-                <input id="startInput" type="text" placeholder="처음 볼 곳이나 손댈 것" autocomplete="off" />
-              </label>
-              <label class="range-row">
-                <span>끝</span>
-                <input id="finishInput" type="text" placeholder="이번에 어디까지 할지" autocomplete="off" />
-              </label>
-            </div>
-            <label class="small-check"><input id="prepInput" type="checkbox" /><span>첫 Step 앞에 준비 체크 넣기</span></label>
-          </div>
-          <div class="setting-section">
-            <div class="label">전체 분량</div>
-            <div class="chips">
-              <button class="chip" data-count="1">1 Step<small>30분</small></button>
-              <button class="chip" data-count="2">2 Step<small>1시간</small></button>
-              <button class="chip" data-count="3">3 Step<small>1.5시간</small></button>
-              <button class="chip" data-count="4">4 Step<small>2시간</small></button>
-              <button class="chip" data-count="5">5 Step<small>2.5시간</small></button>
-              <button class="chip" data-count="6">6 Step<small>3시간</small></button>
-            </div>
-          </div>
-        </div>
-      </section>
-      <button class="add-final" id="addBtn" disabled>＋ 1 Step 만들기</button>
-    </section>
-  </main>
-
-  <div class="toast" id="toast"></div>
-  <div class="celebration" id="celebration"><span class="check">✓</span><span>할 일 완료</span></div>
-
-  <script src="./src/app.js"></script>
+<body>
+  <header class="app-header">
+    <button class="brand" data-action="home" aria-label="Step! 목록으로"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 25h8v-8h7V9h7"/></svg><span>Step<span class="brand-dot">!</span></span></button>
+    <span class="tagline">지금 하나씩</span>
+    <button class="icon-button" data-action="settings" aria-label="백업·복구와 도움말"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  </header>
+  <div id="storage-alert" role="alert" hidden></div>
+  <main id="app"></main>
+  <footer class="app-footer"><span class="local-dot"></span> 이 브라우저에 저장돼요 <button data-action="settings">백업·복구</button></footer>
+  <dialog id="modal" aria-labelledby="modal-title"></dialog>
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+  <div id="effects" aria-hidden="true"></div>
+  <noscript>Step을 사용하려면 JavaScript를 켜 주세요. 로그인은 필요하지 않아요.</noscript>
 </body>
 </html>

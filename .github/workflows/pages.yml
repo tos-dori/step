@@ -1,0 +1,36 @@
+name: Publish local Step
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: local-step-pages
+  cancel-in-progress: false
+jobs:
+  publish:
+    # The staging branch in the original Step repository must never change its live site.
+    if: github.repository == 'tos-dori/step-local' && github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+      - uses: actions/configure-pages@v5
+      - run: |
+          mkdir -p public
+          cp index.html site.webmanifest public/
+          cp -R src styles icons public/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - uses: actions/deploy-pages@v4
+        id: deployment

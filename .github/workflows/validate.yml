@@ -1,0 +1,37 @@
+name: Validate local Step
+on:
+  push:
+    branches: [main, work/step-local-2026-09-21]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test tools
+        run: npm install --no-package-lock
+      - name: Verify model, migration and local data safety
+        run: npm test
+      - name: Verify JavaScript syntax
+        run: find src -name '*.js' -exec node --check {} \;
+      - name: Install browser test dependency
+        run: npx playwright install --with-deps chromium
+      - name: Verify mobile and desktop user flows
+        run: |
+          python3 -m http.server 4173 >/tmp/step-local-http.log 2>&1 &
+          STEP_SERVER_PID=$!
+          trap 'kill $STEP_SERVER_PID' EXIT
+          npm run test:browser
+      - name: Save UI verification results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: step-local-verification
+          path: test-results/
+          if-no-files-found: ignore
