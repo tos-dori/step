@@ -226,7 +226,7 @@ const actions = {
   },
   'memo-check'(el) {const top = document.querySelector('.memo-content')?.scrollTop; if (commit(s => {const t = M.currentTask(s); t.memoText = toggleToken(t.memoText, Number(el.dataset.index));})) {const box = document.querySelector('.memo-content'); if (box) box.scrollTop = top;}},
   'memo-edit'() {openMemo();},
-  'step-success'(el) {if (commit(s => M.completeStep(M.currentTask(s)), {remember: true, render: false})) {burst(el); renderApp(); if (!M.ready(M.currentTask(store.state))) notify('다음 Step으로 이어가요.', true);}},
+  'step-success'(el) {if (commit(s => M.completeStep(M.currentTask(s)), {remember: true, render: false})) {burst(el); document.querySelector('#toast').hidden = true; renderApp(); if (!M.ready(M.currentTask(store.state))) notify('다음 Step으로 이어가요.', true);}},
   'undo-last'() {commit(s => {const task = M.currentTask(s); if (!M.ready(task) || task.finalized) return; task.pieces[task.pieces.length - 1].status = 'pending';});},
   undo() {if (!undo || store.raw !== undo.raw) {notify('그 뒤의 변경이 있어 되돌릴 수 없어요.'); return;} const previous = undo.state; if (commit(s => {Object.keys(s).forEach(k => delete s[k]); Object.assign(s, previous);})) {undo = null; notify('이전 Step으로 돌아왔어요.');}},
   extend() {if (commit(s => M.extend(M.currentTask(s)))) notify('Step 하나를 추가했어요.');},

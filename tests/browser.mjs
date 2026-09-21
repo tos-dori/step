@@ -82,6 +82,7 @@ try {
     await page.waitForTimeout(500); // The deliberate guard prevents a double tap from processing two Steps.
     await by('button','이번 Step 마침').click();
     await by('button','완료').waitFor();
+    assert.equal(await page.locator('#toast').isHidden(),true);
     assert.equal(await page.locator('[data-action="small-check"][aria-pressed="true"]').count(),1);
     assert.equal(await page.locator('[data-action="small-check"][aria-pressed="false"]').count(),2);
     await snap('ready');
