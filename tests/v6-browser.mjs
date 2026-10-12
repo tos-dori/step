@@ -49,6 +49,25 @@ await page.locator('#left [data-a="add"]').click();
 if(!await page.locator('#modal .dialog-top [data-a="close"]').count())throw Error('Modal X missing');
 await page.locator('#modal .dialog-top [data-a="close"]').click();
 if(await page.locator('#modal:visible').count())throw Error('Modal X failed to close');
+
+// A list must not jump when details open/close, a task is updated, or tabs are revisited.
+for(let i=0;i<14;i++){
+  await page.locator('#left [data-a="add"]').click();
+  await page.locator('#modal [name="title"]').fill('스크롤 확인 '+String(i+1));
+  await page.locator('#modal button[type=submit]').click();
+}
+const beforeScroll=await page.evaluate(()=>{const node=document.querySelector('#sideScroll');node.scrollTop=175;return node.scrollTop});
+if(beforeScroll<80)throw Error('List did not become independently scrollable');
+await page.locator('#left [data-a="detail"]').first().evaluate(el=>el.click());
+await page.locator('#right .close-btn').click();
+const afterClose=await page.evaluate(()=>document.querySelector('#sideScroll').scrollTop);
+if(Math.abs(afterClose-beforeScroll)>3)throw Error('Detail close unexpectedly reset list scroll');
+await page.locator('[data-tab="all"]').click();
+await page.locator('[data-tab="today"]').click();
+const afterTab=await page.evaluate(()=>document.querySelector('#sideScroll').scrollTop);
+if(Math.abs(afterTab-beforeScroll)>3)throw Error('Today tab scroll position not restored');
+const overscroll=await page.evaluate(()=>getComputedStyle(document.querySelector('#sideScroll')).overscrollBehavior);
+if(overscroll!=='none')throw Error('Scroll boundary propagation not disabled');
 const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth);
 if(overflow)throw Error('390px horizontal overflow');
 await page.setViewportSize({width:320,height:750});
