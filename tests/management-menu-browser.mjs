@@ -15,7 +15,7 @@ await page.evaluate(async () => {
   const popover = document.getElementById('syncPopover');
   popover.innerHTML = '<button id="syncRecoveryBtn">복구본</button><button id="syncHiddenLogoutBtn">로그아웃</button>';
   popover.hidden = false;
-  await import(`../src/sync/management-menu.js?browser-test=${Date.now()}`);
+  await import(`./src/sync/management-menu.js?browser-test=${Date.now()}`);
 });
 await page.waitForSelector('.management-menu-head');
 
