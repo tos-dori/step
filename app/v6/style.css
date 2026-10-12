@@ -229,3 +229,8 @@ h1,h2,p{margin-top:0}h1{font-size:27px;letter-spacing:-.035em;line-height:1.22}
  .dialog{max-height:calc(var(--viewport-height,100dvh) - 30px);padding:20px}
 }
 @media(hover:none){.task-focus:hover{background:#fcfaf5}}
+
+/* Keyboard-sized sheets share the same visible viewport as the app. */
+#modal,#gate{height:var(--viewport-height,100dvh);bottom:auto}
+#modal .dialog{max-height:calc(var(--viewport-height,100dvh) - 26px)}
+@supports(height:100dvh){#modal .dialog{scrollbar-gutter:stable}}
