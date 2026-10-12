@@ -1,3 +1,5 @@
+> **현재 v6 구조 추가 (2026-10-12):** 대표 `index.html`은 `app/v6/`로 연결한다. v6는 `app/v6/index.html`, `app/v6/style.css`, `app/v6/app.js`로 구성된다. 아래 기술된 `src/` core · `styles/app.css` 구조는 보존된 **구버전**의 구현 계약이며 `legacy/index.html`이 이를 실행한다. v6는 독립 상태와 Firebase 통합을 사용한다. 데이터 안전 경계는 `docs/V6_DEPLOYMENT.md`를 참조한다.
+
 # Step 아키텍처·개발 가이드
 
 이 문서는 파일 목록이 아니라 **Step을 목적에 맞게 설계하고 안전하게 구현하기 위한 작업 기준**이다.
