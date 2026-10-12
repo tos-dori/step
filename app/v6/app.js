@@ -100,7 +100,7 @@ default:html='<div class="empty"><h2>할 일을 선택하세요</h2><p>제목을
 }$("#right").innerHTML=html;clock()}
 let lastRenderedPanel="",lastRenderedTab="";const tabScroll={today:0,all:0};
 function render(){
- const side=$("#sideScroll"),work=$("#workScroll"),sidePos=side.scrollTop,workPos=work.scrollTop;if(lastRenderedTab)tabScroll[lastRenderedTab]=sidePos;
+ const side=$("#sideScroll"),work=$("#workScroll"),sidePos=side.scrollTop,workPos=work.scrollTop,sidebarVisible=getComputedStyle($("#sidebar")).display!=="none";if(lastRenderedTab&&sidebarVisible)tabScroll[lastRenderedTab]=sidePos;
  const target=document.activeElement,editing=target&&target.matches("#right input,#right textarea,#right select");
  const samePanel=lastRenderedPanel===panel;
  list();
@@ -108,11 +108,12 @@ function render(){
  $("#workspace").dataset.view=panel;
  $("#app").classList.toggle("mobile-work",panel!=="empty");
  $("#syncStatus").textContent=syncError?"동기화 문제":!navigator.onLine?"오프라인 · 기기에 저장":syncMeta.dirty?"저장 대기":syncReady?"동기화됨":"연결 중";
- side.scrollTop=lastRenderedTab===tab?sidePos:(tabScroll[tab]||0);
+ side.scrollTop=(sidebarVisible&&lastRenderedTab===tab)?sidePos:(tabScroll[tab]||0);
  if(samePanel)work.scrollTop=workPos;
  lastRenderedPanel=panel;lastRenderedTab=tab;
 }
 function nav(where,id){
+ if(panel==="empty"&&getComputedStyle($("#sidebar")).display!=="none")tabScroll[tab]=$("#sideScroll").scrollTop;
  const changed=panel!==where||(id!==undefined&&id!==selected);
  panel=where;selected=id??selected;
  render();
