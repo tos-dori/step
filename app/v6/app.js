@@ -98,9 +98,9 @@ case"undated":html=header()+'<h1 class="title spaced">날짜 없는 일</h1>'+st
 case"completed":{const x=find(selected);html=header()+'<h1 class="title spaced">✓ 할 일 완료</h1><p class="hint">'+escapeHTML(x?.title||"")+'</p><button class="btn primary" data-a="add">새 할 일</button><button class="btn spaced" data-a="done">끝낸 일 보기</button>';break}
 default:html='<div class="empty"><h2>할 일을 선택하세요</h2><p>제목을 누르면 상세 정보를 보고, ▶를 누르면 바로 시작합니다.</p><button class="btn primary" data-a="add">＋ 할 일 추가</button></div>';
 }$("#right").innerHTML=html;clock()}
-let lastRenderedPanel="",lastRenderedTab="";
+let lastRenderedPanel="",lastRenderedTab="";const tabScroll={today:0,all:0};
 function render(){
- const side=$("#sideScroll"),work=$("#workScroll"),sidePos=side.scrollTop,workPos=work.scrollTop;
+ const side=$("#sideScroll"),work=$("#workScroll"),sidePos=side.scrollTop,workPos=work.scrollTop;if(lastRenderedTab)tabScroll[lastRenderedTab]=sidePos;
  const target=document.activeElement,editing=target&&target.matches("#right input,#right textarea,#right select");
  const samePanel=lastRenderedPanel===panel;
  list();
@@ -108,7 +108,7 @@ function render(){
  $("#workspace").dataset.view=panel;
  $("#app").classList.toggle("mobile-work",panel!=="empty");
  $("#syncStatus").textContent=syncError?"동기화 문제":!navigator.onLine?"오프라인 · 기기에 저장":syncMeta.dirty?"저장 대기":syncReady?"동기화됨":"연결 중";
- side.scrollTop=sidePos;
+ side.scrollTop=lastRenderedTab===tab?sidePos:(tabScroll[tab]||0);
  if(samePanel)work.scrollTop=workPos;
  lastRenderedPanel=panel;lastRenderedTab=tab;
 }
@@ -220,7 +220,7 @@ $("#logout").addEventListener("click",()=>action("account"));
 onAuthStateChanged(auth,u=>{user=u;syncReady=false;syncError="";clearTimeout(syncTimer);if(unsubscribe){unsubscribe();unsubscribe=null}$("#gate").hidden=!!u;if(!u){ref=null;render();return}ref=doc(db,"stepUsers",u.uid,"states","main");unsubscribe=onSnapshot(ref,observe,error=>{syncError="계정 데이터에 연결하지 못했습니다: "+error.message;render()});render()});
 addEventListener("online",()=>{if(syncMeta.dirty)queueSync()});
 setInterval(clock,1000);
-const viewport=visualViewport;function vp(){const h=viewport?.height||innerHeight,editing=!!document.activeElement?.matches("input,textarea,select");$("#app").style.setProperty("--viewport-height",h+"px");$("#app").classList.toggle("keyboard",editing&&h<innerHeight-80)}
+const viewport=visualViewport;function vp(){const h=viewport?.height||innerHeight,editing=!!document.activeElement?.matches("input,textarea,select");document.documentElement.style.setProperty("--viewport-height",h+"px");$("#app").style.setProperty("--viewport-height",h+"px");$("#app").classList.toggle("keyboard",editing&&h<innerHeight-80)}
 viewport?.addEventListener("resize",vp);addEventListener("resize",vp);document.addEventListener("focusin",()=>setTimeout(vp,80));document.addEventListener("focusout",()=>setTimeout(vp,160));
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(modal)closeModal();else back()}});
 
