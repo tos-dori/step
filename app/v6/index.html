@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fffdfa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Step!">
+<title>Step!</title>
+<link rel="manifest" href="../../site.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
+<link rel="icon" href="../../favicon.ico">
+<link rel="stylesheet" href="./style.css">
+</head><body>
+<div id="app">
+<header id="topbar"><div class="brand">Step!<small>해야 할 일에서, 실제 행동으로</small></div><div class="header-actions"><span class="sync" id="syncStatus">연결 중</span><button class="textbtn" id="logout" title="계정 로그아웃">계정</button></div></header>
+<div id="layout">
+<aside id="sidebar"><nav id="tabs" aria-label="할 일 보기"><button class="tab" data-tab="today" aria-selected="true">오늘</button><button class="tab" data-tab="all" aria-selected="false">전체</button></nav><div class="scroller" id="sideScroll"><div id="left"></div></div><div id="dock"></div></aside>
+<main id="workspace"><div class="scroller" id="workScroll"><div id="right"><div class="empty">불러오는 중…</div></div></div></main>
+</div><div id="toast" role="status" aria-live="polite"></div>
+</div>
+<div id="modal" hidden></div>
+<div id="syncIssue" hidden></div>
+<section id="gate" aria-label="계정 로그인">
+<form class="login"><h2>Step!</h2><p class="hint">아이폰·아이패드·맥북에서 같은 할 일을 보려면, 세 기기에서 동일한 Step 계정으로 로그인하세요. 한 번 로그인하면 유지됩니다.</p>
+<div class="field"><label for="email">이메일</label><input id="email" type="email" autocomplete="username" required placeholder="이메일"></div>
+<div class="field"><label for="pass">비밀번호</label><input id="pass" type="password" autocomplete="current-password" required placeholder="비밀번호"></div>
+<button class="btn primary full" type="submit">로그인</button><div id="loginError" class="hint spaced" role="alert"></div></form>
+</section>
+<script type="module" src="./app.js"></script>
+</body></html>
