@@ -1,3 +1,5 @@
+> **v6 공존 계약 (2026-10-12):** 아래 invariants는 기존 Step(`step_live_v1`, legacy client)의 불변조건이다. v6는 별도 `step_v6_live_v1` 및 로컬 체크포인트를 사용하며 기존 로컬 키에 쓰지 않는다. 기존 Firestore `states/main` schema-3 구조를 유지하고 `state.tasks`는 변경하지 않은 채 `state.workspaceV6`만 추가한다. 모든 변경 전 기존 원격 문서를 50칸 history ring에 보존한다. 새 기기는 같은 Firebase 계정으로 로그인해야 공유된다. 양측 수정 차이는 확인 없이 덮어쓰지 않는다. 구버전 코드로 쓰는 경우 workspaceV6 필드가 사라질 수 있으므로 구버전은 복구·참조 목적만으로 사용해야 한다. 세부: `docs/V6_DEPLOYMENT.md`.
+
 # Step data safety contract
 
 ## Invariants
