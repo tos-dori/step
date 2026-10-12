@@ -75,7 +75,21 @@ function conflictIssue(remote,remoteRevision){syncConflict={remote,revision:remo
 function conflictClear(){$("#syncIssue").hidden=true;syncConflict=null}
 function acceptCloud(v,revision){if(!checkpoint("before-cloud")){syncError="복구본을 저장하지 못해 계정 적용을 중단했어요.";render();return}state=structuredClone(v);syncMeta={revision,digest:digest(v),dirty:false};if(!writeLocal())return;conflictClear();syncReady=true;render()}
 function remoteWorkspace(s){return valid(s?.workspaceV6)?s.workspaceV6:null}
-function observe(snapshot){if(!user)return;const docData=snapshot.exists()?snapshot.data():null,rev=Number(docData?.revision||0),s=docData?.state||null,remote=remoteWorkspace(s)||(s?imported(s):base());currentRemote={revision:rev,cloud:docData};const h=digest(remote);if(!syncReady){syncReady=true;if(syncMeta.dirty&&digest(state)!==h&&(state.tasks.length||remote.tasks.length)){conflictIssue(remote,rev);render();return}if(!syncMeta.dirty){
+function observe(snapshot){if(!user)return;const docData=snapshot.exists()?snapshot.data():null,rev=Number(docData?.revision||0),s=docData?.state||null,remote=remoteWorkspace(s)||(s?imported(s):base());currentRemote={revision:rev,cloud:docData};const h=digest(remote);if(!syncReady){
+  if(!remoteWorkspace(s)&&!state.tasks.length&&!syncMeta.dirty){
+    const oldLocal=read("step_live_v1",null);
+    if(oldLocal&&Array.isArray(oldLocal.tasks)&&oldLocal.tasks.length){
+      const localImport=imported(oldLocal);
+      if(remote.tasks.length&&digest(localImport)!==h){
+        state=localImport;syncMeta.dirty=true;writeLocal();syncReady=true;conflictIssue(remote,rev);render();return;
+      }
+      if(!remote.tasks.length){
+        state=localImport;syncReady=true;
+        syncMeta={revision:rev,digest:h,dirty:true};writeLocal();queueSync();render();return;
+      }
+    }
+  }
+  syncReady=true;if(syncMeta.dirty&&digest(state)!==h&&(state.tasks.length||remote.tasks.length)){conflictIssue(remote,rev);render();return}if(!syncMeta.dirty){
   if(state.tasks.length&&(!s?.workspaceV6||!remote.tasks.length)&&digest(state)!==h){conflictIssue(remote,rev)}
   else acceptCloud(remote,rev)
 }else{syncMeta.revision=rev;syncMeta.digest=h;queueSync()}render();return}if(h===digest(state)){syncMeta={revision:rev,digest:h,dirty:false};writeLocal();render();return}if(syncMeta.dirty){if(!syncConflict)conflictIssue(remote,rev);render();return}acceptCloud(remote,rev);render()}
@@ -116,10 +130,12 @@ case"undated":nav("undated");return;case"done":nav("done");return;
 case"date":dateTask=ident||active?.id;dateSource=which||"detail";dateKind=b.dataset.kind||"review";nav("date",dateTask);return;
 case"date-save":applyDate($("#date-value").value);return;case"date-clear":applyDate("");return;
 case"schedule":{const value=b.dataset.date;const t=which==="review"?find(reviewQueue[reviewIndex]):active;if(!t)return;mutate(()=>{t.review=value;if(which==="after"){t.phase="paused";state.activeId=null;stopTimer(false)}if(which==="review")reviewIndex++},"");if(which==="review"&&reviewIndex<reviewQueue.length)nav("review");else{if(which==="review")finishReview();else nav("empty")}return}
+case"export":{const payload=JSON.stringify({tag:"STEP_V6_BACKUP_V1",exportedAt:new Date().toISOString(),workspace:state},null,2);const blob=new Blob([payload],{type:"application/json"}),url=URL.createObjectURL(blob),a=el("a");a.href=url;a.download="Step-v6-backup-"+day()+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);closeModal();toast("백업 파일을 내보냈어요.");return}
+case"account":showModal('<h2>Step 계정</h2><p class="hint">'+escapeHTML(user?.email||"로그인된 계정")+'</p><div class="buttons"><button class="btn primary" data-a="export">내보내기</button><button class="btn" data-a="logout">로그아웃</button></div><button class="textbtn full" data-a="close">닫기</button>');return;
 case"undo":if(!undo)return;{const prior=JSON.parse(undo);undo=null;mutate(()=>{state=prior},"되돌렸어요.");return}
 case"use-cloud":if(syncConflict)acceptCloud(syncConflict.remote,syncConflict.revision);return;
 case"use-local":if(syncConflict){syncMeta.revision=syncConflict.revision;syncMeta.digest=digest(syncConflict.remote);syncMeta.dirty=true;writeLocal();conflictClear();push(true)}return;
-case"logout":signOut(auth);return;
+case"logout":if(confirm("로그아웃할까요? 현재 기기 데이터는 남아 있습니다.")){closeModal();signOut(auth)}return;
 }}
 function saveCue(){let t=current(),e=$("#cue");if(t&&e&&t.resume!==e.value){t.resume=e.value.trim();syncMeta.dirty=true;writeLocal();queueSync()}}
 document.addEventListener("click",e=>{const b=e.target.closest("button");if(b?.dataset.tab){tab=b.dataset.tab;panel="empty";render();return}if(b?.dataset.a)action(b.dataset.a,b)});
@@ -128,7 +144,7 @@ document.addEventListener("submit",e=>{e.preventDefault();let f=e.target,fields=
 if(f.id==="editForm"){let t=find(editId);if(!t)return;mutate(()=>{t.title=String(fields.get("title")||"").trim()||t.title;t.memo=String(fields.get("memo")||"");t.group=String(fields.get("group")||t.group);t.mode=String(fields.get("mode"));t.kind=String(fields.get("kind"));t.due=String(fields.get("due"));t.review=String(fields.get("review"));t.resume=String(fields.get("resume")||"");t.planned=Math.max(t.completed,Math.max(1,Math.min(30,Number(fields.get("planned"))||1)));if(t.completed>=t.planned&&!t.finalized)t.phase="await-final";if(t.mode==="quick"&&state.activeId===t.id)state.activeId=null},"저장했어요.");closeModal();nav("detail",t.id)}});
 
 $("#gate").addEventListener("submit",async e=>{e.preventDefault();const email=$("#email").value.trim(),pass=$("#pass").value;$("#loginError").textContent="로그인 중…";try{await setPersistence(auth,browserLocalPersistence);await signInWithEmailAndPassword(auth,email,pass)}catch(error){$("#loginError").textContent=error.code==="auth/invalid-credential"?"계정 또는 비밀번호가 맞지 않습니다.":String(error.message)}});
-$("#logout").addEventListener("click",()=>{if(confirm("로그아웃할까요? 현재 기기 데이터는 남아 있습니다."))signOut(auth)});
+$("#logout").addEventListener("click",()=>action("account"));
 onAuthStateChanged(auth,u=>{user=u;syncReady=false;syncError="";clearTimeout(syncTimer);if(unsubscribe){unsubscribe();unsubscribe=null}$("#gate").hidden=!!u;if(!u){ref=null;render();return}ref=doc(db,"stepUsers",u.uid,"states","main");unsubscribe=onSnapshot(ref,observe,error=>{syncError="계정 데이터에 연결하지 못했습니다: "+error.message;render()});render()});
 addEventListener("online",()=>{if(syncMeta.dirty)queueSync()});
 setInterval(clock,1000);
