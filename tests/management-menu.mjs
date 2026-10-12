@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const index = fs.readFileSync('index.html', 'utf8');
+const index = fs.readFileSync('legacy/index.html', 'utf8');
 const app = fs.readFileSync('src/app.js', 'utf8');
 const menu = fs.readFileSync('src/sync/management-menu.js', 'utf8');
 const css = fs.readFileSync('styles/management-menu.css', 'utf8');
