@@ -1,3 +1,17 @@
+## 2026-10-12 — 현재 배포 상태 (구버전 스냅샷보다 우선)
+
+- GitHub Pages 대표 `index.html`은 `app/v6/`로 이동한다. 이 URL이 Step의 현재 사용자 화면이다.
+- 이전 Step 전체는 `archive/pre-v6-main-2026-10-12` 브랜치로 아카이빙했으며, `legacy/index.html`에서 옛 실행 화면으로 접근할 수 있다.
+- v6는 iPhone/iPad Safari 홈 화면 및 Mac Chrome 반응형 UI를 제공한다.
+- v6는 FSM 성격의 `idle/running/paused/await-next/await-final/completed` 상태, 명시적 작업 완료, 수동 이월, 다음 시작점 저장, 현재 Step 보존을 구현한다.
+- v6 로컬 키 `step_v6_live_v1`; 구버전 `step_live_v1`은 변경하지 않는다.
+- 기존 Firebase 이메일 인증·owner-only Firestore `stepUsers/{uid}/states/main`을 사용한다. 서버 legacy tasks는 보존하고 v6 작업은 `state.workspaceV6` 필드에 추가 저장한다.
+- sync revision/hash 트랜잭션과 history ring을 사용하며 다른 기기 충돌을 자동 덮어쓰지 않는다.
+- **미확인:** 실제 사용자 iPhone/iPad PWA 로그인·동기화, Mac Chrome 동기화, iOS 키보드/오버스크롤/제스처 실기기 시험. GitHub Actions는 자동화된 부분 검증일 뿐이다.
+- 상세 계약: `docs/V6_DEPLOYMENT.md`. v6 앱 코드를 다시 수정하기 전 현재 `main`을 확인한다.
+
+---
+
 ---
 id: step-project-state
 kind: project-state
