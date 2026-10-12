@@ -29,21 +29,62 @@ function pText(t){return t?.resume?"다음 · "+t.resume:""}
 function recent(){return state.tasks.filter(t=>!t.finalized&&t.review===day())}
 function past(){return state.tasks.filter(t=>!t.finalized&&t.review&&t.review<day()).sort((a,b)=>(a.due||"9999").localeCompare(b.due||"9999"))}
 function group(k){return state.groups.find(g=>g.id===k)?.name||"기타"}
-function row(t){let active=t.id===state.activeId;const meta=[t.due?"마감 "+fmt(t.due):"",t.review&&t.review!==day()?"다시 "+fmt(t.review):"",t.resume?"다음 · "+t.resume:""].filter(Boolean).join(" · ");return '<div class="task">'+(focused(t)?'<span class="mark" aria-hidden="true">'+(t.kind==="study"?"책":"문서")+'</span>':'<button class="quick" data-a="quick" data-id="'+escapeHTML(t.id)+'" aria-label="'+escapeHTML(t.title)+' 완료"><i></i></button>')+'<button class="body" data-a="detail" data-id="'+escapeHTML(t.id)+'"><strong>'+escapeHTML(t.title)+'</strong>'+(meta?'<small>'+escapeHTML(meta)+'</small>':"")+(t.completed?'<small>'+progress(t)+" · 이어서</small>":"")+'</button>'+(focused(t)?'<button class="play" data-a="run" data-id="'+escapeHTML(t.id)+'" aria-label="'+escapeHTML(t.title)+(active?" 이어서":" 실행")+'">▶</button>':"")+'</div>'}
-function section(title,items){return '<section><div class="sectionhead"><strong>'+title+'</strong><span class="count">'+items.length+'개</span></div>'+(items.length?items.map(row).join(""):'<div class="hint" style="padding:16px 0">할 일이 없어요.</div>')+'</section>'}
-function hero(t){return '<button class="hero" data-a="resume"><span class="caption">'+(t.phase==="await-final"?"완료 확인 대기":t.phase==="await-next"?"다음 Step 선택":t.phase==="paused"?"중단한 작업":"현재 작업")+' · '+progress(t)+'</span><strong>'+escapeHTML(t.title)+'</strong><span class="sub">'+escapeHTML(t.resume||"지금 할 곳으로 돌아가기")+'</span><div class="cta">▶ 여기서 이어하기</div></button>'}
-function list(){const tasks=recent().filter(t=>t.id!==state.activeId),active=current();let html='<div class="toolbar"><div><h1 style="margin:0;font-size:23px">'+(tab==="today"?"오늘":"전체")+'</h1><div class="subtitle">'+(tab==="today"?new Date().toLocaleDateString("ko-KR",{month:"long",day:"numeric",weekday:"long"}):"묶음별로 찾아보기")+'</div></div><button class="iconbtn" data-a="add" aria-label="할 일 추가">＋</button></div>';
-if(tab==="today"){if(past().length)html+='<button class="reviewbanner" data-a="review"><span class="numbox">'+past().length+'</span><span style="flex:1"><b>지난 일정 정리</b><small>미뤄진 일을 다시 배치하기</small></span><span>›</span></button>';
-if(active&&!active.finalized)html+='<div class="sectionhead">현재 작업</div>'+hero(active);
-html+=section("진행할 일",tasks.filter(focused))+section("간단한 일",tasks.filter(t=>!focused(t)))}
-else {if(active&&!active.finalized)html+='<div class="sectionhead">현재 작업</div>'+hero(active);
-for(const g of state.groups){const ts=state.tasks.filter(t=>t.group===g.id&&!t.finalized&&t.id!==state.activeId);html+='<button class="group-toggle" data-a="toggle-group" data-id="'+escapeHTML(g.id)+'" aria-expanded="'+!!g.open+'">'+escapeHTML(g.name)+' · '+ts.length+' <span>⌄</span></button>'+(g.open?ts.map(row).join(""):"")}
-html+='<div class="buttons spaced"><button class="textbtn" data-a="undated">날짜 없는 일 '+state.tasks.filter(t=>!t.finalized&&!t.review).length+'개 ›</button><button class="textbtn" data-a="done">끝낸 일 ›</button></div><button class="textbtn spaced" data-a="manage-groups">묶음 관리</button>'}
-$("#left").innerHTML=html;
-$("#tabs").innerHTML='<button class="tab" data-tab="today" aria-selected="'+(tab==="today")+'">오늘</button><button class="tab" data-tab="all" aria-selected="'+(tab==="all")+'">전체</button>';
-$("#dock").innerHTML=active&&panel!=="run"&&panel!=="after"?'<button class="dock" data-a="resume"><span>▶ '+escapeHTML(active.title)+' <small>'+progress(active)+' · 현재 Step</small></span>›</button>':"";
+
+function phaseLabel(t){
+ if(t.finalized)return "완료";
+ if(t.completed>=t.planned||t.phase==="await-final")return "완료 확인";
+ if(t.phase==="await-next")return "다음 Step 결정";
+ if(t.phase==="paused")return "중단됨";
+ if(t.phase==="running")return "진행 중";
+ if(t.completed>0)return "이어서 할 일";
+ return "시작 전";
 }
-function header(back="할 일"){return '<button class="textbtn" data-a="back">‹ '+back+'</button>'}
+function row(t){
+ const active=t.id===state.activeId,focus=focused(t),status=phaseLabel(t);
+ const meta=[t.due?"마감 "+fmt(t.due):"",t.review&&t.review!==day()?"다시 "+fmt(t.review):"",t.resume?"다음 · "+t.resume:""].filter(Boolean).join(" · ");
+ return '<div class="task '+(focus?"task-focus ":"task-quick ")+(t.phase==="paused"?"task-paused ":"")+(active?"task-active":"")+'">'+
+  (focus?'<span class="mark" aria-label="진행 '+progress(t)+'">'+progress(t)+'</span>':'<button class="quick" data-a="quick" data-id="'+escapeHTML(t.id)+'" aria-label="'+escapeHTML(t.title)+' 완료"><i></i></button>')+
+  '<button class="body" data-a="detail" data-id="'+escapeHTML(t.id)+'"><strong>'+escapeHTML(t.title)+'</strong>'+
+  (focus&&(t.phase==="paused"||t.phase==="await-final"||t.phase==="await-next")?'<span class="task-state">'+status+'</span>':"")+
+  (meta?'<small>'+escapeHTML(meta)+'</small>':"")+'</button>'+
+  (focus?'<button class="play" data-a="run" data-id="'+escapeHTML(t.id)+'" aria-label="'+escapeHTML(t.title)+' '+(t.phase==="paused"?"이어서 하기":"실행")+'">▶</button>':"")+'</div>';
+}
+function section(title,items){return '<section class="task-section"><div class="sectionhead"><strong>'+title+'</strong><span class="count">'+items.length+'개</span></div>'+(items.length?items.map(row).join(""):'<div class="hint section-empty">등록된 일이 없어요.</div>')+'</section>'}
+function hero(t){
+ const status=phaseLabel(t),paused=t.phase==="paused"||t.phase==="await-next"||t.phase==="await-final";
+ const button=t.phase==="await-final"?"완료 확인하기":t.phase==="await-next"?"다음 Step 정하기":paused?"이어서 하기":"현재 Step으로";
+ return '<button class="hero '+(paused?"hero-paused":"hero-running")+'" data-a="resume" aria-label="'+escapeHTML(t.title)+" "+button+'">'+
+ '<span class="hero-state"><span class="hero-dot"></span>'+status+' <span class="hero-progress">'+progress(t)+'</span></span>'+
+ '<strong>'+escapeHTML(t.title)+'</strong>'+
+ '<span class="hero-cue">'+escapeHTML(t.resume||"다음 시작점이 아직 없어요.")+'</span>'+
+ '<span class="hero-cta">'+button+' <span aria-hidden="true">→</span></span></button>';
+}
+function list(){
+ const tasks=recent().filter(t=>t.id!==state.activeId),active=current();
+ let html='<div class="toolbar"><div><h1>'+(tab==="today"?"오늘":"전체")+'</h1><div class="subtitle">'+
+ (tab==="today"?new Date().toLocaleDateString("ko-KR",{month:"long",day:"numeric",weekday:"long"}):"묶음별 할 일")+
+ '</div></div><button class="iconbtn add-trigger" data-a="add" aria-label="할 일 추가">＋</button></div>';
+ if(tab==="today"){
+   if(active&&!active.finalized)html+='<div class="sectionhead mainhead">현재 작업</div>'+hero(active);
+   if(past().length)html+='<button class="reviewbanner" data-a="review"><span class="numbox">'+past().length+'</span><span class="migration-copy"><b>지난 일정 정리</b><small>다시 볼 날짜 정하기</small></span><span aria-hidden="true">›</span></button>';
+   html+=section("진행할 일",tasks.filter(focused))+section("간단한 일",tasks.filter(t=>!focused(t)));
+ }else{
+   if(active&&!active.finalized)html+='<div class="sectionhead mainhead">현재 작업</div>'+hero(active);
+   for(const g of state.groups){
+     const ts=state.tasks.filter(t=>t.group===g.id&&!t.finalized&&t.id!==state.activeId);
+     html+='<button class="group-toggle" data-a="toggle-group" data-id="'+escapeHTML(g.id)+'" aria-expanded="'+!!g.open+'">'+escapeHTML(g.name)+' <span class="group-count">'+ts.length+' '+(g.open?"⌃":"⌄")+'</span></button>'+(g.open?ts.map(row).join(""):"");
+   }
+   html+='<div class="list-utilities"><button class="textbtn" data-a="undated">날짜 없는 일 · '+state.tasks.filter(t=>!t.finalized&&!t.review).length+'</button><button class="textbtn" data-a="done">끝낸 일</button><button class="textbtn" data-a="manage-groups">묶음 관리</button></div>';
+ }
+ $("#left").innerHTML=html;
+ $("#tabs").innerHTML='<button class="tab" data-tab="today" aria-selected="'+(tab==="today")+'">오늘</button><button class="tab" data-tab="all" aria-selected="'+(tab==="all")+'">전체</button>';
+ $("#dock").innerHTML=active&&panel!=="run"&&panel!=="after"?'<button class="dock" data-a="resume"><span><b>'+escapeHTML(active.title)+'</b><small>'+phaseLabel(active)+' · '+progress(active)+'</small></span><strong>▶</strong></button>':"";
+}
+function header(){
+ const labels={detail:"할 일 상세",run:"Step 실행",after:"Step 결과",blocked:"막힘 기록",review:"지난 일정 검토",date:"날짜 변경",done:"끝낸 일",undated:"날짜 없는 일",completed:"완료"};
+ const nested=panel==="date"||panel==="blocked";
+ return '<div class="page-nav"><div class="page-nav-start">'+(nested?'<button class="navback" data-a="back" aria-label="이전 화면">‹</button>':"")+'<span class="page-context">'+(labels[panel]||"할 일")+'</span></div><button class="close-btn" data-a="close-view" aria-label="닫기">×</button></div>';
+}
 function right(){const t=find(selected),a=current();let html="";
 switch(panel){
 case"detail":if(!t){panel="empty";break}html=header()+'<div class="eyebrow spaced">'+escapeHTML(group(t.group))+' · '+(focused(t)?"실행 작업":"간단한 일")+'</div><h1 class="title">'+escapeHTML(t.title)+'</h1>'+(t.memo?'<p class="hint">'+escapeHTML(t.memo).replace(/\n/g,"<br>")+'</p>':"")+'<div class="info"><span>다시 볼 날 · '+fmt(t.review)+'</span><span>마감 · '+fmt(t.due)+'</span></div>'+(t.resume?'<div class="cue"><small>다음 시작점</small><strong>'+escapeHTML(t.resume)+'</strong></div>':"")+'<hr class="divider"><div class="buttons">'+(focused(t)?'<button class="btn primary" data-a="run" data-id="'+escapeHTML(t.id)+'">▶ '+(isReady(t)?"완료 확인":"Step 시작")+'</button>':'<button class="btn primary" data-a="quick" data-id="'+escapeHTML(t.id)+'">✓ 완료</button>')+'<button class="btn" data-a="edit" data-id="'+escapeHTML(t.id)+'">편집</button></div><div class="buttons spaced"><button class="textbtn" data-a="date" data-id="'+escapeHTML(t.id)+'" data-kind="review">다시 볼 날 변경</button><button class="textbtn" data-a="date" data-id="'+escapeHTML(t.id)+'" data-kind="due">마감 변경</button></div>';break;
@@ -57,10 +98,41 @@ case"undated":html=header()+'<h1 class="title spaced">날짜 없는 일</h1>'+st
 case"completed":{const x=find(selected);html=header()+'<h1 class="title spaced">✓ 할 일 완료</h1><p class="hint">'+escapeHTML(x?.title||"")+'</p><button class="btn primary" data-a="add">새 할 일</button><button class="btn spaced" data-a="done">끝낸 일 보기</button>';break}
 default:html='<div class="empty"><h2>할 일을 선택하세요</h2><p>제목을 누르면 상세 정보를 보고, ▶를 누르면 바로 시작합니다.</p><button class="btn primary" data-a="add">＋ 할 일 추가</button></div>';
 }$("#right").innerHTML=html;clock()}
-function render(){list();right();$("#app").classList.toggle("mobile-work",panel!=="empty");$("#syncStatus").textContent=syncError?"동기화 문제":!navigator.onLine?"오프라인 · 기기에 저장":syncMeta.dirty?"저장 대기":syncReady?"동기화됨":"연결 중"}
-function nav(where,id){panel=where;selected=id??selected;render();$("#workScroll").scrollTop=0}
-function back(){if(modal){closeModal();return}panel="empty";render()}
-function showModal(html){modal="open";$("#modal").hidden=false;$("#modal").innerHTML='<div class="dialog" role="dialog" aria-modal="true">'+html+'</div>';$("#modal").querySelector("input,textarea")?.focus()}
+let lastRenderedPanel="",lastRenderedTab="";
+function render(){
+ const side=$("#sideScroll"),work=$("#workScroll"),sidePos=side.scrollTop,workPos=work.scrollTop;
+ const target=document.activeElement,editing=target&&target.matches("#right input,#right textarea,#right select");
+ const samePanel=lastRenderedPanel===panel;
+ list();
+ if(!editing||!samePanel)right();
+ $("#workspace").dataset.view=panel;
+ $("#app").classList.toggle("mobile-work",panel!=="empty");
+ $("#syncStatus").textContent=syncError?"동기화 문제":!navigator.onLine?"오프라인 · 기기에 저장":syncMeta.dirty?"저장 대기":syncReady?"동기화됨":"연결 중";
+ side.scrollTop=sidePos;
+ if(samePanel)work.scrollTop=workPos;
+ lastRenderedPanel=panel;lastRenderedTab=tab;
+}
+function nav(where,id){
+ const changed=panel!==where||(id!==undefined&&id!==selected);
+ panel=where;selected=id??selected;
+ render();
+ if(changed)$("#workScroll").scrollTop=0;
+}
+function closeView(){if(modal){closeModal();return}panel="empty";render()}
+function back(){
+ if(modal){closeModal();return}
+ if(panel==="date"){
+  if(dateSource==="after")nav("after",dateTask);
+  else if(dateSource==="review")nav("review");
+  else nav("detail",dateTask);
+ }else if(panel==="blocked")nav("run",state.activeId);
+ else closeView();
+}
+function showModal(html){
+ modal="open";$("#modal").hidden=false;
+ $("#modal").innerHTML='<div class="dialog" role="dialog" aria-modal="true" aria-label="Step 작업 창"><div class="dialog-top"><span>Step!</span><button class="close-btn" type="button" data-a="close" aria-label="닫기">×</button></div>'+html+'</div>';
+ if(html.includes('id="addForm"'))$("#modal").querySelector("input[name=title]")?.focus({preventScroll:true});
+}
 function closeModal(){modal="";$("#modal").hidden=true;$("#modal").innerHTML=""}
 function start(id,confirmed=false){const t=find(id);if(!focused(t)||t.finalized)return;if(state.activeId&&state.activeId!==id&&!confirmed){if(!confirm("현재 작업을 중단하고 다른 작업으로 바꿀까요? 기존 진행은 보존됩니다."))return}mutate(()=>{const prev=current();if(prev&&prev.id!==id)prev.phase="paused";state.activeId=id;t.phase=isReady(t)?"await-final":t.phase==="await-next"?"await-next":"running";stopTimer(false)},"");selected=id;nav(isReady(t)||t.phase==="await-next"?"after":"run",id)}
 function stopTimer(save=true){const x=state.timer;if(x.running)x.left=Math.max(0,Math.ceil((x.ends-Date.now())/1000));x.running=false;x.ends=0;if(save){syncMeta.dirty=true;writeLocal();queueSync()}}
@@ -104,8 +176,8 @@ function applyDate(v){const t=find(dateTask);if(!t)return;mutate(()=>{t[dateKind
 function finishReview(){reviewQueue=[];reviewIndex=0;nav("empty")}
 function action(a,b){const ident=b?.dataset.id,which=b?.dataset.source||"",t=find(ident),active=current();
 switch(a){
-case"back":back();return;case"add":showModal('<h2>할 일 추가</h2><form id="addForm"><div class="field"><label>할 일</label><input required name="title" placeholder="할 일 한 줄" maxlength="160"></div><div class="field"><label>언제 볼까요?</label><select name="when"><option value="today">오늘</option><option value="later">날짜 없이</option><option value="tomorrow">내일</option></select></div><div class="buttons"><button class="btn primary" type="submit">추가</button><button type="button" class="btn" data-a="close">취소</button></div></form>');return;
-case"close":closeModal();return;case"detail":nav("detail",ident);return;case"run":start(ident);return;case"resume":if(active)nav(isReady(active)||active.phase==="await-next"?"after":"run",active.id);return;
+case"back":back();return;case"close-view":closeView();return;case"add":showModal('<h2>할 일 추가</h2><form id="addForm"><div class="field"><label>할 일</label><input required name="title" placeholder="할 일 한 줄" maxlength="160"></div><div class="field"><label>언제 볼까요?</label><select name="when"><option value="today">오늘</option><option value="later">날짜 없이</option><option value="tomorrow">내일</option></select></div><div class="buttons"><button class="btn primary" type="submit">추가</button><button type="button" class="btn" data-a="close">취소</button></div></form>');return;
+case"close":closeModal();return;case"detail":nav("detail",ident);return;case"run":start(ident);return;case"resume":if(active){if(isReady(active)||active.phase==="await-next")nav("after",active.id);else start(active.id,true)}return;
 case"toggle-group":mutate(()=>{const x=state.groups.find(g=>g.id===ident);if(x)x.open=!x.open},"");return;
 case"manage-groups":showModal('<h2>묶음 관리</h2>'+state.groups.map(g=>'<div class="task"><span style="flex:1">'+escapeHTML(g.name)+'</span><button class="btn" data-a="rename-group" data-id="'+escapeHTML(g.id)+'">이름 변경</button></div>').join("")+'<button class="btn full spaced" data-a="add-group">＋ 묶음 추가</button><button class="textbtn full" data-a="close">닫기</button>');return;
 case"add-group":{const name=prompt("새 묶음 이름");if(name?.trim())mutate(()=>state.groups.push({id:id(),name:name.trim().slice(0,40),open:true}),"묶음을 추가했어요.");closeModal();return}
@@ -115,7 +187,7 @@ case"reopen":if(!t)return;mutate(()=>{t.finalized=false;t.phase="paused";t.shelf
 case"edit":if(!t)return;editId=t.id;showModal('<h2>할 일 편집</h2><form id="editForm"><div class="field"><label>제목</label><input name="title" required maxlength="160" value="'+escapeHTML(t.title)+'"></div><div class="field"><label>메모</label><textarea name="memo">'+escapeHTML(t.memo)+'</textarea></div><div class="field"><label>묶음</label><select name="group">'+state.groups.map(g=>'<option value="'+escapeHTML(g.id)+'" '+(t.group===g.id?"selected":"")+'>'+escapeHTML(g.name)+'</option>').join("")+'</select></div><div class="grid2"><div class="field"><label>형태</label><select name="mode"><option value="focus" '+(focused(t)?"selected":"")+'>실행 작업</option><option value="quick" '+(!focused(t)?"selected":"")+'>간단한 일</option></select></div><div class="field"><label>종류</label><select name="kind"><option value="study" '+(t.kind==="study"?"selected":"")+'>공부</option><option value="assignment" '+(t.kind==="assignment"?"selected":"")+'>과제</option><option value="etc" '+(t.kind==="etc"?"selected":"")+'>기타</option></select></div></div><div class="grid2"><div class="field"><label>다시 볼 날</label><input name="review" type="date" value="'+escapeHTML(t.review)+'"></div><div class="field"><label>마감</label><input name="due" type="date" value="'+escapeHTML(t.due)+'"></div></div><div class="field"><label>다음 시작점</label><input name="resume" value="'+escapeHTML(t.resume)+'"></div><div class="field"><label>전체 Step</label><input name="planned" type="number" min="1" max="30" value="'+t.planned+'"></div><div class="buttons"><button class="btn primary" type="submit">저장</button><button class="btn" type="button" data-a="close">취소</button></div></form><button class="textbtn danger spaced" data-a="delete" data-id="'+escapeHTML(t.id)+'">이 할 일 삭제</button>');return;
 case"delete":if(!t||!confirm("이 할 일을 삭제할까요? 복구본을 먼저 저장합니다."))return;mutate(()=>{state.tasks=state.tasks.filter(x=>x.id!==t.id);if(state.activeId===t.id)state.activeId=null},"삭제했어요.",{destructive:true,undo:true});closeModal();nav("empty");return;
 case"check":if(!active||active.phase!=="running")return;mutate(()=>{active.checks[Number(b.dataset.i)]=!active.checks[Number(b.dataset.i)]},"");return;
-case"pause":if(!active)return;saveCue();mutate(()=>{active.phase="paused";stopTimer(false)},"현재 Step을 보존했어요.");nav("empty");return;
+case"pause":if(!active)return;saveCue();mutate(()=>{active.phase="paused";stopTimer(false)},"현재 Step을 보존했어요.");closeView();return;
 case"timer":mutate(()=>{const x=state.timer;if(x.running)stopTimer(false);else{x.running=true;x.ends=Date.now()+x.left*1000}},"");clock();return;
 case"timer-reset":mutate(()=>{state.timer={left:1500,ends:0,running:false}},"타이머를 초기화했어요.");return;
 case"step-done":if(!active||active.phase!=="running")return;saveCue();mutate(()=>{active.completed=Math.min(active.planned,active.completed+1);active.checks=[false,false,false];active.phase=isReady(active)?"await-final":"await-next";stopTimer(false)},"이번 Step을 마쳤어요.");nav("after",active.id);return;
@@ -151,5 +223,19 @@ setInterval(clock,1000);
 const viewport=visualViewport;function vp(){const h=viewport?.height||innerHeight,editing=!!document.activeElement?.matches("input,textarea,select");$("#app").style.setProperty("--viewport-height",h+"px");$("#app").classList.toggle("keyboard",editing&&h<innerHeight-80)}
 viewport?.addEventListener("resize",vp);addEventListener("resize",vp);document.addEventListener("focusin",()=>setTimeout(vp,80));document.addEventListener("focusout",()=>setTimeout(vp,160));
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(modal)closeModal();else back()}});
+
+let touchX=0,touchY=0;
+document.addEventListener("touchstart",e=>{if(e.touches.length!==1)return;touchX=e.touches[0].clientX;touchY=e.touches[0].clientY},{passive:true});
+document.addEventListener("touchmove",e=>{
+ if(e.touches.length!==1||!e.cancelable)return;
+ const dx=e.touches[0].clientX-touchX,dy=e.touches[0].clientY-touchY;
+ if(Math.abs(dy)<5||Math.abs(dx)>Math.abs(dy)*1.2)return;
+ const input=e.target.closest("textarea,select,input");
+ if(input&&input.scrollHeight>input.clientHeight+2)return;
+ const scroll=e.target.closest(".dialog,#sideScroll,#workScroll");
+ if(!scroll){e.preventDefault();return}
+ const top=scroll.scrollTop<=1,bottom=scroll.scrollTop+scroll.clientHeight>=scroll.scrollHeight-1;
+ if((dy>0&&top)||(dy<0&&bottom))e.preventDefault();
+},{passive:false});
 addEventListener("pageshow",()=>{vp();clock();render()});
 render();vp();
