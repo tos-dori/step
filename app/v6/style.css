@@ -234,3 +234,13 @@ h1,h2,p{margin-top:0}h1{font-size:27px;letter-spacing:-.035em;line-height:1.22}
 #modal,#gate{height:var(--viewport-height,100dvh);bottom:auto}
 #modal .dialog{max-height:calc(var(--viewport-height,100dvh) - 26px)}
 @supports(height:100dvh){#modal .dialog{scrollbar-gutter:stable}}
+
+/* Keep the current Step's main action visible while its checklist is scrolled. */
+#workspace[data-view="run"] #right>.btn.primary.full[data-a="step-done"]{
+  position:sticky;bottom:12px;z-index:2;box-shadow:0 6px 20px #604a191c;
+}
+@media(max-width:699px){
+ #workspace[data-view="run"] #right>.btn.primary.full[data-a="step-done"]{
+   bottom:calc(10px + env(safe-area-inset-bottom))
+ }
+}
