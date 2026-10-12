@@ -1,6 +1,8 @@
 name: Validate Step
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -44,6 +46,11 @@ jobs:
           test -f DATA_SAFETY.md
           test -f docs/firebase-rules-archive/2026-07-28-console-before-data-safety.rules
           test -f ARCHITECTURE.md
+          test -f legacy/index.html
+          test -f app/v6/index.html
+          test -f app/v6/app.js
+          test -f app/v6/style.css
+          test -f tests/v6-browser.mjs
           test "$(grep -R -l 'step_live_v1' src | wc -l | tr -d ' ')" -eq 1
           grep -q 'window.StepSyncApp' src/bridge.js
           grep -q 'window.StepSyncBridge' src/sync/firebase.js
@@ -53,10 +60,13 @@ jobs:
           grep -q 'PERIODIC_MS=10\*60\*1000' src/data-safety.js
           test "$(grep -c '<style' index.html || true)" -eq 0
           test "$(grep -c 'var KEY=' index.html || true)" -eq 0
-          test "$(grep -c 'styles/app.css' index.html)" -eq 1
-          test "$(grep -c 'styles/management-menu.css' index.html)" -eq 1
-          test "$(grep -c 'src/app.js' index.html)" -eq 1
+          test "$(grep -c 'styles/app.css' legacy/index.html)" -eq 1
+          test "$(grep -c 'styles/management-menu.css' legacy/index.html)" -eq 1
+          test "$(grep -c 'src/app.js' legacy/index.html)" -eq 1
+          grep -q 'app/v6/' index.html
           find src -name '*.js' -print0 | xargs -0 -n1 node --check
+          node --check app/v6/app.js
+          node --check tests/v6-browser.mjs
           python3 -m json.tool site.webmanifest >/dev/null
           python3 -m json.tool firebase.json >/dev/null
 
@@ -79,15 +89,16 @@ jobs:
           python3 -m http.server 4174 >/tmp/step-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID' EXIT
-          STEP_URL=http://127.0.0.1:4174/ node tests/smoke-step.mjs 2>&1 | tee /tmp/step-smoke.log
-          STEP_URL=http://127.0.0.1:4174/ node tests/management-menu-browser.mjs 2>&1 | tee /tmp/step-management-menu.log
-          STEP_URL=http://127.0.0.1:4174/ node tests/experience-browser.mjs 2>&1 | tee /tmp/step-experience.log
+          STEP_URL=http://127.0.0.1:4174/legacy/ node tests/smoke-step.mjs 2>&1 | tee /tmp/step-smoke.log
+          STEP_URL=http://127.0.0.1:4174/legacy/ node tests/management-menu-browser.mjs 2>&1 | tee /tmp/step-management-menu.log
+          STEP_URL=http://127.0.0.1:4174/legacy/ node tests/experience-browser.mjs 2>&1 | tee /tmp/step-experience.log
+          STEP_URL=http://127.0.0.1:4174/ node tests/v6-browser.mjs 2>&1 | tee /tmp/step-v6-browser.log
 
       - name: Upload smoke diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: step-v0660-diagnostics
+          name: step-v6-diagnostics
           path: |
             /tmp/step-smoke.log
             /tmp/step-management-menu.log
@@ -96,5 +107,6 @@ jobs:
             /tmp/step-experience-mobile.png
             /tmp/step-experience-desktop.png
             /tmp/step-http.log
+            /tmp/step-v6-browser.log
             /tmp/step-v0660-smoke.png
           if-no-files-found: ignore
