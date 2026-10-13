@@ -126,6 +126,15 @@ main{width:min(1120px,100%);margin:0 auto;padding:21px 22px 110px}
 .timer-inline span{font-size:13px;color:#7b6d4d}
 .timer-inline button{height:39px;min-width:37px;background:#f0e0b4;border-radius:9px;font-size:19px}
 .timer-inline button[data-act=timeSave]{background:#e4bf5d}
+
+.goal-wrap{display:flex;align-items:center;gap:7px;margin:6px 0 11px;min-width:0}
+.goal-input{flex:1;min-width:0;border:0;border-bottom:1px solid #e4d29b;background:transparent;border-radius:0;font-size:14px;padding:9px 1px;outline:0;color:#4e482e}
+.goal-input:focus{border-bottom:2px solid #ae8730}
+.goal-input::placeholder{color:#a39877}
+.goal-keys{display:none;gap:6px;flex-shrink:0}
+.goal-keys.active{display:flex}
+.goal-keys button{width:35px;height:35px;border-radius:9px;background:#f3dfab;font-size:18px}
+.goal-keys button:first-child{background:#e5be5a}
 </style>
 </head>
 <body>
@@ -209,6 +218,8 @@ function taskCard(t){
   '<div class="editor-keys" id="editKeys"><button data-act="editSave" aria-label="입력 확정">✓</button><button data-act="editCancel" aria-label="입력 취소">×</button></div>'+
   '<div class="focus-foot"><div class="focus-head"><span class="step-label">Step '+step+'</span>'+
   (step>1?'<span class="step-history">'+(step-1)+'회 진행</span>':'')+'</div>'+
+  '<div class="goal-wrap"><input class="goal-input" data-field="cue" type="text" value="'+esc(t.cue||'')+'" maxlength="260" placeholder="이번 Step 목표" aria-label="이번 Step 목표">'+
+  '<div class="goal-keys" id="goalKeys"><button data-act="editSave" aria-label="목표 확정">✓</button><button data-act="editCancel" aria-label="목표 수정 취소">×</button></div></div>'+
   '<div class="timer-row">'+(timeEditing?'<div class="timer-inline"><input id="timeMinutes" type="number" min="1" max="180" inputmode="numeric" value="'+Math.round(timer.seconds/60)+'" aria-label="타이머 분"><span>분</span><button data-act="timeSave" aria-label="확정">✓</button><button data-act="timeCancel" aria-label="취소">×</button></div>':'<button class="clock" data-act="timeEdit" aria-label="시간 변경">'+clockText(left)+'</button>')+
   '<div class="timer-actions"><button data-act="timeReset" aria-label="시간 초기화" title="초기화">↺</button>'+
   '<button class="play" data-act="timeToggle" aria-label="'+(timer.running?'일시정지':'시작')+'">'+(timer.running?'Ⅱ':'▶')+'</button></div></div>'+
@@ -239,10 +250,10 @@ function commitEdit(cancel){
  if(!t||!node){editing=null;return}
  const key=editing,value=cancel?original:node.value;
  editing=null;
- if(cancel){node.value=original;$('#editKeys')?.classList.remove('active');return}
- if(key==='title'&&!value.trim()){node.value=original;$('#editKeys')?.classList.remove('active');return}
+ if(cancel){node.value=original;$('#editKeys')?.classList.remove('active');$('#goalKeys')?.classList.remove('active');return}
+ if(key==='title'&&!value.trim()){node.value=original;$('#editKeys')?.classList.remove('active');$('#goalKeys')?.classList.remove('active');return}
  if(String(t[key]||'')!==value)change(()=>t[key]=key==='title'?value.trim():value);
- else $('#editKeys')?.classList.remove('active');
+ else $('#editKeys')?.classList.remove('active');$('#goalKeys')?.classList.remove('active');
 }
 function completed(id){
  const t=get(id);if(!t)return;
@@ -341,7 +352,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('focusin',e=>{
  const field=e.target.closest('.note.selected [data-field]');if(!field)return;
  if(editing&&editing!==field.dataset.field)commitEdit();
- editing=field.dataset.field;original=field.value;$('#editKeys')?.classList.add('active');
+ editing=field.dataset.field;original=field.value;if(editing==='cue')$('#goalKeys')?.classList.add('active');else $('#editKeys')?.classList.add('active');
 });
 document.addEventListener('keydown',e=>{
  if(e.key==='Escape'){
@@ -353,7 +364,7 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('focusout',e=>{
  const field=e.target.closest('.note.selected [data-field]');if(!field||editing!==field.dataset.field)return;
- requestAnimationFrame(()=>{if(editing===field.dataset.field&&!document.activeElement?.closest('.editor-keys'))commitEdit()});
+ requestAnimationFrame(()=>{if(editing===field.dataset.field&&!document.activeElement?.closest('.editor-keys,.goal-keys'))commitEdit()});
 });
 setInterval(updateClock,1000);
 window.StepV7App={
