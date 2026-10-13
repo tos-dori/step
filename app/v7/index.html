@@ -106,6 +106,75 @@ button{flex-shrink:0}
  border-bottom:1px solid #e7e6df;border-radius:0;
 }
 .inline-field input[readonly]:focus-visible,.inline-field textarea[readonly]:focus-visible{outline:0}
+
+/* Unified surfaces: actions are attached to the objects they change. */
+html,body{height:100%!important;min-height:0;background:#fffefa!important;overscroll-behavior:none}
+body{position:relative!important;inset:auto!important}
+#app{height:100dvh!important;max-height:100dvh;background:#fffefa!important}
+#modal{height:100dvh!important;max-height:100dvh}
+.dialog{max-height:calc(100dvh - 32px)!important}
+#workScroll,#listScroll{scroll-padding-top:55px;scroll-padding-bottom:100px;overscroll-behavior:none}
+#workContent{overflow-wrap:anywhere;min-width:0}
+.work-nav{position:sticky;top:0;z-index:7;background:inherit;min-height:55px;border-bottom:1px solid #e9e5da;padding-top:5px;padding-bottom:5px}
+.workspace.view-run{background:#fffaf0}
+.workspace.view-detail{background:#fffefa}
+.work-nav .close{border:1px solid #e3e1d7;background:#fffefa;border-radius:13px;width:46px;height:46px;display:grid;place-items:center;font-size:27px;flex-shrink:0}
+.work-nav .close:active{background:#ece8dc}
+.detail-heading{align-items:center}
+.detail-progress{display:flex;align-items:center;flex-wrap:wrap;justify-content:space-between;gap:10px;margin:10px 0 6px;padding:8px 0 4px}
+.state-label{font-size:12px;color:#6d776f;flex:1}
+.step-count{display:inline-flex;align-items:center;gap:3px;min-width:0;background:#f4f0e6;padding:4px;border-radius:13px;flex-shrink:0}
+.step-count button{border:0;background:transparent;width:44px;height:43px;display:grid;place-items:center;font-size:24px;font-weight:550;border-radius:10px;touch-action:manipulation}
+.step-count button:not(:disabled):active{background:#e3ddcb}
+.step-count button:disabled{opacity:.23}
+.step-count strong{font-size:16px;min-width:49px;text-align:center;font-variant-numeric:tabular-nums}
+.run-heading{display:flex;align-items:flex-start;flex-wrap:wrap;justify-content:space-between;gap:11px;padding-top:16px;margin-bottom:15px}
+.run-heading .run-title{font-size:clamp(24px,3vw,33px);flex:1;min-width:155px;margin:5px 0;overflow-wrap:anywhere}
+.run-heading .step-count{margin:0}
+.step-tokens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:20px 0 10px}
+.step-tokens .step-check{height:66px;min-height:66px;margin:0;padding:4px;display:flex;justify-content:center;border-radius:17px;align-items:center;background:#f8f5ed;border:1px solid #e8e2d4}
+.step-tokens .step-check .num{width:42px;height:42px;font-size:19px;background:#fffdf9;border:0;border-radius:13px}
+.step-tokens .step-check.current{background:#fff1bf;border:1px solid #dec06e}
+.step-tokens .step-check.done{opacity:1;background:#e5efe6;border:1px solid #bad3bd}
+.step-tokens .step-check.done .num{background:#d4e8d8;color:#386345}
+.run-note{margin:8px 0 14px;min-height:42px}
+.note-trigger{border:0;background:none;color:#7c7e72;font-size:24px;min-width:45px;height:45px;touch-action:manipulation;border-radius:10px}
+.note-trigger:active{background:#edece3}
+.timer-card{display:flex;flex-direction:column;gap:10px;background:#fbfaf6;border:1px solid #dddcd3;border-radius:19px;padding:17px 18px;margin:15px 0 18px;max-width:100%;min-width:0}
+.timer-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.timer-label{font-size:13px;font-weight:750;color:#777c78}
+.timer-val{border:0;background:transparent;padding:0;font-size:clamp(28px,3.5vw,36px)!important;font-weight:800!important;letter-spacing:-.035em;font-variant-numeric:tabular-nums;min-height:49px;min-width:125px;text-align:right}
+.timer-val:active{opacity:.68}
+.timer-line{width:100%;height:5px;background:#e6e5de;overflow:hidden;border-radius:10px}
+.timer-line>div{height:100%;width:100%;border-radius:10px;background:#cfab4d;transition:width .4s linear}
+.timer-buttons{display:flex;justify-content:flex-end;align-items:center;gap:9px}
+.timer-buttons button{border:0;display:grid;place-items:center;min-width:45px;height:45px;border-radius:12px;font-size:26px;background:#eaeae3;color:#444a44}
+.timer-buttons .timer-toggle{background:#2f493c;color:white;min-width:68px;font-size:22px}
+.timer-buttons button:active{transform:scale(.97)}
+.timer-edit{display:flex;align-items:center;gap:6px;max-width:100%;min-width:0}
+.timer-edit input{width:68px;max-width:100%;height:42px;font-size:16px!important;padding:6px;background:#fff;border:1px solid #aaa;border-radius:8px}
+.timer-edit span{font-size:13px}
+.timer-edit button{width:37px;height:39px;border:0;border-radius:9px;background:#ebe9e1;font-size:19px;flex-shrink:0}
+.timer-edit button[data-action="timerApply"]{background:#f9d376}
+.run-footer{margin-top:18px}
+.run-footer>.icon-main{min-height:56px}
+.run-exit{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.run-exit button{font-size:22px;min-height:49px;display:flex;align-items:center;justify-content:center;gap:6px}
+.run-exit button span{font-size:13px;font-weight:650}
+.result-content{max-width:450px;margin:33px auto 10px}
+.result-content .result-actions{display:flex;flex-direction:column}
+.result-content .result-actions button{font-size:25px;font-weight:750}
+.result-content .result-actions button span{font-size:14px}
+@media(max-width:719px){
+  #app{width:100%;box-shadow:none}
+  .work-nav{top:0;margin-bottom:18px}
+  .run-heading{padding-top:5px}
+  .run-heading .run-title{min-width:130px;font-size:26px}
+  .step-count strong{font-size:15px;min-width:44px}
+  .step-count button{width:43px}
+  .timer-card{padding:13px 15px}
+}
+@media(hover:hover){.step-count button:not(:disabled):hover,.timer-buttons button:hover{filter:brightness(.96)}}
 </style></head><body><div id="app"><header class="top"><div class="brand">Step<i>!</i></div><div class="top-right"><span class="top-meta" id="syncStatus">계정 연결 중</span><button class="top-link" id="accountButton" aria-label="계정 및 백업">계정</button></div></header><div class="shell"><aside class="rail" id="rail"><nav class="tabs" id="tabs" aria-label="목록 전환"><button class="tab active" data-tab="today">오늘</button><button class="tab" data-tab="all">전체</button></nav><div class="list-scroll" id="listScroll"><div class="list-inner" id="listContent"></div></div><div id="dock"></div></aside><main class="workspace view-detail" id="workspace"><div class="work-scroll" id="workScroll"><div class="work-inner" id="workContent"></div></div></main></div></div><div id="modal" hidden></div><div id="toast"></div>
 <script>
 (()=>{'use strict';
