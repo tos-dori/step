@@ -25,6 +25,35 @@ if(resumed.phase!=="running"||!resumed.checks[0])throw Error("Paused Step did no
 await page.locator('[data-action="stepFinish"]').click();
 const finished=await page.evaluate(()=>window.StepV7App.getState().tasks[0]);
 if(finished.done||finished.doneSteps!==1)throw Error("Step finish wrongly finalized task");
+// Direct content editing never opens a modal and only ✓ commits.
+await page.locator('[data-action="open"][data-id="old-v6"]').click();
+const title=page.locator('#workContent input[data-inline="title"]');
+await title.click();
+if(await title.getAttribute('readonly')!==null)throw Error('Title tap did not enable editing');
+await title.fill('수정한 할 일');
+await page.locator('.inline-field[data-field="title"] [data-action="fieldSave"]').click();
+if((await page.evaluate(()=>window.StepV7App.getState().tasks[0].title))!=='수정한 할 일')throw Error('Inline title not persisted');
+await page.locator('#workContent textarea[data-inline="memo"]').click();
+await page.locator('#workContent textarea[data-inline="memo"]').fill('사용자가 직접 쓴 긴 메모가 그대로 유지되어야 한다.');
+await page.locator('.inline-field[data-field="memo"] [data-action="fieldSave"]').click();
+if(!(await page.evaluate(()=>window.StepV7App.getState().tasks[0].memo)).includes('긴 메모'))throw Error('Inline memo not persisted');
+// In-place date and optional time, no secondary dialog.
+await page.locator('[data-action="editDate"][data-key="review"]').click();
+await page.locator('.date-inline[data-key="review"] .date-hour').fill('15:30');
+await page.locator('.date-inline[data-key="review"] [data-action="dateApply"]').click();
+if(!(await page.evaluate(()=>window.StepV7App.getState().tasks[0].review)).endsWith('T15:30'))throw Error('Date time was not saved');
+await page.locator('#workContent [data-action="close"]').click();
+await page.locator('#listContent [data-action="add"]').first().click();
+if(await page.locator('#modal:visible').count())throw Error('Add unexpectedly opened a modal');
+await page.locator('#quickTitle').fill('추가한 할 일');
+await page.locator('#quickTitle').press('Enter');
+if(!await page.locator('#listContent .task-name', {hasText:'추가한 할 일'}).count())throw Error('Inline quick entry failed');
+for(const width of [320,375,390,430]){
+ await page.setViewportSize({width,height:844});
+ const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth);
+ if(overflow)throw Error(width+'px horizontal overflow');
+}
+
 await page.setViewportSize({width:820,height:1100});
 if(await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth))throw Error("iPad horizontal overflow");
 await page.setViewportSize({width:1366,height:880});
