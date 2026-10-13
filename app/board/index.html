@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f8f7f2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Step!">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="manifest" href="../../site.webmanifest">
+<title>Step!</title>
+<style>
+:root{color-scheme:light;--ink:#292c28;--sub:#797d76;--bg:#f8f7f2;--line:#e4e5dc;--gold:#d4a840;--focus:#fff4d5;--white:#fffefa;--green:#53715a;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+*{box-sizing:border-box;min-width:0}
+html{height:100%;overflow-x:hidden;background:var(--bg)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);overflow-x:hidden}
+button,input,textarea,select{font:inherit;color:inherit}
+button{border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #bd902f;outline-offset:2px}
+button:disabled{opacity:.36;cursor:default}
+header{position:relative;width:min(1120px,100%);margin:0 auto;padding:21px 22px 6px;display:flex;align-items:center;gap:12px}
+.brand{font-size:25px;font-weight:860;letter-spacing:-1.2px;margin-right:auto}
+.brand span{color:#c79d31}
+.sync-status{font-size:11px;color:#92968b;white-space:nowrap;overflow:hidden;max-width:130px;text-overflow:ellipsis}
+.tool{width:43px;height:43px;display:grid;place-items:center;font-size:25px;border-radius:13px;background:transparent}
+.tool:hover,.tool:active{background:#ebe9df}
+#addButton{background:#eac762;color:#322c1c;font-weight:600}
+main{width:min(1120px,100%);margin:0 auto;padding:21px 22px 110px}
+.board-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.board-top h1{font-size:22px;line-height:1.3;margin:0;font-weight:800;letter-spacing:-.7px}
+.board-count{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums}
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(265px,100%),1fr));gap:14px;align-items:start}
+.note{background:var(--white);border:1px solid #e8e7de;border-radius:17px;min-height:125px;padding:17px;position:relative;box-shadow:0 1px 4px #22201604}
+.note.selected{background:#fff4d7;border:2px solid #d3ac59;padding:16px;box-shadow:0 8px 26px #44360e0c}
+.note.completed{opacity:.62;min-height:74px}
+@media(min-width:630px){.note.selected{grid-column:span 2}}
+.note-head{display:flex;align-items:flex-start;gap:12px;width:100%}
+.check{width:32px;height:32px;min-width:32px;background:transparent;padding:3px;display:grid;place-items:center;margin:-1px 0 0 -3px}
+.check:before{content:"";width:25px;height:25px;border:2px solid #c0c5bd;border-radius:9px;display:block}
+.completed .check:before{content:"✓";color:white;background:#6c8c71;border-color:#6c8c71;font-size:18px;line-height:21px;text-align:center}
+.note-open{flex:1;background:transparent;text-align:left;padding:0;min-height:42px}
+.note-title{display:block;font-size:16px;line-height:1.38;font-weight:740;overflow-wrap:anywhere}
+.note-teaser{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#888a80;font-size:12px;line-height:1.5;margin-top:6px;white-space:pre-wrap;overflow-wrap:anywhere}
+.note-meta{font-size:11px;color:#8b8e84;margin-top:9px;display:flex;gap:8px;flex-wrap:wrap}
+.note .select-marker{width:5px;height:5px;border-radius:50%;background:#ad8a39;margin-top:8px}
+.expanded{margin-top:11px}
+.selected-top{display:flex;align-items:flex-start;gap:8px}
+.selected-top .check{margin-top:6px}
+.selected-top .selected-title{font-size:clamp(20px,2.4vw,27px);line-height:1.35;font-weight:810;flex:1;letter-spacing:-.6px}
+.selected-top .fold{width:38px;height:38px;min-width:38px;border-radius:12px;background:#f8e9bd;font-size:26px;display:grid;place-items:center}
+.field{width:100%;background:transparent;border:1px solid transparent;border-radius:9px;padding:6px 8px;margin-left:-8px;max-width:calc(100% + 8px)}
+.field:focus{outline:0;border-color:#c8ad6a;background:#fffdf5}
+.selected-title{resize:none;min-height:43px;overflow:hidden;field-sizing:content}
+.memo{font-size:14px;line-height:1.55;resize:vertical;min-height:60px;margin:12px 0 0}
+.memo::placeholder{color:#aa9d79}
+.editor-keys{display:none;gap:8px;justify-content:flex-end;margin:7px 0 0}
+.editor-keys.active{display:flex}
+.editor-keys button{width:38px;height:36px;border-radius:10px;font-size:21px;background:#eadbb1}
+.editor-keys button:first-child{background:#e6bf57}
+.focus-foot{margin-top:15px;padding-top:13px;border-top:1px solid #e9d9ab}
+.focus-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.step-label{font-size:14px;font-weight:780}
+.step-history{font-size:12px;color:#8d8266;font-variant-numeric:tabular-nums}
+.timer-row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.clock{font-size:29px;font-weight:780;font-variant-numeric:tabular-nums;background:none;padding:5px 0;letter-spacing:-.7px}
+.clock:active{opacity:.6}
+.timer-actions{display:flex;align-items:center;gap:8px}
+.timer-actions button{width:44px;height:43px;border-radius:12px;font-size:20px;background:#f1e4c4}
+.timer-actions button.play{background:#2c4538;color:white;min-width:51px}
+.timer-track{margin:7px 0 13px;background:#e8dcbe;height:4px;overflow:hidden;border-radius:10px}
+.timer-track>div{height:100%;width:100%;background:#bf9540;transition:width .4s linear}
+.subgoal{display:flex;align-items:center;justify-content:space-between;gap:11px;flex-wrap:wrap}
+.subgoal .hint{font-size:12px;color:#8d8266}
+.step-finish{padding:11px 16px;min-height:42px;border-radius:12px;background:#edcd70;color:#423716;font-weight:780;font-size:14px}
+.step-finish span{font-size:17px;margin-right:6px}
+.meta-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.meta-tools button{background:#f8e9c4;min-height:34px;border-radius:9px;padding:6px 10px;font-size:12px;color:#665a3f}
+.date-editor{display:none;flex-direction:column;gap:10px;margin:12px 0 0;padding:12px;background:#fff9e8;border-radius:12px}
+.date-editor.active{display:flex}
+.date-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.date-line label{width:34px;font-size:12px;color:#7a755e}
+.date-line input{flex:1;min-width:0;max-width:170px;font-size:15px;border:1px solid #e4d7b6;background:white;border-radius:8px;padding:8px;height:39px}
+.date-line input[type=time]{max-width:105px}
+.date-actions{display:flex;justify-content:flex-end;gap:7px}
+.date-actions button{background:#f0e2bb;min-width:40px;height:37px;border-radius:9px;font-size:18px}
+.date-actions .affirm{background:#e4c367}
+.group-editor{display:none;align-items:center;gap:8px;margin-top:10px}
+.group-editor.active{display:flex}
+.group-editor select,.group-editor input{max-width:170px;min-width:0;border:1px solid #dbcda6;background:white;padding:8px;border-radius:9px;font-size:14px}
+.group-editor button{background:#f0e2bb;border-radius:9px;padding:8px 10px;font-size:12px}
+.entry{display:flex;gap:8px;align-items:center;background:var(--white);border:1px solid #e0dccd;padding:10px 11px;margin-bottom:15px;border-radius:14px;max-width:630px}
+.entry input{flex:1;background:none;border:0;padding:9px 5px;font-size:16px;outline:0}
+.entry button{width:40px;height:40px;border-radius:10px;background:#eeeadf;font-size:22px}
+.entry button[type=submit]{background:#e9c65d}
+#doneToggle{margin:30px 0 8px;background:none;padding:11px 0;color:#888d81;font-size:13px}
+#doneBoard{margin-top:5px}
+#toast{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);border-radius:12px;background:#292e29;color:white;padding:11px 15px;display:none;align-items:center;gap:14px;z-index:30;box-shadow:0 5px 26px #0002;font-size:13px;max-width:calc(100vw - 28px)}
+#toast button{color:#f6d87d;background:none;font-size:13px}
+#syncGate{position:fixed;inset:0;z-index:70;background:#f8f7f2;display:grid;place-items:center;padding:18px}
+#syncGate[hidden],#syncConflict[hidden]{display:none!important}
+.auth-box{background:#fffefa;border:1px solid #e3e4dc;border-radius:21px;padding:27px;width:min(375px,100%);box-shadow:0 15px 44px #292b2412}
+.auth-box h2{font-size:29px;margin:0 0 22px}
+.auth-box label{display:block;margin:13px 0 5px;font-size:13px;color:#666c63}
+.auth-box input{width:100%;border:1px solid #d6d9cf;border-radius:11px;padding:11px;font-size:16px;min-height:46px}
+.auth-box button{width:100%;margin-top:19px;border-radius:11px;background:#314b3c;color:white;min-height:48px;font-weight:700}
+#authError{color:#a04d45;font-size:12px}
+#syncConflict{position:fixed;inset:0;z-index:80;background:#20241eaf;display:grid;place-items:center;padding:20px}
+#syncConflict>div{width:min(420px,100%);background:white;padding:23px;border-radius:18px}
+#syncConflict p{font-size:13px;line-height:1.55}
+#syncConflict button{display:block;width:100%;border-radius:10px;background:#eaece4;margin-top:10px;padding:12px}
+#syncConflict #syncUseLocal{background:#f4dda2}
+@media(max-width:629px){
+ header{padding:13px 15px 4px}.brand{font-size:23px}
+ main{padding:16px 15px 90px}.board{grid-template-columns:minmax(0,1fr);gap:9px}
+ .note{min-height:0;padding:15px;border-radius:15px}.note.selected{padding:14px}
+ .note .note-open{min-height:37px}.note-title{font-size:16px}
+ .board-top{margin-bottom:12px}.board-top h1{font-size:20px}
+ .sync-status{max-width:75px}
+ .timer-row{flex-wrap:nowrap}
+}
+@media(min-width:630px) and (max-width:900px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:901px){.board{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header><div class="brand">Step<span>!</span></div><span id="syncStatus" class="sync-status">연결 중</span><button id="accountButton" class="tool" aria-label="계정과 백업" title="계정과 백업">⋯</button><button class="tool" id="addButton" aria-label="할 일 추가">+</button></header>
+<main>
+<div class="board-top"><h1>할 일</h1><span id="count" class="board-count"></span></div>
+<div id="entryHost"></div>
+<div id="board" class="board"></div>
+<button id="doneToggle" type="button" aria-expanded="false" hidden></button>
+<div id="doneBoard" class="board" hidden></div>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="syncGate"><form id="authForm" class="auth-box"><h2>Step!</h2><label for="authEmail">이메일</label><input type="email" id="authEmail" required autocomplete="username"><label for="authPassword">비밀번호</label><input type="password" id="authPassword" required autocomplete="current-password"><button type="submit">로그인</button><p id="authError" role="alert"></p></form></div>
+<div id="syncConflict" hidden><div><h2>서로 다른 변경</h2><p id="syncConflictDescription">기기와 계정 내용이 다릅니다.</p><button id="syncUseCloud">계정 내용 사용</button><button id="syncUseLocal">기기 내용 사용</button></div></div>
+<script>
+(function(){
+'use strict';
+const STORE='step_v7_live_v1', SELECT='step_board_selected_v1', TIMER='step_board_timer_v1';
+const $=s=>document.querySelector(s);
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const get=id=>state.tasks.find(t=>t.id===id);
+const valid=s=>s&&Array.isArray(s.tasks)&&Array.isArray(s.groups);
+const empty=()=>({tasks:[],groups:[],activeId:null});
+const read=(k,f)=>{try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}};
+let state=read(STORE,empty());if(!valid(state))state=empty();
+let selected=localStorage.getItem(SELECT)||null, showDone=false, adding=false, editing=null, original='', dateOpen=false, groupOpen=false;
+let timer=read(TIMER,{id:null,seconds:1500,left:1500,ends:0,running:false});
+if(!timer||!Number.isFinite(timer.seconds)||timer.seconds<60)timer={id:null,seconds:1500,left:1500,ends:0,running:false};
+function timerSave(){try{localStorage.setItem(TIMER,JSON.stringify(timer))}catch{}}
+function timeLeft(){return timer.running?Math.max(0,Math.ceil((timer.ends-Date.now())/1000)):timer.left}
+function clockText(v){const s=Math.max(0,Math.floor(v));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function timerStop(){if(timer.running){timer.left=timeLeft();timer.running=false;timer.ends=0;timerSave()}}
+function timerReset(id){timer={id:id,seconds:timer.seconds,left:timer.seconds,ends:0,running:false};timerSave()}
+function beginSelect(id){
+ if(!get(id))return;
+ if(timer.id!==id){timerStop();timerReset(id)}
+ selected=id;localStorage.setItem(SELECT,id);editing=null;dateOpen=false;groupOpen=false;render();
+ const el=document.querySelector('.note.selected');
+ if(el){const b=el.getBoundingClientRect();if(b.top<60||b.top>innerHeight-130)el.scrollIntoView({block:'nearest',behavior:'instant'})}
+}
+function unselect(){if(editing)commitEdit();selected=null;localStorage.removeItem(SELECT);dateOpen=false;groupOpen=false;render()}
+function checkpoint(reason){
+ try{const n=Number(localStorage.getItem('step_v7_checkpoint_index')||0)%12;localStorage.setItem('step_v7_checkpoint_'+n,JSON.stringify({at:Date.now(),reason,state}));localStorage.setItem('step_v7_checkpoint_index',String(n+1));return true}catch{return false}
+}
+function save(){try{localStorage.setItem(STORE,JSON.stringify(state));window.StepV7Sync?.changed?.(state);return true}catch(e){alert('저장 공간 문제로 변경을 저장하지 못했습니다.');return false}}
+function change(fn,destructive=false){
+ if(destructive&&!checkpoint('before-change')){alert('복구본을 저장할 수 없어 변경하지 않았습니다.');return false}
+ const before=JSON.stringify(state);
+ fn();
+ if(!save()){state=JSON.parse(before);render();return false}
+ render();return true;
+}
+function flash(txt,action){
+ const box=$('#toast');box.innerHTML='<span>'+esc(txt)+'</span>'+(action?'<button data-act="undo">되돌리기</button>':'');
+ box.style.display='flex';clearTimeout(flash.t);flash.t=setTimeout(()=>box.style.display='none',3500);flash.previous=action;
+}
+function taskCard(t){
+ const id=encodeURIComponent(t.id),chosen=t.id===selected,done=!!t.done;
+ const group=t.group&&t.group!=='미분류'?t.group:'';
+ const when=t.review?String(t.review).slice(5,16).replace('T',' '):'';
+ const meta=[group,when].filter(Boolean).map(esc).join(' · ');
+ if(!chosen||done){
+  return '<article class="note'+(done?' completed':'')+'" data-id="'+id+'"><div class="note-head">'+
+   '<button class="check" data-act="complete" data-id="'+id+'" aria-label="'+(done?'완료 취소':'완료')+'"></button>'+
+   '<button class="note-open" data-act="select" data-id="'+id+'"><span class="note-title">'+esc(t.title)+'</span>'+
+   (t.memo?'<span class="note-teaser">'+esc(t.memo)+'</span>':'')+
+   (meta?'<span class="note-meta">'+meta+'</span>':'')+'</button></div></article>';
+ }
+ const step=Math.max(1,(Number(t.doneSteps)||0)+1);
+ const dateValue=String(t.review||''),dueValue=String(t.due||'');
+ const formatDate=d=>String(d||'').slice(0,10);
+ const formatTime=d=>String(d||'').length>10?String(d).slice(11,16):'';
+ const groups=['미분류',...state.groups.filter(g=>g!=='미분류')];
+ const opts=groups.map(g=>'<option value="'+esc(g)+'"'+(g===(t.group||'미분류')?' selected':'')+'>'+esc(g)+'</option>').join('');
+ const left=timer.id===t.id?timeLeft():timer.seconds;
+ return '<article class="note selected" data-id="'+id+'">'+
+  '<div class="selected-top"><button class="check" data-act="complete" data-id="'+id+'" aria-label="할 일 완료"></button>'+
+  '<textarea class="field selected-title" data-field="title" aria-label="할 일 제목" rows="1" maxlength="160">'+esc(t.title)+'</textarea>'+
+  '<button class="fold" data-act="unselect" aria-label="선택 닫기">×</button></div>'+
+  '<textarea class="field memo" data-field="memo" aria-label="메모" rows="2" placeholder="메모">'+esc(t.memo||'')+'</textarea>'+
+  '<div class="editor-keys" id="editKeys"><button data-act="editSave" aria-label="입력 확정">✓</button><button data-act="editCancel" aria-label="입력 취소">×</button></div>'+
+  '<div class="focus-foot"><div class="focus-head"><span class="step-label">Step '+step+'</span>'+
+  (step>1?'<span class="step-history">'+(step-1)+'회 진행</span>':'')+'</div>'+
+  '<div class="timer-row"><button class="clock" data-act="timeEdit" aria-label="시간 변경">'+clockText(left)+'</button>'+
+  '<div class="timer-actions"><button data-act="timeReset" aria-label="시간 초기화" title="초기화">↺</button>'+
+  '<button class="play" data-act="timeToggle" aria-label="'+(timer.running?'일시정지':'시작')+'">'+(timer.running?'Ⅱ':'▶')+'</button></div></div>'+
+  '<div class="timer-track"><div id="timerFill" style="width:'+(timer.seconds?Math.min(100,Math.max(0,left/timer.seconds*100)):0)+'%"></div></div>'+
+  '<div class="subgoal"><span class="hint">약 25분씩 진행</span><button class="step-finish" data-act="stepFinish" aria-label="이번 Step 완료"><span>✓</span> Step 완료</button></div></div>'+
+  '<div class="meta-tools"><button data-act="dateToggle" aria-expanded="'+dateOpen+'">▦ 날짜'+(dateValue?' · '+esc(dateValue.slice(5,16).replace('T',' ')):'')+'</button>'+
+  '<button data-act="groupToggle">분류'+(group?' · '+esc(group):'')+'</button>'+
+  '<button data-act="delete" aria-label="할 일 삭제">⋯</button></div>'+
+  '<div class="date-editor'+(dateOpen?' active':'')+'"><div class="date-line"><label>날짜</label><input class="date-day" type="date" value="'+esc(formatDate(dateValue))+'"><input class="date-time" type="time" value="'+esc(formatTime(dateValue))+'"></div>'+
+  '<div class="date-line"><label>마감</label><input class="due-day" type="date" value="'+esc(formatDate(dueValue))+'"><input class="due-time" type="time" value="'+esc(formatTime(dueValue))+'"></div>'+
+  '<div class="date-actions"><button class="affirm" data-act="dateSave" aria-label="날짜 확정">✓</button><button data-act="dateCancel" aria-label="취소">×</button></div></div>'+
+  '<div class="group-editor'+(groupOpen?' active':'')+'"><select aria-label="분류">'+opts+'<option value="__new__">+ 새 분류</option></select><button data-act="groupSave" aria-label="분류 적용">✓</button></div></article>';
+}
+function render(){
+ if(editing)return; // Never destroy a live typing field.
+ if(selected&&!get(selected)){selected=null;localStorage.removeItem(SELECT)}
+ const list=state.tasks.filter(t=>!t.done),done=state.tasks.filter(t=>t.done);
+ $('#count').textContent=list.length+'개';
+ $('#board').innerHTML=list.map(taskCard).join('');
+ $('#doneToggle').hidden=!done.length;$('#doneToggle').textContent='완료 '+done.length+'개 '+(showDone?'⌃':'⌄');$('#doneToggle').setAttribute('aria-expanded',String(showDone));
+ $('#doneBoard').hidden=!showDone;$('#doneBoard').innerHTML=showDone?done.map(taskCard).join(''):'';
+ $('#entryHost').innerHTML=adding?'<form id="addForm" class="entry"><input id="newTitle" required maxlength="160" autocomplete="off" placeholder="할 일"><button type="submit" aria-label="추가">✓</button><button type="button" data-act="addCancel" aria-label="취소">×</button></form>':'';
+ if(adding)requestAnimationFrame(()=>$('#newTitle')?.focus({preventScroll:true}));
+}
+function commitEdit(cancel){
+ if(!editing)return;
+ const node=document.querySelector('.note.selected [data-field="'+editing+'"]'),t=get(selected);
+ if(!t||!node){editing=null;return}
+ const key=editing,value=cancel?original:node.value;
+ editing=null;
+ if(cancel){node.value=original;$('#editKeys')?.classList.remove('active');return}
+ if(key==='title'&&!value.trim()){node.value=original;$('#editKeys')?.classList.remove('active');return}
+ if(String(t[key]||'')!==value)change(()=>t[key]=key==='title'?value.trim():value);
+ else $('#editKeys')?.classList.remove('active');
+}
+function completed(id){
+ const t=get(id);if(!t)return;
+ const old=JSON.stringify(state);
+ if(!change(()=>{t.done=!t.done;if(t.done){t.phase='done';if(state.activeId===id)state.activeId=null;if(selected===id){selected=null;localStorage.removeItem(SELECT)}timerStop()}else t.phase='paused'},true))return;
+ flash(t.done?'완료':'복원',old);
+}
+function finishStep(){
+ const t=get(selected);if(!t)return;
+ const id=t.id;
+ if(editing)commitEdit();
+ if(!change(()=>{
+  t.doneSteps=(Number(t.doneSteps)||0)+1;t.total=Math.max(Number(t.total)||1,t.doneSteps+1);
+  t.checks=[false,false,false];t.phase='paused';
+  if(state.activeId===id)state.activeId=null;
+ }))return;
+ timerStop();timerReset(id);render();flash('Step '+t.doneSteps+' 완료');
+}
+function addTask(title){
+ const value=title.trim();if(!value)return;
+ const now=Date.now(),id='b'+now+Math.random().toString(36).slice(2,6);
+ if(change(()=>state.tasks.unshift({id,title:value,group:'미분류',review:'',due:'',memo:'',cue:'',nextDraft:'',phase:'idle',doneSteps:0,total:1,checks:[false,false,false],done:false}))){
+  adding=false;render();
+ }
+}
+function encodeDate(day,time){return day?day+(time?'T'+time:''):''}
+function startTimer(){
+ const t=get(selected);if(!t)return;
+ if(timer.id!==t.id){timerStop();timerReset(t.id)}
+ if(timer.running){timerStop();updateClock();return}
+ if(timeLeft()<=0)timer.left=timer.seconds;
+ timer.running=true;timer.ends=Date.now()+timer.left*1000;timerSave();
+ if(t.phase!=='running')change(()=>{if(state.activeId&&state.activeId!==t.id){const p=get(state.activeId);if(p&&!p.done&&p.phase==='running')p.phase='paused'}state.activeId=t.id;t.phase='running'});
+ updateClock();
+}
+function updateClock(){
+ const node=document.querySelector('.note.selected');if(!node)return;
+ const clock=node.querySelector('.clock'),fill=node.querySelector('#timerFill'),play=node.querySelector('[data-act="timeToggle"]');
+ const l=timeLeft();if(clock)clock.textContent=clockText(l);if(fill)fill.style.width=Math.max(0,Math.min(100,100*l/timer.seconds))+'%';
+ if(play){play.textContent=timer.running?'Ⅱ':'▶';play.setAttribute('aria-label',timer.running?'일시정지':'시작')}
+ if(timer.running&&l===0){timer.running=false;timer.left=0;timer.ends=0;timerSave();flash('타이머 종료')}
+}
+function handle(act,button){
+ const id=button.dataset.id?decodeURIComponent(button.dataset.id):null,t=get(id||selected);
+ if(act==='select'){beginSelect(id);return}
+ if(act==='unselect'){unselect();return}
+ if(act==='addCancel'){adding=false;render();return}
+ if(act==='complete'){completed(id);return}
+ if(act==='editSave'){commitEdit();return}
+ if(act==='editCancel'){commitEdit(true);return}
+ if(act==='timeToggle'){startTimer();return}
+ if(act==='timeReset'){timerStop();timerReset(selected);updateClock();return}
+ if(act==='timeEdit'){
+  timerStop();
+  const v=prompt('타이머 (분)',String(Math.round(timer.seconds/60)));
+  if(v===null)return;
+  const min=Number(v);if(!Number.isInteger(min)||min<1||min>180)return;
+  timer.seconds=min*60;timer.left=timer.seconds;timer.ends=0;timerSave();updateClock();return;
+ }
+ if(act==='stepFinish'){finishStep();return}
+ if(act==='dateToggle'){dateOpen=!dateOpen;groupOpen=false;render();return}
+ if(act==='dateCancel'){dateOpen=false;render();return}
+ if(act==='dateSave'){
+  if(!t)return;
+  const p=button.closest('.note'),d=p.querySelector('.date-day').value,tm=p.querySelector('.date-time').value,dd=p.querySelector('.due-day').value,dt=p.querySelector('.due-time').value;
+  dateOpen=false;change(()=>{t.review=encodeDate(d,tm);t.due=encodeDate(dd,dt)});return;
+ }
+ if(act==='groupToggle'){groupOpen=!groupOpen;dateOpen=false;render();return}
+ if(act==='groupSave'){
+  if(!t)return;
+  const e=button.closest('.group-editor').querySelector('select'),v=e.value;
+  if(v==='__new__'){
+   const name=prompt('분류 이름');if(!name||!name.trim())return;
+   const clean=name.trim().slice(0,40);
+   change(()=>{if(!state.groups.includes(clean))state.groups.push(clean);t.group=clean});
+  }else change(()=>t.group=v);
+  groupOpen=false;render();return;
+ }
+ if(act==='delete'){
+  if(!t)return;
+  if(!confirm('이 할 일을 삭제할까요?'))return;
+  const old=JSON.stringify(state);
+  if(change(()=>{state.tasks=state.tasks.filter(x=>x.id!==t.id);if(state.activeId===t.id)state.activeId=null;if(selected===t.id){selected=null;localStorage.removeItem(SELECT)}},true))flash('삭제',old);
+  return;
+ }
+ if(act==='undo'&&flash.previous){const snapshot=JSON.parse(flash.previous);if(checkpoint('before-undo')){state=snapshot;save();flash.previous=null;render()}return}
+}
+$('#addButton').addEventListener('click',()=>{adding=!adding;render()});
+$('#entryHost').addEventListener('submit',e=>{e.preventDefault();if(e.target.id==='addForm')addTask($('#newTitle').value)});
+$('#doneToggle').addEventListener('click',()=>{showDone=!showDone;render()});
+document.addEventListener('click',e=>{
+ const btn=e.target.closest('[data-act]');if(btn)handle(btn.dataset.act,btn);
+});
+document.addEventListener('focusin',e=>{
+ const field=e.target.closest('.note.selected [data-field]');if(!field)return;
+ if(editing&&editing!==field.dataset.field)commitEdit();
+ editing=field.dataset.field;original=field.value;$('#editKeys')?.classList.add('active');
+});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){
+  if(editing){e.preventDefault();commitEdit(true)}
+  else if(adding){adding=false;render()}
+  else if(selected)unselect();
+ }
+ if(e.key==='Enter'&&e.target.matches('.selected-title')){e.preventDefault();commitEdit();e.target.blur()}
+});
+document.addEventListener('focusout',e=>{
+ const field=e.target.closest('.note.selected [data-field]');if(!field||editing!==field.dataset.field)return;
+ requestAnimationFrame(()=>{if(editing===field.dataset.field&&!document.activeElement?.closest('.editor-keys'))commitEdit()});
+});
+setInterval(updateClock,1000);
+window.StepV7App={
+ getState:()=>JSON.parse(JSON.stringify(state)),
+ setState:next=>{
+  if(!valid(next))throw Error('Invalid Step workspace');
+  state=JSON.parse(JSON.stringify(next));
+  if(selected&&!get(selected)){selected=null;localStorage.removeItem(SELECT)}
+  if(!editing)render();
+ },
+ persistRemote:next=>{localStorage.setItem(STORE,JSON.stringify(next));window.StepV7App.setState(next)},
+ exportState:()=>JSON.stringify({tag:'STEP_V7_BACKUP',createdAt:new Date().toISOString(),state},null,2)
+};
+render();
+})();
+</script>
+<script type="module" src="../v7/sync.js"></script>
+</body>
+</html>
