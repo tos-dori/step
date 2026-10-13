@@ -141,6 +141,9 @@ main{width:min(1120px,100%);margin:0 auto;padding:21px 22px 110px}
 #miniTimer button{color:#fff;background:none;min-height:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #miniOpen{text-align:left;flex:1;font-size:13px}
 #miniTimer button:last-child{font-size:20px;min-width:44px;background:#516858;border-radius:10px}
+
+.selected-title,.memo{max-height:270px;overflow-y:auto;overscroll-behavior:contain}
+.selected-title{max-height:195px}
 </style>
 </head>
 <body>
@@ -239,6 +242,12 @@ function taskCard(t){
   '<div class="date-actions"><button class="affirm" data-act="dateSave" aria-label="날짜 확정">✓</button><button data-act="dateCancel" aria-label="취소">×</button></div></div>'+
   '<div class="group-editor'+(groupOpen?' active':'')+'"><select aria-label="분류">'+opts+'<option value="__new__">+ 새 분류</option></select><button data-act="groupSave" aria-label="분류 적용">✓</button></div></article>';
 }
+function sizeFields(){
+ document.querySelectorAll('.note.selected textarea[data-field]').forEach(el=>{
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,el.dataset.field==='title'?195:270)+'px';
+ });
+}
 function render(){
  if(editing)return; // Never destroy a live typing field.
  if(selected&&!get(selected)){selected=null;localStorage.removeItem(SELECT)}
@@ -249,7 +258,7 @@ function render(){
  $('#doneBoard').hidden=!showDone;$('#doneBoard').innerHTML=showDone?done.map(taskCard).join(''):'';
  $('#entryHost').innerHTML=adding?'<form id="addForm" class="entry"><input id="newTitle" required maxlength="160" autocomplete="off" placeholder="할 일"><button type="submit" aria-label="추가">✓</button><button type="button" data-act="addCancel" aria-label="취소">×</button></form>':'';
  if(adding)requestAnimationFrame(()=>$('#newTitle')?.focus({preventScroll:true}));
- updateMiniTimer();
+ sizeFields();updateMiniTimer();
 }
 function updateMiniTimer(){
  const box=$('#miniTimer'),task=timer.id?get(timer.id):null;
@@ -381,6 +390,7 @@ document.addEventListener('focusin',e=>{
  }
  editing=field.dataset.field;original=field.value;if(editing==='cue')$('#goalKeys')?.classList.add('active');else $('#editKeys')?.classList.add('active');
 });
+document.addEventListener('input',e=>{if(e.target.matches('.note.selected textarea[data-field]'))sizeFields()});
 document.addEventListener('keydown',e=>{
  if(e.key==='Escape'){
   if(editing){e.preventDefault();commitEdit(true)}
