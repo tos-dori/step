@@ -101,7 +101,7 @@ button{flex-shrink:0}
 .detail-check span{display:block;width:27px;height:27px;border:2px solid #c3c7c0;border-radius:9px}
 .detail-check:hover span{border-color:#898e83;background:#f3f1e9}
 .result-title{margin-top:30px}
-</style></head><body><div id="app"><header class="top"><div class="brand">Step<i>!</i></div><div class="top-right"><span class="top-meta" id="syncStatus">계정 연결 중</span><button class="top-link" id="accountButton" aria-label="계정 및 백업">계정</button></div></header><div class="shell"><aside class="rail" id="rail"><nav class="tabs" id="tabs" aria-label="목록 전환"><button class="tab active" data-tab="today">오늘</button><button class="tab" data-tab="all">전체</button></nav><div class="list-scroll" id="listScroll"><div class="list-inner" id="listContent"></div></div><div id="dock"></div></aside><main class="workspace view-detail" id="workspace"><div class="work-scroll" id="workScroll"><div class="work-inner" id="workContent"></div></div></main></div></div><div id="modal" hidden></div><div id="toast"></div>
+.date-controls button[data-action='dateRemove']{font-size:17px}</style></head><body><div id="app"><header class="top"><div class="brand">Step<i>!</i></div><div class="top-right"><span class="top-meta" id="syncStatus">계정 연결 중</span><button class="top-link" id="accountButton" aria-label="계정 및 백업">계정</button></div></header><div class="shell"><aside class="rail" id="rail"><nav class="tabs" id="tabs" aria-label="목록 전환"><button class="tab active" data-tab="today">오늘</button><button class="tab" data-tab="all">전체</button></nav><div class="list-scroll" id="listScroll"><div class="list-inner" id="listContent"></div></div><div id="dock"></div></aside><main class="workspace view-detail" id="workspace"><div class="work-scroll" id="workScroll"><div class="work-inner" id="workContent"></div></div></main></div></div><div id="modal" hidden></div><div id="toast"></div>
 <script>
 (()=>{'use strict';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -190,7 +190,7 @@ function dateRow(t,key){
  '<input type="date" class="date-day" aria-label="'+label+' 날짜" value="'+esc(dayOf(v)||datePlus(0))+'">'+
  '<input type="time" class="date-hour" aria-label="'+label+' 시간 (선택)" value="'+(v.length>10?esc(v.slice(11,16)):'')+'">'+
  '<button type="button" data-action="dateApply" aria-label="확정">✓</button><button type="button" data-action="dateCancel" aria-label="닫기">×</button>'+
- '<button type="button" data-action="dateRemove" aria-label="날짜 제거">−</button></div></div>';
+ '<button type="button" data-action="dateRemove" aria-label="날짜 제거">🗑</button></div></div>';
 }
 function detail(t){
  if(!t)return '<div class="empty-pane"><button class="btn" data-action="add" aria-label="추가">+</button></div>';
@@ -356,7 +356,7 @@ if(f.id==='blockedForm'){const t=active();if(t)transact(()=>{t.cue=String(fd.get
 $('#workContent').addEventListener('input',e=>{if(e.target.id==='cueInput'){const a=active();if(a){a.nextDraft=e.target.value;save()}}});
 function resize(){const v=window.visualViewport;document.documentElement.style.setProperty('--visible-height',(v?.height||window.innerHeight)+'px');if(!isMobile())$('#rail').classList.remove('mobile-hidden');else $('#rail').classList.toggle('mobile-hidden',view!=='empty');$('#workspace').classList.toggle('mobile-visible',isMobile()&&view!=='empty')}
 window.visualViewport?.addEventListener('resize',resize);window.addEventListener('resize',resize);window.addEventListener('pageshow',()=>{resize();render()});
-let touchX=0,touchY=0;document.addEventListener('touchstart',e=>{if(e.touches.length===1){touchX=e.touches[0].clientX;touchY=e.touches[0].clientY}},{passive:true});document.addEventListener('touchmove',e=>{if(!e.cancelable||e.touches.length!==1)return;const dy=e.touches[0].clientY-touchY,dx=e.touches[0].clientX-touchX;if(Math.abs(dy)<5||Math.abs(dx)>Math.abs(dy))return;const sc=e.target.closest('.list-scroll,.work-scroll,.dialog');if(!sc){if(!e.target.closest('input,textarea,select'))e.preventDefault();return}if(dy>0&&sc.scrollTop<=0||dy<0&&sc.scrollTop+sc.clientHeight>=sc.scrollHeight-1)e.preventDefault()},{passive:false});
+let touchX=0,touchY=0;document.addEventListener('touchstart',e=>{if(e.touches.length===1){touchX=e.touches[0].clientX;touchY=e.touches[0].clientY}},{passive:true});document.addEventListener('touchmove',e=>{if(!e.cancelable||e.touches.length!==1)return;const dy=e.touches[0].clientY-touchY,dx=e.touches[0].clientX-touchX;if(Math.abs(dy)<5||Math.abs(dx)>Math.abs(dy))return;if(e.target.closest('input,textarea,select,[contenteditable]'))return;const sc=e.target.closest('.list-scroll,.work-scroll,.dialog');if(!sc){if(!e.target.closest('input,textarea,select'))e.preventDefault();return}if(dy>0&&sc.scrollTop<=0||dy<0&&sc.scrollTop+sc.clientHeight>=sc.scrollHeight-1)e.preventDefault()},{passive:false});
 window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#modal').hidden)closeModal();else if(adding){adding=false;renderList()}else closeView()}});
 setInterval(()=>{if(timerOn)updateTimer()},1000);
 
