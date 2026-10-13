@@ -135,7 +135,7 @@ main{width:min(1120px,100%);margin:0 auto;padding:21px 22px 110px}
 .goal-keys.active{display:flex}
 .goal-keys button{width:35px;height:35px;border-radius:9px;background:#f3dfab;font-size:18px}
 .goal-keys button:first-child{background:#e5be5a}
-</style>
+.subgoal{justify-content:flex-end}</style>
 </head>
 <body>
 <header><div class="brand">Step<span>!</span></div><span id="syncStatus" class="sync-status">연결 중</span><button id="accountButton" class="tool" aria-label="계정과 백업" title="계정과 백업">⋯</button><button class="tool" id="addButton" aria-label="할 일 추가">+</button></header>
@@ -224,7 +224,7 @@ function taskCard(t){
   '<div class="timer-actions"><button data-act="timeReset" aria-label="시간 초기화" title="초기화">↺</button>'+
   '<button class="play" data-act="timeToggle" aria-label="'+(timer.running?'일시정지':'시작')+'">'+(timer.running?'Ⅱ':'▶')+'</button></div></div>'+
   '<div class="timer-track"><div id="timerFill" style="width:'+(timer.seconds?Math.min(100,Math.max(0,left/timer.seconds*100)):0)+'%"></div></div>'+
-  '<div class="subgoal"><span class="hint">약 25분씩 진행</span><button class="step-finish" data-act="stepFinish" aria-label="이번 Step 완료"><span>✓</span> Step 완료</button></div></div>'+
+  '<div class="subgoal"><button class="step-finish" data-act="stepFinish" aria-label="이번 Step 완료"><span>✓</span> Step 완료</button></div></div>'+
   '<div class="meta-tools"><button data-act="dateToggle" aria-expanded="'+dateOpen+'">▦ 날짜'+(dateValue?' · '+esc(dateValue.slice(5,16).replace('T',' ')):'')+'</button>'+
   '<button data-act="groupToggle">분류'+(group?' · '+esc(group):'')+'</button>'+
   '<button data-act="delete" aria-label="할 일 삭제">⋯</button></div>'+
