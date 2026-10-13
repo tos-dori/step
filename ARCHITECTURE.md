@@ -1,3 +1,5 @@
+> **현행 앱 (2026-10-13):** `index.html` → `app/board/index.html`. 화면은 단일 전체 폭 할 일 보드이며, 선택 카드 내부에 25분 Step과 타이머를 붙인다. 같은 `step_v7_live_v1`·`state.workspaceV7` 저장 계약과 `app/v7/sync.js` 동기화를 재사용한다. 아래 `src/` 문서는 원래 레거시 구현 가이드이며 현재 보드의 구조가 아니다. 현재 코드를 확인하고 설계 판단한다.
+
 > **현재 v6 구조 추가 (2026-10-12):** 대표 `index.html`은 `app/v6/`로 연결한다. v6는 `app/v6/index.html`, `app/v6/style.css`, `app/v6/app.js`로 구성된다. 아래 기술된 `src/` core · `styles/app.css` 구조는 보존된 **구버전**의 구현 계약이며 `legacy/index.html`이 이를 실행한다. v6는 독립 상태와 Firebase 통합을 사용한다. 데이터 안전 경계는 `docs/V6_DEPLOYMENT.md`를 참조한다.
 
 # Step 아키텍처·개발 가이드
