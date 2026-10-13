@@ -12,13 +12,14 @@
 (()=>{'use strict';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const datePlus=(n)=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
-const fmt=d=>d?`${Number(d.slice(5,7))}월 ${Number(d.slice(8,10))}일`:'없음';
+const dayOf=d=>String(d||'').slice(0,10);
+const fmt=d=>d?`${Number(d.slice(5,7))}/${Number(d.slice(8,10))}${d.length>10?' '+d.slice(11,16):''}`:'—';
 const fullDate=()=>new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'});
 const store='step_v7_live_v1';
 const makeTask=(id,title,group,offset,detail={},mode='idle')=>({id,title,group,review:offset===null?'':datePlus(offset),due:detail.dueOffset==null?'':datePlus(detail.dueOffset),memo:detail.memo||'',cue:detail.cue||'',nextDraft:'',phase:mode,doneSteps:detail.doneSteps||0,total:detail.total||1,checks:detail.checks||[false,false,false],done:false});
 const initial=()=>({tasks:[],groups:[],activeId:null});
 let state;try{const raw=JSON.parse(localStorage.getItem(store));state=raw&&Array.isArray(raw.tasks)&&Array.isArray(raw.groups)?raw:initial()}catch{state=initial()};
-let tab='today',view='empty',selected=null,modal='',dateContext=null,reviewIds=[],reviewI=0,prevView='detail',lastView=null,toastT=null,undoState=null,editing=false,scrollPos={today:0,all:0},timerOn=false,timerRemain=1500,timerAt=0;
+let tab='today',view='empty',selected=null,modal='',dateContext=null,reviewIds=[],reviewI=0,prevView='detail',lastView=null,toastT=null,undoState=null,editing=false,scrollPos={today:0,all:0},timerOn=false,timerRemain=1500,timerAt=0,adding=false,dateEdit=null,showNote=false;
 const task=id=>state.tasks.find(t=>t.id===id),active=()=>task(state.activeId),isReady=t=>t?.doneSteps>=t?.total;
 function save(){
   const serialized=JSON.stringify(state);
@@ -42,18 +43,31 @@ function transact(fn,msg,canUndo=false){
 function notify(s,canUndo=false){clearTimeout(toastT);$('#toast').innerHTML=`<div class="toast" role="status"><span>${esc(s)}</span>${canUndo?'<button data-action="undo">되돌리기</button>':''}</div>`;toastT=setTimeout(()=>$('#toast').innerHTML='',3400)}
 function phase(t){if(!t||t.done)return '완료';return {'idle':'시작 전','running':'진행 중','paused':'중단됨','choose':'다음 Step 선택','final':'완료 확인'}[t.phase]||'시작 전'}
 function number(t){return `${Math.min(t.doneSteps+1,t.total)}/${t.total}`}
-function listRow(t){const isCurrent=t.id===state.activeId,hasStep=t.doneSteps>0||t.total>1||t.phase!=='idle',subtitle=t.cue?`다음 · ${t.cue}`:t.due?`마감 · ${fmt(t.due)}`:t.group||'';
-return `<div class="row-task ${selected===t.id&&view!=='empty'?'selected':''}" data-id="${esc(t.id)}">${hasStep?`<span class="task-check has-step" title="${phase(t)}"><b>${number(t)}</b></span>`:`<button class="task-check" data-action="quickDone" data-id="${esc(t.id)}" aria-label="${esc(t.title)} 완료"><b></b></button>`}<button class="row-open" data-action="open" data-id="${esc(t.id)}"><span class="task-name">${esc(t.title)}</span><span class="task-note ${t.due&&t.due<datePlus(1)?'warning':''}">${esc(subtitle)}</span></button><button class="play" data-action="start" data-id="${esc(t.id)}" aria-label="${esc(t.title)} 실행">▶</button></div>`}
-function currentCard(t){return `<button class="now-card ${t.phase==='paused'?'paused':''}" data-action="resume"><div class="now-line"><span><i class="state-dot"></i>${phase(t)}</span><span>${number(t)} Step</span></div><h2>${esc(t.title)}</h2><div class="cue">${esc(t.cue||'다음 시작점을 아직 기록하지 않았어요.')}</div><div class="now-bottom"><span>${t.phase==='paused'?'이어서 하기':t.phase==='running'?'현재 Step으로':isReady(t)?'완료 확인하기':'다음 Step 정하기'}</span><span class="arrow">↗</span></div></button>`}
+
+function listRow(t){
+ const hasStep=t.doneSteps>0||t.total>1||t.phase!=='idle';
+ const sub=t.cue||(t.due?'마감 '+fmt(t.due):t.review?.length>10?fmt(t.review):'');
+ return '<div class="row-task '+(selected===t.id&&view!=='empty'?'selected':'')+'">'+
+ (hasStep?'<span class="task-check has-step"><b>'+number(t)+'</b></span>':'<button class="task-check" data-action="quickDone" data-id="'+esc(t.id)+'" aria-label="'+esc(t.title)+' 완료"><b></b></button>')+
+ '<button class="row-open" data-action="open" data-id="'+esc(t.id)+'"><span class="task-name">'+esc(t.title)+'</span>'+(sub?'<span class="task-note">'+esc(sub)+'</span>':'')+'</button>'+
+ '<button class="play" data-action="start" data-id="'+esc(t.id)+'" aria-label="'+esc(t.title)+' 시작 또는 재개">▶</button></div>';
+}
+function currentCard(t){
+ return '<button class="now-card '+(t.phase==='paused'?'paused':'')+'" data-action="resume" aria-label="'+esc(t.title)+' 현재 작업 열기">'+
+ '<div class="now-line"><span><i class="state-dot"></i>'+phase(t)+'</span><span>'+number(t)+'</span></div>'+
+ '<h2>'+esc(t.title)+'</h2>'+(t.cue?'<div class="cue">'+esc(t.cue)+'</div>':'')+
+ '<div class="now-bottom"><span aria-hidden="true">▶</span></div></button>';
+}
 function renderList(){const root=$('#listContent'),pos=$('#listScroll').scrollTop;
-const due=state.tasks.filter(t=>!t.done&&t.review===datePlus(0)&&t.id!==state.activeId),old=state.tasks.filter(t=>!t.done&&t.review&&t.review<datePlus(0));const a=active();
-let html=`<div class="page-top"><div><h1 class="page-title">${tab==='today'?'오늘':'전체'}</h1><div class="page-date">${tab==='today'?fullDate():'모든 할 일과 사용자 분류'}</div></div><button class="add-button" data-action="add" aria-label="할 일 추가">+</button></div>`;
-if(tab==='today'){if(a&&!a.done)html+=`<div class="section-title"><span>지금 하던 일</span></div>${currentCard(a)}`;
-html+=`<div class="section-title"><span>오늘 할 일</span><span class="count">${due.length}개</span></div>${due.length?due.map(listRow).join(''):'<p class="helper">오늘 남아 있는 할 일이 없어요.</p>'}`;
-if(old.length)html+=`<button class="overdue" data-action="review"><span class="overcount">${old.length}</span><span class="over-copy"><strong>지난 일정 확인</strong><small>오늘 할지, 다른 날 볼지 선택</small></span><span class="arr">›</span></button>`}
+const due=state.tasks.filter(t=>!t.done&&dayOf(t.review)===datePlus(0)&&t.id!==state.activeId),old=state.tasks.filter(t=>!t.done&&t.review&&dayOf(t.review)<datePlus(0));const a=active();
+let html=`<div class="page-top"><div><h1 class="page-title">${tab==='today'?'오늘':'전체'}</h1><div class="page-date">${tab==='today'?fullDate():''}</div></div><button class="add-button" data-action="add" aria-label="할 일 추가">+</button></div>`;
+if(adding)html+='<form id="quickEntry" class="quick-entry"><input id="quickTitle" name="title" maxlength="160" autocomplete="off" placeholder="할 일" aria-label="할 일" required><button type="submit" aria-label="추가">✓</button><button type="button" data-action="cancelAdd" aria-label="닫기">×</button></form>';
+if(tab==='today'){if(a&&!a.done)html+=`<div class="section-title">진행 중</div>${currentCard(a)}`;
+html+=`<div class="section-title"><span>할 일</span><span class="count">${due.length}개</span></div>${due.length?due.map(listRow).join(''):''}`;
+if(old.length)html+=`<button class="overdue" data-action="review"><span class="overcount">${old.length}</span><span class="over-copy"><strong>지난 일정 확인</strong></span><span class="arr">›</span></button>`}
 else{
 const free=state.tasks.filter(t=>!t.done&&t.group==='미분류'&&t.id!==state.activeId);
-if(a&&!a.done)html+=`<div class="section-title">지금 하던 일</div>${currentCard(a)}`;
+if(a&&!a.done)html+=`<div class="section-title">진행 중</div>${currentCard(a)}`;
 html+=`<div class="section-title">목록 <span class="count">${state.tasks.filter(t=>!t.done).length}개</span></div>`;
 for(const group of ['미분류',...state.groups]){const groupTasks=state.tasks.filter(t=>!t.done&&t.group===group&&t.id!==state.activeId);if(group!=='미분류'&&!groupTasks.length)continue;html+=`<div class="group"><div class="group-btn"><span>${esc(group)}</span><span>${groupTasks.length}개</span></div>${groupTasks.map(listRow).join('')}</div>`}
 html+=`<div class="list-actions"><button class="text-link" data-action="doneList">끝낸 일</button><button class="text-link" data-action="groups">분류 관리</button></div>`;}
@@ -61,14 +75,62 @@ root.innerHTML=html;$('#tabs').querySelectorAll('button').forEach(b=>b.classList
 const dock=$('#dock');dock.innerHTML='';
 if(isMobile()&&view==='empty')$('#listScroll').scrollTop=scrollPos[tab]||0;else $('#listScroll').scrollTop=pos;
 }
-function navHTML(title,hasEdit=false,back=false){return `<div class="work-nav"><div class="split-action">${back?'<button class="nav-action" data-action="back" aria-label="뒤로">←</button>':''}<span class="nav-title">${title}</span></div><div class="split-action">${hasEdit?'<button class="nav-action" data-action="edit">편집</button>':''}<button class="nav-action close" data-action="close" aria-label="닫기">×</button></div></div>`}
-function detail(t){if(!t)return `<div class="empty-pane"><h2>할 일을 선택하세요</h2><p>제목을 누르면 상세 정보를 볼 수 있어요.</p></div>`;
-return `${navHTML('할 일 상세',true)}<h1 class="detail-title">${esc(t.title)}</h1><div class="detail-group">${phase(t)} ${t.doneSteps?`· ${number(t)} Step`:''}</div><section class="detail-area"><div class="detail-area-head"><strong class="field-title">메모</strong><button class="edit-text" data-action="editMemo">편집</button></div><p class="detail-memo ${t.memo?'':'detail-placeholder'}">${esc(t.memo||'메모 없음')}</p></section><section class="detail-area"><div class="detail-area-head"><strong class="field-title">다음 시작점</strong><button class="edit-text" data-action="editCue">편집</button></div><div class="next-cue"><p class="${t.cue?'':'detail-placeholder'}">${esc(t.cue||'다음에 할 행동을 남길 수 있어요.')}</p></div></section><section class="detail-area"><button class="settings-row" data-action="date" data-kind="review" data-id="${esc(t.id)}"><span class="label">다시 볼 날</span><span class="right"><strong>${fmt(t.review)}</strong><span class="chev">›</span></span></button><button class="settings-row" data-action="date" data-kind="due" data-id="${esc(t.id)}"><span class="label">마감일</span><span class="right"><strong>${fmt(t.due)}</strong><span class="chev">›</span></span></button><button class="settings-row" data-action="editGroup"><span class="label">분류</span><span class="right"><strong>${esc(t.group||'미분류')}</strong><span class="chev">›</span></span></button></section><div class="action-bar"><button class="btn primary wide" data-action="start" data-id="${esc(t.id)}">▶ ${t.phase==='paused'?'이어서 하기':t.phase==='running'?'현재 Step으로':t.phase==='final'?'완료 확인':t.phase==='choose'?'다음 Step 정하기':'Step 시작'}</button></div><button class="quiet" data-action="completeTask">할 일 자체가 끝났다면 완료</button>`}
-function run(t){const labels=['시작할 곳 열기','20분 집중해서 진행하기','다음 시작점 남기기'];const next=t.checks.findIndex(v=>!v);return `${navHTML('Step 실행')}<div class="run-state"><span>● ${phase(t)}</span><span>${number(t)} Step</span></div><h1 class="run-title">${esc(t.title)}</h1><div class="run-cue"><span>지금 여기서 시작</span><p>${esc(t.cue||'가장 작은 행동 하나부터 시작해요.')}</p></div><div class="run-card"><div class="run-card-head">이번 Step <span>체크는 실행 보조용이에요</span></div>${labels.map((txt,i)=>`<button class="step-check ${t.checks[i]?'done':i===next?'current':''}" data-action="check" data-index="${i}"><span class="num">${t.checks[i]?'✓':i+1}</span><span>${txt}</span></button>`).join('')}</div><div class="run-note"><label class="field-label" for="cueInput">이번 Step 이후, 다음에 시작할 위치</label><textarea id="cueInput" class="input area" placeholder="예: 다음에 다시 열 문제나 자료">${esc(t.nextDraft||'')}</textarea></div><div class="timer"><span><b>집중 타이머</b> <span class="timer-val" id="timeText">25:00</span></span><button data-action="timer">${timerOn?'일시정지':'시작'}　›</button></div><div class="run-footer"><button class="btn primary wide" data-action="stepFinish">이번 Step 마침</button><div class="bar-actions"><button class="btn soft" data-action="pause">잠깐 중단</button><button class="btn soft" data-action="blocked">막힘</button></div><button class="quiet" data-action="completeTask">할 일 자체가 끝났다면 완료</button></div>`}
-function result(t){const end=isReady(t);return `${navHTML('Step 결과')}<div class="result-mark">✓</div><h1 class="result-title">${end?'이 일 자체도 끝났나요?':'이번 Step을 마쳤어요.'}</h1><p class="helper">${end?'계획한 Step은 처리했어요. 실제로 할 일이 끝났을 때만 완료해 주세요.':'다음에 언제 이어갈지 정하면 그날 다시 나타나요.'}</p>${t.cue?`<div class="next-cue"><div class="field-title">다음 시작점</div><p>${esc(t.cue)}</p></div>`:''}<div class="result-actions">${end?`<button class="btn primary wide" data-action="completeTask">할 일 완료</button><button class="btn wide" data-action="moreStep">아직 할 일이 남았어요</button>`:`<button class="btn primary wide" data-action="continue">지금 이어서 하기</button><div class="bar-actions"><button class="btn" data-action="schedule" data-when="0">오늘 나중에</button><button class="btn" data-action="schedule" data-when="1">내일</button></div><button class="btn wide" data-action="date" data-kind="review" data-id="${esc(t.id)}" data-origin="result">다른 날짜 선택</button>`}</div>`}
+
+function navHTML(label,extra=false,back=false){
+ return '<div class="work-nav"><div class="split-action">'+(back?'<button class="nav-action" data-action="back" aria-label="뒤로">‹</button>':'')+
+ '<span class="nav-title">'+esc(label)+'</span></div><div class="split-action">'+(extra?'<button class="nav-action" data-action="edit" aria-label="기타 설정">⋯</button>':'')+
+ '<button class="nav-action close" data-action="close" aria-label="닫기">×</button></div></div>';
+}
+function inlineField(t,key){
+ const v=String(t[key]||'');
+ return '<div class="inline-field" data-field="'+key+'"><div class="inline-controls">'+
+ '<button type="button" data-action="fieldSave" aria-label="확정">✓</button><button type="button" data-action="fieldCancel" aria-label="취소">×</button></div>'+
+ (key==="title"?'<input data-inline="title" readonly aria-label="제목" class="inline-title" value="'+esc(v)+'" maxlength="160">':
+ '<textarea data-inline="'+key+'" readonly aria-label="'+(key==="memo"?"메모":"이어할 곳")+'" placeholder="'+(key==="memo"?"메모":"이어할 곳")+'" rows="2">'+esc(v)+'</textarea>')+'</div>';
+}
+function dateRow(t,key){
+ const open=dateEdit&&dateEdit.id===t.id&&dateEdit.key===key;
+ const label=key==="due"?"마감":"날짜",v=String(t[key]||"");
+ if(!open)return '<button class="settings-row" data-action="editDate" data-key="'+key+'" data-id="'+esc(t.id)+'"><span class="label">'+label+'</span><span class="right"><strong>'+fmt(v)+'</strong><span class="chev">›</span></span></button>';
+ return '<div class="date-inline" data-key="'+key+'"><span class="label">'+label+'</span><div class="date-controls">'+
+ '<input type="date" class="date-day" aria-label="'+label+' 날짜" value="'+esc(dayOf(v)||datePlus(0))+'">'+
+ '<input type="time" class="date-hour" aria-label="'+label+' 시간 (선택)" value="'+(v.length>10?esc(v.slice(11,16)):'')+'">'+
+ '<button type="button" data-action="dateApply" aria-label="확정">✓</button><button type="button" data-action="dateCancel" aria-label="닫기">×</button>'+
+ '<button type="button" data-action="dateRemove" aria-label="날짜 제거">−</button></div></div>';
+}
+function detail(t){
+ if(!t)return '<div class="empty-pane"><button class="btn" data-action="add" aria-label="추가">+</button></div>';
+ return navHTML('할 일',true)+inlineField(t,'title')+
+ '<div class="detail-group">'+(t.phase==='idle'?'':phase(t))+(t.doneSteps?' · '+number(t):'')+'</div>'+
+ '<section class="detail-area"><strong class="field-title">메모</strong>'+inlineField(t,'memo')+'</section>'+
+ (t.cue?'<section class="detail-area"><strong class="field-title">이어할 곳</strong>'+inlineField(t,'cue')+'</section>':'')+
+ '<section class="detail-area">'+dateRow(t,'review')+dateRow(t,'due')+
+ '<button class="settings-row" data-action="editGroup"><span class="label">분류</span><span class="right"><strong>'+esc(t.group||'미분류')+'</strong><span class="chev">›</span></span></button></section>'+
+ '<div class="action-bar"><button class="btn primary wide icon-main" data-action="start" data-id="'+esc(t.id)+'" aria-label="'+esc(t.title)+' 시작 또는 재개">▶</button></div>'+
+ '<button class="quiet" data-action="completeTask" aria-label="할 일 완료">✓</button>';
+}
+function run(t){
+ const labels=['시작','진행','정리'],next=t.checks.findIndex(v=>!v);
+ return navHTML('Step')+'<div class="run-state"><span>'+number(t)+'</span></div>'+
+ '<h1 class="run-title">'+esc(t.title)+'</h1>'+
+ (t.cue?'<div class="run-cue"><p>'+esc(t.cue)+'</p></div>':'')+
+ '<div class="run-card">'+labels.map((name,i)=>'<button class="step-check '+(t.checks[i]?'done':i===next?'current':'')+'" data-action="check" data-index="'+i+'" aria-label="'+name+' '+(t.checks[i]?'체크 취소':'체크')+'"><span class="num">'+(t.checks[i]?'✓':i+1)+'</span><span>'+name+'</span></button>').join('')+'</div>'+
+ '<div class="run-note">'+(showNote||t.nextDraft?'<textarea id="cueInput" class="input area" placeholder="다음에 이어서 할 부분" aria-label="다음에 이어서 할 부분">'+esc(t.nextDraft||'')+'</textarea>':
+ '<button class="quiet note-trigger" data-action="noteToggle" aria-label="이어할 곳 메모">✎</button>')+'</div>'+
+ '<div class="timer"><span class="timer-val" id="timeText">25:00</span><button data-action="timer" aria-label="'+(timerOn?'타이머 일시정지':'타이머 시작')+'">'+(timerOn?'Ⅱ':'▶')+'</button></div>'+
+ '<div class="run-footer"><button class="btn primary wide icon-main" data-action="stepFinish" aria-label="이번 Step 마침">✓</button>'+
+ '<div class="bar-actions"><button class="btn soft icon-secondary" data-action="pause" aria-label="중단">Ⅱ</button><button class="btn soft icon-secondary" data-action="blocked" aria-label="막힘">⋯</button></div></div>';
+}
+function result(t){
+ return navHTML('Step')+'<div class="result-mark">✓</div>'+
+ '<h1 class="result-title">'+(isReady(t)?'할 일 완료?':'')+'</h1>'+
+ '<div class="result-actions">'+(isReady(t)?
+ '<button class="btn primary wide icon-main" data-action="completeTask" aria-label="할 일 완료">✓</button><button class="btn wide icon-secondary" data-action="moreStep" aria-label="Step 추가하고 계속">▶</button>':
+ '<button class="btn primary wide icon-main" data-action="continue" aria-label="계속">▶</button><button class="btn wide icon-secondary" data-action="pause" aria-label="중단">Ⅱ</button>')+'</div>';
+}
 function review(){const t=task(reviewIds[reviewI]);if(!t)return `${navHTML('지난 일정 확인')}<h1 class="review-title">정리가 끝났어요.</h1>`;return `${navHTML('지난 일정 확인')}<p class="kicker">${reviewI+1} / ${reviewIds.length}</p><h1 class="review-title">언제 다시 볼까요?</h1><div class="review-task">${esc(t.title)}</div>${t.cue?`<div class="next-cue"><div class="field-title">다음 시작점</div><p>${esc(t.cue)}</p></div>`:''}<div class="choice-grid"><button data-action="reviewChoice" data-when="0">오늘</button><button data-action="reviewChoice" data-when="1">내일</button><button data-action="date" data-id="${esc(t.id)}" data-origin="review" data-kind="review">날짜 선택</button><button data-action="reviewChoice" data-when="none">날짜 없이 두기</button></div>`}
 function doneList(){const arr=state.tasks.filter(t=>t.done);return `${navHTML('끝낸 일')}<h1 class="detail-title">끝낸 일</h1><div class="completed-rows">${arr.map(t=>`<div class="completed-item"><span>✓</span><strong>${esc(t.title)}</strong><button data-action="restore" data-id="${esc(t.id)}">되돌리기</button></div>`).join('')||'<p class="helper">완료한 일이 아직 없어요.</p>'}</div>`}
-function renderWork(force=true){if(!force||editing)return;const t=task(selected),a=active();let html='',style='view-detail';if(view==='detail')html=detail(t);else if(view==='run'&&a){html=run(a);style='view-run'}else if(view==='result'&&a){html=result(a);style='view-result'}else if(view==='review'){html=review();style='view-review'}else if(view==='done')html=doneList();else if(view==='completed'){html=`${navHTML('완료')}<div class="result-mark">✓</div><h1 class="result-title">할 일을 완료했어요.</h1><p class="helper">끝낸 일에서 다시 확인하거나 되돌릴 수 있어요.</p><button class="btn primary wide" data-action="close">목록으로 돌아가기</button>`;style='view-result'}else{html=`<div class="empty-pane"><h2>할 일을 선택하세요</h2><p>왼쪽에서 제목을 눌러 상세 정보를 확인하거나 ▶를 눌러 시작할 수 있어요.</p><button class="btn" data-action="add">+ 할 일 추가</button></div>`;style='view-empty'}$('#workContent').innerHTML=html;$('#workspace').className=`workspace ${style} ${isMobile()&&view!=='empty'?'mobile-visible':''}`;updateTimer()}
+function renderWork(force=true){if(!force||editing)return;const t=task(selected),a=active();let html='',style='view-detail';if(view==='detail')html=detail(t);else if(view==='run'&&a){html=run(a);style='view-run'}else if(view==='result'&&a){html=result(a);style='view-result'}else if(view==='review'){html=review();style='view-review'}else if(view==='done')html=doneList();else if(view==='completed'){html=`${navHTML('완료')}<div class="result-mark">✓</div>`;style='view-result'}else{html='<div class="empty-pane"><button class="btn" data-action="add" aria-label="추가">+</button></div>';style='view-empty'}$('#workContent').innerHTML=html;$('#workspace').className=`workspace ${style} ${isMobile()&&view!=='empty'?'mobile-visible':''}`;updateTimer()}
 function isMobile(){return window.matchMedia('(max-width:719px)').matches}
 function render(preserve=true){const ls=$('#listScroll'),ws=$('#workScroll'),beforeList=ls.scrollTop,beforeWork=ws.scrollTop;renderList();renderWork();$('#rail').classList.toggle('mobile-hidden',isMobile()&&view!=='empty');if(isMobile()&&view==='empty')ls.scrollTop=scrollPos[tab]||0;else ls.scrollTop=beforeList;if(preserve)ws.scrollTop=beforeWork;}
 function navigate(v,id){if(isMobile()&&view==='empty')scrollPos[tab]=$('#listScroll').scrollTop;view=v;if(id)selected=id;editing=false;render(false);$('#workScroll').scrollTop=0;}
