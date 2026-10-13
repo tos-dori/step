@@ -94,6 +94,13 @@ button{flex-shrink:0}
 .inline-field input,.inline-field textarea{order:0}
 #workContent .inline-title{caret-color:#3b493d}
 .overdue{display:none}
+
+.detail-heading{display:flex;align-items:center;gap:13px;min-width:0}
+.detail-heading>.inline-field{flex:1}
+.detail-check{border:0;background:none;width:43px;height:48px;min-width:43px;display:grid;place-items:center;flex:none}
+.detail-check span{display:block;width:27px;height:27px;border:2px solid #c3c7c0;border-radius:9px}
+.detail-check:hover span{border-color:#898e83;background:#f3f1e9}
+.result-title{margin-top:30px}
 </style></head><body><div id="app"><header class="top"><div class="brand">Step<i>!</i></div><div class="top-right"><span class="top-meta" id="syncStatus">계정 연결 중</span><button class="top-link" id="accountButton" aria-label="계정 및 백업">계정</button></div></header><div class="shell"><aside class="rail" id="rail"><nav class="tabs" id="tabs" aria-label="목록 전환"><button class="tab active" data-tab="today">오늘</button><button class="tab" data-tab="all">전체</button></nav><div class="list-scroll" id="listScroll"><div class="list-inner" id="listContent"></div></div><div id="dock"></div></aside><main class="workspace view-detail" id="workspace"><div class="work-scroll" id="workScroll"><div class="work-inner" id="workContent"></div></div></main></div></div><div id="modal" hidden></div><div id="toast"></div>
 <script>
 (()=>{'use strict';
@@ -187,14 +194,13 @@ function dateRow(t,key){
 }
 function detail(t){
  if(!t)return '<div class="empty-pane"><button class="btn" data-action="add" aria-label="추가">+</button></div>';
- return navHTML('할 일',true)+inlineField(t,'title')+
+ return navHTML('할 일',true)+'<div class="detail-heading"><button class="detail-check" data-action="completeTask" aria-label="할 일 완료"><span></span></button>'+inlineField(t,'title')+'</div>'+
  '<div class="detail-group">'+(t.phase==='idle'?'':phase(t))+(t.doneSteps?' · '+number(t):'')+'</div>'+
  '<section class="detail-area"><strong class="field-title">메모</strong>'+inlineField(t,'memo')+'</section>'+
  (t.cue?'<section class="detail-area"><strong class="field-title">이어할 곳</strong>'+inlineField(t,'cue')+'</section>':'')+
  '<section class="detail-area">'+dateRow(t,'review')+dateRow(t,'due')+
  '<button class="settings-row" data-action="editGroup"><span class="label">분류</span><span class="right"><strong>'+esc(t.group||'미분류')+'</strong><span class="chev">›</span></span></button></section>'+
- '<div class="action-bar"><button class="btn primary wide icon-main" data-action="start" data-id="'+esc(t.id)+'" aria-label="'+esc(t.title)+' 시작 또는 재개">▶</button></div>'+
- '<button class="quiet" data-action="completeTask" aria-label="할 일 완료">✓</button>';
+ '<div class="action-bar"><button class="btn primary wide icon-main" data-action="start" data-id="'+esc(t.id)+'" aria-label="'+esc(t.title)+' 시작 또는 재개">▶</button></div>';
 }
 function run(t){
  const labels=['시작','진행','정리'],next=t.checks.findIndex(v=>!v);
@@ -209,7 +215,7 @@ function run(t){
  '<div class="bar-actions"><button class="btn soft icon-secondary" data-action="pause" aria-label="중단">Ⅱ</button><button class="btn soft icon-secondary" data-action="blocked" aria-label="막힘">⋯</button></div></div>';
 }
 function result(t){
- return navHTML('Step')+'<div class="result-mark">✓</div>'+
+ return navHTML('Step')+
  '<h1 class="result-title">'+(isReady(t)?'할 일 완료?':'')+'</h1>'+
  '<div class="result-actions">'+(isReady(t)?
  '<button class="btn primary wide icon-main" data-action="completeTask" aria-label="할 일 완료">✓</button><button class="btn wide icon-secondary" data-action="moreStep" aria-label="Step 추가하고 계속">▶</button>':
