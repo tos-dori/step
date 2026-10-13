@@ -139,45 +139,123 @@ function start(id){const t=task(id);if(!t||t.done)return;if(state.activeId&&stat
 function saveCue(){const x=active(),field=$('#cueInput');if(field&&x&&field.value!==x.nextDraft){x.nextDraft=field.value.trim();save()}}
 function openModal(html,focus){modal='open';$('#modal').hidden=false;$('#modal').innerHTML=`<div class="dialog" role="dialog" aria-modal="true"><div class="modal-bar"><span class="nav-title">Step!</span><button class="nav-action close" type="button" data-action="closeModal" aria-label="닫기">×</button></div>${html}</div>`;if(focus)setTimeout(()=>{try{$(focus)?.focus({preventScroll:true})}catch{}},80)}
 function closeModal(){modal='';$('#modal').hidden=true;$('#modal').innerHTML=''}
-function modalEdit(t,field='full'){if(!t)return;const extras=field==='cue'?`<div class="field"><label for="cueEdit">다음 시작점</label><textarea id="cueEdit" name="cue" class="input area" placeholder="다음에 할 행동">${esc(t.cue)}</textarea></div>`:field==='memo'?`<div class="field"><label for="memoEdit">메모</label><textarea id="memoEdit" name="memo" class="input area">${esc(t.memo)}</textarea></div>`:`<div class="field"><label for="titleEdit">제목</label><input class="input" name="title" id="titleEdit" value="${esc(t.title)}" required></div><div class="field"><label for="memoEdit">메모</label><textarea class="input area" id="memoEdit" name="memo">${esc(t.memo)}</textarea></div><div class="field"><label for="cueEdit">다음 시작점</label><input class="input" id="cueEdit" name="cue" value="${esc(t.cue)}" placeholder="나중에 바로 시작할 행동"></div><details class="inline-details"><summary>추가 정보</summary><div class="field"><label for="totalEdit">총 Step 수 (선택)</label><input class="input" type="number" min="1" max="30" id="totalEdit" name="total" value="${t.total}"></div></details>`;
-openModal(`<h2 class="dialog-title">${field==='full'?'할 일 편집':field==='memo'?'메모 편집':'다음 시작점 편집'}</h2><form id="editForm" data-id="${esc(t.id)}" data-mode="${field}">${extras}<div class="modal-actions"><button class="btn soft" type="button" data-action="closeModal">취소</button><button class="btn dark" type="submit">저장</button></div></form>${field==='full'?`<button class="quiet red" style="color:#af5144" data-action="delete" data-id="${esc(t.id)}">할 일 삭제</button>`:''}`,field==='cue'?'#cueEdit':field==='memo'?'#memoEdit':null)}
+function modalEdit(t){
+ if(!t)return;
+ openModal('<h2 class="dialog-title">⋯</h2><form id="editForm" data-id="'+esc(t.id)+'" data-mode="advanced">'+
+ '<div class="field"><label for="totalEdit">Step 수</label><input class="input" type="number" min="1" max="30" id="totalEdit" name="total" value="'+t.total+'"></div>'+
+ '<div class="modal-actions"><button type="button" class="btn soft" data-action="closeModal" aria-label="닫기">×</button>'+
+ '<button class="btn dark" type="submit" aria-label="확정">✓</button></div></form>'+
+ '<button class="quiet red" data-action="delete" data-id="'+esc(t.id)+'" aria-label="삭제">삭제</button>');
+}
 function modalGroup(t){openModal(`<h2 class="dialog-title">분류 변경</h2><p class="helper">할 일이 속한 목록입니다. 진행 상태와는 관계없어요.</p><form id="groupForm"><div class="field"><label for="groupSelect">분류</label><select id="groupSelect" class="input" name="group"><option value="미분류" ${t.group==='미분류'?'selected':''}>미분류</option>${state.groups.map(g=>`<option ${g===t.group?'selected':''} value="${esc(g)}">${esc(g)}</option>`).join('')}</select></div><div class="modal-actions"><button type="button" class="btn soft" data-action="closeModal">취소</button><button type="submit" class="btn dark">적용</button></div></form>`)}
 function modalDate(t,kind,origin){dateContext={id:t.id,kind,origin:origin||'detail'};openModal(`<h2 class="dialog-title">${kind==='due'?'마감일':'다시 볼 날'}</h2><p class="helper">${kind==='due'?'반드시 끝내야 하는 날짜예요.':'이 할 일이 다시 오늘 목록에 나타날 날짜예요.'}</p><form id="dateForm"><div class="field"><label for="dateValue">날짜</label><input id="dateValue" class="input" name="date" type="date" value="${t[kind]||datePlus(0)}"></div><div class="modal-actions"><button type="button" class="btn soft" data-action="clearDate">날짜 없음</button><button class="btn dark" type="submit">적용</button></div></form>`,null)}
 function chooseDate(v){const ctx=dateContext,t=task(ctx?.id);if(!t)return;transact(()=>{t[ctx.kind]=v;if(ctx.origin==='result'){t.phase='paused';state.activeId=null;}if(ctx.origin==='review'){reviewI++}},'날짜를 변경했어요.');closeModal();if(ctx.origin==='review'){if(reviewI<reviewIds.length)navigate('review');else navigate('empty')}else if(ctx.origin==='result')navigate('empty');else navigate('detail',t.id)}
-function afterStep(){const t=active();if(!t)return;saveCue();transact(()=>{t.doneSteps=Math.min(t.total,t.doneSteps+1);if(t.nextDraft?.trim()){t.cue=t.nextDraft.trim();t.nextDraft=''}t.checks=[false,false,false];t.phase=isReady(t)?'final':'choose'},'이번 Step을 마쳤어요.');timerOn=false;navigate('result')}
+function afterStep(){
+ const t=active();if(!t)return;
+ saveCue();
+ transact(()=>{
+  t.doneSteps=Math.min(t.total,t.doneSteps+1);
+  if(t.nextDraft?.trim()){t.cue=t.nextDraft.trim();t.nextDraft=''}
+  t.checks=[false,false,false];
+  t.phase=isReady(t)?'final':'paused';
+  if(t.phase==='paused')state.activeId=null;
+ },'');
+ timerOn=false;showNote=false;
+ if(t.phase==='final')navigate('result');
+ else closeView();
+}
 function finish(){const t=(view==='run'||view==='result')?active():task(selected);if(!t||t.done)return;if(t.phase==='running'&&t.doneSteps<t.total&&!confirm('진행 중이던 할 일을 완료할까요?'))return;transact(()=>{t.done=true;t.phase='done';if(state.activeId===t.id)state.activeId=null},'할 일을 완료했어요.',true);navigate('completed')}
 function updateTimer(){const p=$('#timeText');if(p){let left=timerOn?Math.max(0,Math.ceil((timerAt-Date.now())/1000)):timerRemain;p.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');if(timerOn&&left===0){timerOn=false;timerRemain=1500;notify('타이머가 끝났어요.')}}}
 function actions(action,btn){const id=btn?.dataset.id,t=task(id),a=active();switch(action){
-case 'add':openModal(`<h2 class="dialog-title">할 일 추가</h2><form id="addForm"><div class="field"><label for="addTitle">할 일 제목</label><input class="input" id="addTitle" name="title" required maxlength="160" placeholder="무엇을 해야 하나요?"></div><div class="field"><label for="addWhen">언제 다시 볼까요?</label><select id="addWhen" name="when" class="input"><option value="today" ${tab==='today'?'selected':''}>오늘</option><option value="none" ${tab==='all'?'selected':''}>날짜 없이</option><option value="tomorrow">내일</option></select></div><details class="inline-details"><summary>메모 · 분류 · 마감 추가</summary><div class="field"><label for="addMemo">메모</label><textarea id="addMemo" class="input area" name="memo"></textarea></div><div class="field"><label for="addGroup">분류</label><select id="addGroup" name="group" class="input"><option>미분류</option>${state.groups.map(g=>`<option>${esc(g)}</option>`).join('')}</select></div><div class="field"><label for="addDue">마감일</label><input id="addDue" class="input" name="due" type="date"></div></details><div class="modal-actions"><button type="button" class="btn soft" data-action="closeModal">취소</button><button type="submit" class="btn dark">추가</button></div></form>`,'#addTitle');return;
+case 'add':
+ adding=true;renderList();
+ requestAnimationFrame(()=>$('#quickTitle')?.focus({preventScroll:true}));
+ return;
+case 'cancelAdd':adding=false;renderList();return;
+case 'fieldSave':{
+ const f=btn.closest('.inline-field'),field=f?.dataset.field,x=f?.querySelector('[data-inline]'),item=task(selected);
+ if(!f||!x||!item)return;
+ const value=x.value.trim();
+ if(field==='title'&&!value){x.focus();return}
+ if(String(item[field]||'')!==value)transact(()=>{item[field]=value},'');
+ else renderWork();
+ return;
+}
+case 'fieldCancel':{
+ const f=btn.closest('.inline-field'),field=f?.dataset.field,x=f?.querySelector('[data-inline]'),item=task(selected);
+ if(!f||!x||!item)return;
+ x.value=String(item[field]||'');x.readOnly=true;f.classList.remove('editing');
+ return;
+}
+case 'editDate':
+ dateEdit={id:btn.dataset.id,key:btn.dataset.key};renderWork();
+ return;
+case 'dateCancel':dateEdit=null;renderWork();return;
+case 'dateApply':
+case 'dateRemove':{
+ const item=task(selected),panel=btn.closest('.date-inline'),kind=panel?.dataset.key;
+ if(!item||!kind)return;
+ const date=panel.querySelector('.date-day')?.value||'',time=panel.querySelector('.date-hour')?.value||'';
+ if(action==='dateApply'&&!date)return;
+ const value=action==='dateRemove'?'':date+(time?'T'+time:'');
+ dateEdit=null;transact(()=>{item[kind]=value},'');return;
+}
+case 'noteToggle':
+ showNote=true;renderWork();requestAnimationFrame(()=>$('#cueInput')?.focus({preventScroll:true}));return;
 case 'closeModal':closeModal();return;case 'close':closeView();return;case 'back':if(view==='run'||view==='result')navigate('detail',state.activeId);else closeView();return;
 case 'open':navigate('detail',id);return;case 'start':start(id);return;case 'resume':if(a)start(a.id);return;case 'quickDone':if(!t)return;transact(()=>{t.done=true},'할 일을 완료했어요.',true);return;
-case 'edit':modalEdit(task(selected));return;case 'editMemo':modalEdit(task(selected),'memo');return;case 'editCue':modalEdit(task(selected),'cue');return;case 'editGroup':modalGroup(task(selected));return;
+case 'edit':modalEdit(task(selected));return;case 'editGroup':modalGroup(task(selected));return;
 case 'check':if(!a)return;transact(()=>{const i=Number(btn.dataset.index);a.checks[i]=!a.checks[i]},'');return;
-case 'timer':if(timerOn){timerRemain=Math.max(0,Math.ceil((timerAt-Date.now())/1000));timerOn=false}else{timerAt=Date.now()+timerRemain*1000;timerOn=true}renderWork();return;
-case 'pause':saveCue();if(a)transact(()=>{a.phase='paused'},'체크와 다음 시작점을 보존했어요.');timerOn=false;closeView();return;
+case 'timer':
+ if(timerOn){timerRemain=Math.max(0,Math.ceil((timerAt-Date.now())/1000));timerOn=false}else{timerAt=Date.now()+timerRemain*1000;timerOn=true}
+ btn.textContent=timerOn?'Ⅱ':'▶';btn.setAttribute('aria-label',timerOn?'타이머 일시정지':'타이머 시작');updateTimer();return;
+case 'pause':saveCue();if(a)transact(()=>{a.phase='paused'},'');timerOn=false;showNote=false;closeView();return;
 case 'blocked':saveCue();if(a)openModal(`<h2 class="dialog-title">막힌 지점 남기기</h2><p class="helper">다시 시도할 때 무엇부터 확인할지 적어두세요.</p><form id="blockedForm"><div class="field"><label for="blockedCue">다음에 확인할 것</label><textarea id="blockedCue" class="input area" name="cue">${esc(a.cue)}</textarea></div><div class="modal-actions"><button type="button" class="btn soft" data-action="closeModal">취소</button><button type="submit" name="decision" value="pause" class="btn dark">기록하고 중단</button></div><button class="quiet wide" type="button" data-action="blockedContinue">기록하고 계속하기</button></form>`,'#blockedCue');return;
 case 'blockedContinue':if(a)transact(()=>{a.cue=$('#blockedCue')?.value.trim()||'';a.nextDraft='';a.phase='running'},'기록했어요.');closeModal();navigate('run');return;
 case 'stepFinish':afterStep();return;case 'continue':if(a)transact(()=>{a.phase='running'},'');navigate('run');return;
 case 'schedule':if(a){const when=Number(btn.dataset.when);transact(()=>{a.review=datePlus(when);a.phase='paused';state.activeId=null},'다시 볼 날을 정했어요.');navigate('empty')}return;
-case 'moreStep':if(a)transact(()=>{a.total+=1;a.phase='choose'},'Step 하나를 추가했어요.');navigate('result');return;
+case 'moreStep':if(a){transact(()=>{a.total+=1;a.phase='running'},'');navigate('run')}return;
 case 'completeTask':finish();return;
 case 'date':if(task(btn.dataset.id))modalDate(task(btn.dataset.id),btn.dataset.kind,btn.dataset.origin);return;
 case 'clearDate':chooseDate('');return;
-case 'review':reviewIds=state.tasks.filter(x=>!x.done&&x.review&&x.review<datePlus(0)).map(x=>x.id);reviewI=0;navigate('review');return;
+case 'review':reviewIds=state.tasks.filter(x=>!x.done&&x.review&&dayOf(x.review)<datePlus(0)).map(x=>x.id);reviewI=0;navigate('review');return;
 case 'reviewChoice':{const x=task(reviewIds[reviewI]);if(!x)return;transact(()=>{x.review=btn.dataset.when==='none'?'':datePlus(Number(btn.dataset.when));reviewI++},'날짜를 정했어요.');navigate(reviewI<reviewIds.length?'review':'empty');return;}
 case 'doneList':navigate('done');return;case 'restore':if(t)transact(()=>{t.done=false;t.phase='idle'},'완료를 취소했어요.',true);return;
 case 'delete':if(!t||!confirm('이 할 일을 삭제할까요?'))return;transact(()=>{state.tasks=state.tasks.filter(x=>x.id!==t.id);if(state.activeId===t.id)state.activeId=null},'할 일을 삭제했어요.',true);closeModal();navigate('empty');return;
 case 'undo':if(undoState){state=JSON.parse(undoState);undoState=null;save();render();notify('되돌렸어요.')}return;
-case 'groups':openModal(`<h2 class="dialog-title">분류 관리</h2><p class="helper">분류는 할 일이 속한 목록이에요. 실행 방식과는 관계없어요.</p>${state.groups.map((g,i)=>`<div class="settings-row"><strong>${esc(g)}</strong><div class="split-action"><button class="edit-text" data-action="renameGroup" data-index="${i}">이름 변경</button><button class="edit-text" data-action="removeGroup" data-index="${i}">삭제</button></div></div>`).join('')}<div class="field"><label for="newGroup">새 분류 추가</label><input id="newGroup" class="input" maxlength="40" placeholder="예: 개인 프로젝트"></div><button type="button" class="btn dark wide" data-action="addGroup">추가</button>`);return;
+case 'groups':openModal(`<h2 class="dialog-title">분류</h2>${state.groups.map((g,i)=>`<div class="settings-row"><strong>${esc(g)}</strong><div class="split-action"><button class="edit-text" data-action="renameGroup" data-index="${i}">이름 변경</button><button class="edit-text" data-action="removeGroup" data-index="${i}">삭제</button></div></div>`).join('')}<div class="field"><label for="newGroup">새 분류 추가</label><input id="newGroup" class="input" maxlength="40" placeholder="예: 개인 프로젝트"></div><button type="button" class="btn dark wide" data-action="addGroup">추가</button>`);return;
 case 'renameGroup':{const i=Number(btn.dataset.index),name=state.groups[i];if(!name)return;openModal(`<h2 class="dialog-title">분류 이름 변경</h2><form id="renameGroupForm" data-index="${i}"><div class="field"><label for="renameGroupInput">분류 이름</label><input class="input" name="name" maxlength="40" required id="renameGroupInput" value="${esc(name)}"></div><div class="modal-actions"><button type="button" class="btn soft" data-action="closeModal">취소</button><button class="btn dark">저장</button></div></form>`,'#renameGroupInput');return}
 case 'removeGroup':{const i=Number(btn.dataset.index),name=state.groups[i];if(!name)return;if(!confirm(`‘${name}’ 분류를 삭제할까요? 그 안의 할 일은 미분류에 남아요.`))return;transact(()=>{state.groups.splice(i,1);state.tasks.forEach(t=>{if(t.group===name)t.group='미분류'})},'분류를 삭제했어요.',true);closeModal();return}
 case 'addGroup':{const value=$('#newGroup')?.value.trim();if(value&&!state.groups.includes(value)){transact(()=>state.groups.push(value),'분류를 추가했어요.');closeModal()}return}
 }}
+
+$('#listContent').addEventListener('submit',e=>{
+ if(e.target.id!=='quickEntry')return;
+ e.preventDefault();
+ const input=$('#quickTitle'),value=input?.value.trim();
+ if(!value)return;
+ const item=makeTask('u'+Date.now()+'-'+Math.random().toString(36).slice(2,6),value,'미분류',tab==='today'?0:null);
+ adding=false;
+ transact(()=>state.tasks.unshift(item),'');
+});
+$('#workContent').addEventListener('click',e=>{
+ const field=e.target.closest('input[data-inline],textarea[data-inline]');
+ if(!field||!field.readOnly)return;
+ const block=field.closest('.inline-field');
+ field.dataset.original=field.value;field.readOnly=false;block?.classList.add('editing');
+ field.focus({preventScroll:true});
+});
+$('#workContent').addEventListener('keydown',e=>{
+ const field=e.target.closest('input[data-inline],textarea[data-inline]');
+ if(!field||field.readOnly)return;
+ if(e.key==='Escape'){e.preventDefault();field.closest('.inline-field')?.querySelector('[data-action="fieldCancel"]')?.click()}
+ if(e.key==='Enter'&&field.dataset.inline==='title'){e.preventDefault();field.closest('.inline-field')?.querySelector('[data-action="fieldSave"]')?.click()}
+});
 $('#app').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.tab){if(isMobile()&&view==='empty')scrollPos[tab]=$('#listScroll').scrollTop;tab=b.dataset.tab;view='empty';render();requestAnimationFrame(()=>$('#listScroll').scrollTop=scrollPos[tab]||0);return}if(b.dataset.action)actions(b.dataset.action,b)});
 $('#modal').addEventListener('click',e=>{const b=e.target.closest('button');if(b?.dataset.action)actions(b.dataset.action,b);else if(e.target.id==='modal')closeModal()});
 $('#toast').addEventListener('click',e=>{const b=e.target.closest('button');if(b?.dataset.action)actions(b.dataset.action,b)});
 $('#modal').addEventListener('submit',e=>{e.preventDefault();const f=e.target,fd=new FormData(f);if(f.id==='addForm'){const title=String(fd.get('title')||'').trim();if(!title)return;const when=fd.get('when');const newtask=makeTask('u'+Date.now(),title,fd.get('group')||'미분류',when==='today'?0:when==='tomorrow'?1:null,{memo:String(fd.get('memo')||''),dueOffset:null});newtask.due=String(fd.get('due')||'');transact(()=>state.tasks.unshift(newtask),'할 일을 추가했어요.');closeModal();return}
-if(f.id==='editForm'){const t=task(f.dataset.id);if(!t)return;transact(()=>{const mode=f.dataset.mode;if(mode==='full'){t.title=String(fd.get('title')||'').trim()||t.title;t.memo=String(fd.get('memo')||'');t.cue=String(fd.get('cue')||'');t.total=Math.max(t.doneSteps+1,Math.min(30,Number(fd.get('total'))||t.total))}if(mode==='memo')t.memo=String(fd.get('memo')||'');if(mode==='cue')t.cue=String(fd.get('cue')||'')},'저장했어요.');closeModal();return}
+if(f.id==='editForm'){const t=task(f.dataset.id);if(!t)return;transact(()=>{t.total=Math.max(t.doneSteps+1,Math.min(30,Number(fd.get('total'))||t.total))},'');closeModal();return}
 if(f.id==='groupForm'){const t=task(selected);if(t)transact(()=>t.group=String(fd.get('group')),'분류를 변경했어요.');closeModal();return}
 if(f.id==='renameGroupForm'){const i=Number(f.dataset.index),name=state.groups[i],next=String(fd.get('name')||'').trim();if(name&&next&&!state.groups.includes(next)){transact(()=>{state.groups[i]=next;state.tasks.forEach(t=>{if(t.group===name)t.group=next})},'분류 이름을 바꿨어요.',true)}closeModal();return}
 if(f.id==='dateForm'){chooseDate(String(fd.get('date')||''));return}
@@ -186,7 +264,7 @@ $('#workContent').addEventListener('input',e=>{if(e.target.id==='cueInput'){cons
 function resize(){const v=window.visualViewport;document.documentElement.style.setProperty('--visible-height',(v?.height||window.innerHeight)+'px');if(!isMobile())$('#rail').classList.remove('mobile-hidden');else $('#rail').classList.toggle('mobile-hidden',view!=='empty');$('#workspace').classList.toggle('mobile-visible',isMobile()&&view!=='empty')}
 window.visualViewport?.addEventListener('resize',resize);window.addEventListener('resize',resize);window.addEventListener('pageshow',()=>{resize();render()});
 let touchY=0;document.addEventListener('touchstart',e=>{if(e.touches.length===1)touchY=e.touches[0].clientY},{passive:true});document.addEventListener('touchmove',e=>{if(!e.cancelable||e.touches.length!==1)return;const dy=e.touches[0].clientY-touchY;if(Math.abs(dy)<4)return;const sc=e.target.closest('.list-scroll,.work-scroll,.dialog');if(!sc){if(!e.target.closest('input,textarea,select'))e.preventDefault();return}if(dy>0&&sc.scrollTop<=0||dy<0&&sc.scrollTop+sc.clientHeight>=sc.scrollHeight-1)e.preventDefault()},{passive:false});
-window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#modal').hidden)closeModal();else closeView()}});
+window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#modal').hidden)closeModal();else if(adding){adding=false;renderList()}else closeView()}});
 setInterval(()=>{if(timerOn)updateTimer()},1000);
 
 // Dedicated production data bridge. Screen changes and remote changes stay independent.
