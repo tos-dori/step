@@ -84,7 +84,7 @@ window.StepV7Sync={
 };
 function observe(snap){
  if(!uid||snap.metadata?.hasPendingWrites)return;
- if(snap.metadata?.fromCache&&!ready){status();return}
+ if(snap.metadata?.fromCache){status();return}
  let cloud,derived,revision;
  try{
   cloud=snap.exists()?snap.data():null;
@@ -119,6 +119,9 @@ function observe(snap){
  }
  if(conflict){if(conflict.revision!==revision||digest(conflict.remote)!==h)chooseConflict(remote,revision);return}
  if(lh===h){meta={revision,remoteDigest:h,dirty:false};recordMeta();status();return}
+ // Local edits against the exact cloud version already observed are pending writes,
+ // not a multi-device conflict. A different remote version will still prompt.
+ if(meta.dirty&&revision===meta.revision&&h===meta.remoteDigest){queued();status();return}
  if(!derived.hasV7&&hasTasks(local)){chooseConflict(remote,revision,"다른 클라이언트가 v7 저장 내용을 변경하거나 제거했을 수 있어요. 이 기기 작업을 자동으로 버리지 않았어요.");return}
  if(meta.dirty){chooseConflict(remote,revision);return}
  accept(remote,revision);
