@@ -322,7 +322,17 @@ function isMobile(){return window.matchMedia('(max-width:719px)').matches}
 function render(preserve=true){const ls=$('#listScroll'),ws=$('#workScroll'),beforeList=ls.scrollTop,beforeWork=ws.scrollTop;renderList();renderWork();$('#rail').classList.toggle('mobile-hidden',isMobile()&&view!=='empty');if(isMobile()&&view==='empty')ls.scrollTop=scrollPos[tab]||0;else ls.scrollTop=beforeList;if(preserve)ws.scrollTop=beforeWork;}
 function navigate(v,id){if(isMobile()&&view==='empty')scrollPos[tab]=$('#listScroll').scrollTop;view=v;if(id)selected=id;editing=false;render(false);$('#workScroll').scrollTop=0;}
 function closeView(){if(isMobile()){view='empty';render();requestAnimationFrame(()=>$('#listScroll').scrollTop=scrollPos[tab]||0)}else{view='empty';render(false)}}
-function start(id){const t=task(id);if(!t||t.done)return;if(state.activeId&&state.activeId!==id){const prev=active();if(prev&&prev.phase==='running'){if(!confirm('현재 진행 중인 Step을 중단하고 다른 일을 시작할까요? 진행 기록은 남아요.'))return;prev.phase='paused'}}transact(()=>{state.activeId=t.id;if(t.phase==='idle'||t.phase==='paused')t.phase='running'},'');navigate(isReady(t)||t.phase==='choose'?'result':'run',t.id)}
+function start(id){
+ const t=task(id);if(!t||t.done)return;
+ if(state.activeId&&state.activeId!==id){saveCue();stopTimer()}
+ transact(()=>{
+  const prev=active();
+  if(prev&&prev.id!==id&&prev.phase==='running')prev.phase='paused';
+  state.activeId=t.id;
+  if(t.phase==='idle'||t.phase==='paused')t.phase='running';
+ },'');
+ navigate(isReady(t)||t.phase==='choose'?'result':'run',t.id);
+}
 function saveCue(){const x=active(),field=$('#cueInput');if(field&&x&&field.value!==x.nextDraft){x.nextDraft=field.value.trim();save()}}
 function openModal(html,focus){modal='open';$('#modal').hidden=false;$('#modal').innerHTML=`<div class="dialog" role="dialog" aria-modal="true"><div class="modal-bar"><span class="nav-title">Step!</span><button class="nav-action close" type="button" data-action="closeModal" aria-label="닫기">×</button></div>${html}</div>`;if(focus)setTimeout(()=>{try{$(focus)?.focus({preventScroll:true})}catch{}},80)}
 function closeModal(){modal='';$('#modal').hidden=true;$('#modal').innerHTML=''}
