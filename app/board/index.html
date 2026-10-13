@@ -120,6 +120,12 @@ main{width:min(1120px,100%);margin:0 auto;padding:21px 22px 110px}
 }
 @media(min-width:630px) and (max-width:900px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:901px){.board{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+.timer-inline{display:flex;align-items:center;gap:7px;max-width:100%}
+.timer-inline input{width:68px;height:41px;padding:6px;border:1px solid #cdb674;border-radius:9px;background:white;font-size:16px}
+.timer-inline span{font-size:13px;color:#7b6d4d}
+.timer-inline button{height:39px;min-width:37px;background:#f0e0b4;border-radius:9px;font-size:19px}
+.timer-inline button[data-act=timeSave]{background:#e4bf5d}
 </style>
 </head>
 <body>
@@ -145,7 +151,7 @@ const valid=s=>s&&Array.isArray(s.tasks)&&Array.isArray(s.groups);
 const empty=()=>({tasks:[],groups:[],activeId:null});
 const read=(k,f)=>{try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}};
 let state=read(STORE,empty());if(!valid(state))state=empty();
-let selected=localStorage.getItem(SELECT)||null, showDone=false, adding=false, editing=null, original='', dateOpen=false, groupOpen=false;
+let selected=localStorage.getItem(SELECT)||null, showDone=false, adding=false, editing=null, original='', dateOpen=false, groupOpen=false, timeEditing=false;
 let timer=read(TIMER,{id:null,seconds:1500,left:1500,ends:0,running:false});
 if(!timer||!Number.isFinite(timer.seconds)||timer.seconds<60)timer={id:null,seconds:1500,left:1500,ends:0,running:false};
 function timerSave(){try{localStorage.setItem(TIMER,JSON.stringify(timer))}catch{}}
@@ -156,11 +162,11 @@ function timerReset(id){timer={id:id,seconds:timer.seconds,left:timer.seconds,en
 function beginSelect(id){
  if(!get(id))return;
  if(timer.id!==id){timerStop();timerReset(id)}
- selected=id;localStorage.setItem(SELECT,id);editing=null;dateOpen=false;groupOpen=false;render();
+ selected=id;localStorage.setItem(SELECT,id);editing=null;dateOpen=false;groupOpen=false;timeEditing=false;render();
  const el=document.querySelector('.note.selected');
  if(el){const b=el.getBoundingClientRect();if(b.top<60||b.top>innerHeight-130)el.scrollIntoView({block:'nearest',behavior:'instant'})}
 }
-function unselect(){if(editing)commitEdit();selected=null;localStorage.removeItem(SELECT);dateOpen=false;groupOpen=false;render()}
+function unselect(){if(editing)commitEdit();selected=null;localStorage.removeItem(SELECT);dateOpen=false;groupOpen=false;timeEditing=false;render()}
 function checkpoint(reason){
  try{const n=Number(localStorage.getItem('step_v7_checkpoint_index')||0)%12;localStorage.setItem('step_v7_checkpoint_'+n,JSON.stringify({at:Date.now(),reason,state}));localStorage.setItem('step_v7_checkpoint_index',String(n+1));return true}catch{return false}
 }
@@ -203,7 +209,7 @@ function taskCard(t){
   '<div class="editor-keys" id="editKeys"><button data-act="editSave" aria-label="입력 확정">✓</button><button data-act="editCancel" aria-label="입력 취소">×</button></div>'+
   '<div class="focus-foot"><div class="focus-head"><span class="step-label">Step '+step+'</span>'+
   (step>1?'<span class="step-history">'+(step-1)+'회 진행</span>':'')+'</div>'+
-  '<div class="timer-row"><button class="clock" data-act="timeEdit" aria-label="시간 변경">'+clockText(left)+'</button>'+
+  '<div class="timer-row">'+(timeEditing?'<div class="timer-inline"><input id="timeMinutes" type="number" min="1" max="180" inputmode="numeric" value="'+Math.round(timer.seconds/60)+'" aria-label="타이머 분"><span>분</span><button data-act="timeSave" aria-label="확정">✓</button><button data-act="timeCancel" aria-label="취소">×</button></div>':'<button class="clock" data-act="timeEdit" aria-label="시간 변경">'+clockText(left)+'</button>')+
   '<div class="timer-actions"><button data-act="timeReset" aria-label="시간 초기화" title="초기화">↺</button>'+
   '<button class="play" data-act="timeToggle" aria-label="'+(timer.running?'일시정지':'시작')+'">'+(timer.running?'Ⅱ':'▶')+'</button></div></div>'+
   '<div class="timer-track"><div id="timerFill" style="width:'+(timer.seconds?Math.min(100,Math.max(0,left/timer.seconds*100)):0)+'%"></div></div>'+
@@ -289,12 +295,12 @@ function handle(act,button){
  if(act==='editCancel'){commitEdit(true);return}
  if(act==='timeToggle'){startTimer();return}
  if(act==='timeReset'){timerStop();timerReset(selected);updateClock();return}
- if(act==='timeEdit'){
-  timerStop();
-  const v=prompt('타이머 (분)',String(Math.round(timer.seconds/60)));
-  if(v===null)return;
-  const min=Number(v);if(!Number.isInteger(min)||min<1||min>180)return;
-  timer.seconds=min*60;timer.left=timer.seconds;timer.ends=0;timerSave();updateClock();return;
+ if(act==='timeEdit'){timerStop();timeEditing=true;render();requestAnimationFrame(()=>$('#timeMinutes')?.focus({preventScroll:true}));return}
+ if(act==='timeCancel'){timeEditing=false;render();return}
+ if(act==='timeSave'){
+  const min=Number($('#timeMinutes')?.value);
+  if(!Number.isInteger(min)||min<1||min>180)return;
+  timer.seconds=min*60;timer.left=timer.seconds;timer.ends=0;timeEditing=false;timerSave();render();return;
  }
  if(act==='stepFinish'){finishStep();return}
  if(act==='dateToggle'){dateOpen=!dateOpen;groupOpen=false;render();return}
