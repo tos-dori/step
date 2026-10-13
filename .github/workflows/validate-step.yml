@@ -68,7 +68,7 @@ jobs:
           test "$(grep -c 'styles/app.css' legacy/index.html)" -eq 1
           test "$(grep -c 'styles/management-menu.css' legacy/index.html)" -eq 1
           test "$(grep -c 'src/app.js' legacy/index.html)" -eq 1
-          grep -q 'app/v7/' index.html
+          grep -q 'app/board/' index.html
           find src -name '*.js' -print0 | xargs -0 -n1 node --check
           node --check app/v6/app.js
           node --check tests/v6-browser.mjs
