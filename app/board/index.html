@@ -135,7 +135,13 @@ main{width:min(1120px,100%);margin:0 auto;padding:21px 22px 110px}
 .goal-keys.active{display:flex}
 .goal-keys button{width:35px;height:35px;border-radius:9px;background:#f3dfab;font-size:18px}
 .goal-keys button:first-child{background:#e5be5a}
-.subgoal{justify-content:flex-end}</style>
+.subgoal{justify-content:flex-end}
+#miniTimer{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:24;background:#314a3b;color:#fff;max-width:calc(100% - 28px);width:min(460px,calc(100% - 28px));border-radius:15px;padding:5px 7px 5px 14px;box-shadow:0 8px 28px #28302630;display:flex;align-items:center;gap:6px}
+#miniTimer[hidden]{display:none}
+#miniTimer button{color:#fff;background:none;min-height:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#miniOpen{text-align:left;flex:1;font-size:13px}
+#miniTimer button:last-child{font-size:20px;min-width:44px;background:#516858;border-radius:10px}
+</style>
 </head>
 <body>
 <header><div class="brand">Step<span>!</span></div><span id="syncStatus" class="sync-status">연결 중</span><button id="accountButton" class="tool" aria-label="계정과 백업" title="계정과 백업">⋯</button><button class="tool" id="addButton" aria-label="할 일 추가">+</button></header>
@@ -146,7 +152,7 @@ main{width:min(1120px,100%);margin:0 auto;padding:21px 22px 110px}
 <button id="doneToggle" type="button" aria-expanded="false" hidden></button>
 <div id="doneBoard" class="board" hidden></div>
 </main>
-<div id="toast" role="status" aria-live="polite"></div>
+<div id="miniTimer" hidden><button data-act="miniOpen" id="miniOpen" aria-label="진행 중 타이머 다시 열기"></button><button data-act="miniPause" aria-label="타이머 일시정지">Ⅱ</button></div><div id="toast" role="status" aria-live="polite"></div>
 <div id="syncGate"><form id="authForm" class="auth-box"><h2>Step!</h2><label for="authEmail">이메일</label><input type="email" id="authEmail" required autocomplete="username"><label for="authPassword">비밀번호</label><input type="password" id="authPassword" required autocomplete="current-password"><button type="submit">로그인</button><p id="authError" role="alert"></p></form></div>
 <div id="syncConflict" hidden><div><h2>서로 다른 변경</h2><p id="syncConflictDescription">기기와 계정 내용이 다릅니다.</p><button id="syncUseCloud">계정 내용 사용</button><button id="syncUseLocal">기기 내용 사용</button></div></div>
 <script>
@@ -243,6 +249,16 @@ function render(){
  $('#doneBoard').hidden=!showDone;$('#doneBoard').innerHTML=showDone?done.map(taskCard).join(''):'';
  $('#entryHost').innerHTML=adding?'<form id="addForm" class="entry"><input id="newTitle" required maxlength="160" autocomplete="off" placeholder="할 일"><button type="submit" aria-label="추가">✓</button><button type="button" data-act="addCancel" aria-label="취소">×</button></form>':'';
  if(adding)requestAnimationFrame(()=>$('#newTitle')?.focus({preventScroll:true}));
+ updateMiniTimer();
+}
+function updateMiniTimer(){
+ const box=$('#miniTimer'),task=timer.id?get(timer.id):null;
+ const visible=!!(timer.running&&task&&!task.done&&selected!==timer.id);
+ box.hidden=!visible;
+ if(!visible)return;
+ const open=$('#miniOpen');
+ open.dataset.id=encodeURIComponent(task.id);
+ open.textContent=task.title+' · '+clockText(timeLeft());
 }
 function commitEdit(cancel){
  if(!editing)return;
@@ -295,11 +311,14 @@ function updateClock(){
  const l=timeLeft();if(clock)clock.textContent=clockText(l);if(fill)fill.style.width=Math.max(0,Math.min(100,100*l/timer.seconds))+'%';
  if(play){play.textContent=timer.running?'Ⅱ':'▶';play.setAttribute('aria-label',timer.running?'일시정지':'시작')}
  if(timer.running&&l===0){timer.running=false;timer.left=0;timer.ends=0;timerSave();flash('타이머 종료')}
+ updateMiniTimer();
 }
 function handle(act,button){
  // Resolve any active text edit before switching actions or changing tasks.
  if(editing&&act!=='editSave'&&act!=='editCancel')commitEdit();
  const id=button.dataset.id?decodeURIComponent(button.dataset.id):null,t=get(id||selected);
+ if(act==='miniOpen'){beginSelect(id);return}
+ if(act==='miniPause'){timerStop();render();return}
  if(act==='select'){beginSelect(id);return}
  if(act==='unselect'){unselect();return}
  if(act==='addCancel'){adding=false;render();return}
