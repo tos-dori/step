@@ -286,6 +286,8 @@ function updateClock(){
  if(timer.running&&l===0){timer.running=false;timer.left=0;timer.ends=0;timerSave();flash('타이머 종료')}
 }
 function handle(act,button){
+ // Resolve any active text edit before switching actions or changing tasks.
+ if(editing&&act!=='editSave'&&act!=='editCancel')commitEdit();
  const id=button.dataset.id?decodeURIComponent(button.dataset.id):null,t=get(id||selected);
  if(act==='select'){beginSelect(id);return}
  if(act==='unselect'){unselect();return}
