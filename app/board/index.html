@@ -351,7 +351,14 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('focusin',e=>{
  const field=e.target.closest('.note.selected [data-field]');if(!field)return;
- if(editing&&editing!==field.dataset.field)commitEdit();
+ if(editing&&editing!==field.dataset.field){
+  const prev=document.querySelector('.note.selected [data-field="'+editing+'"]'),task=get(selected);
+  if(prev&&task&&(editing!=='title'||prev.value.trim())){
+   const last=task[editing];task[editing]=editing==='title'?prev.value.trim():prev.value;
+   if(!save())task[editing]=last;
+  }
+  $('#editKeys')?.classList.remove('active');$('#goalKeys')?.classList.remove('active');
+ }
  editing=field.dataset.field;original=field.value;if(editing==='cue')$('#goalKeys')?.classList.add('active');else $('#editKeys')?.classList.add('active');
 });
 document.addEventListener('keydown',e=>{
