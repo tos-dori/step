@@ -184,6 +184,9 @@ body{position:relative!important;inset:auto!important}
 .now-content .now-resume{width:50px;height:50px;min-width:50px;border:1px solid #d2ad55;border-radius:14px;background:#ffe19c;display:grid;place-items:center;font-size:19px}
 .now-content .now-resume:active{background:#f5ce6b}
 .now-card.paused .now-resume{background:#dce6e8;border-color:#c0d0d3}
+
+.modal-utilities{padding:14px 0 8px}
+.modal-utilities .red{font-size:14px;min-height:46px;color:#a0473d}
 </style></head><body><div id="app"><header class="top"><div class="brand">Step<i>!</i></div><div class="top-right"><span class="top-meta" id="syncStatus">계정 연결 중</span><button class="top-link" id="accountButton" aria-label="계정 및 백업">계정</button></div></header><div class="shell"><aside class="rail" id="rail"><nav class="tabs" id="tabs" aria-label="목록 전환"><button class="tab active" data-tab="today">오늘</button><button class="tab" data-tab="all">전체</button></nav><div class="list-scroll" id="listScroll"><div class="list-inner" id="listContent"></div></div><div id="dock"></div></aside><main class="workspace view-detail" id="workspace"><div class="work-scroll" id="workScroll"><div class="work-inner" id="workContent"></div></div></main></div></div><div id="modal" hidden></div><div id="toast"></div>
 <script>
 (()=>{'use strict';
@@ -338,11 +341,7 @@ function openModal(html,focus){modal='open';$('#modal').hidden=false;$('#modal')
 function closeModal(){modal='';$('#modal').hidden=true;$('#modal').innerHTML=''}
 function modalEdit(t){
  if(!t)return;
- openModal('<h2 class="dialog-title">⋯</h2><form id="editForm" data-id="'+esc(t.id)+'" data-mode="advanced">'+
- '<div class="field"><label for="totalEdit">Step 수</label><input class="input" type="number" min="1" max="30" id="totalEdit" name="total" value="'+t.total+'"></div>'+
- '<div class="modal-actions"><button type="button" class="btn soft" data-action="closeModal" aria-label="닫기">×</button>'+
- '<button class="btn dark" type="submit" aria-label="확정">✓</button></div></form>'+
- '<button class="quiet red" data-action="delete" data-id="'+esc(t.id)+'" aria-label="삭제">삭제</button>');
+ openModal('<div class="modal-utilities"><button class="quiet red" data-action="delete" data-id="'+esc(t.id)+'">삭제</button></div>');
 }
 function modalGroup(t){openModal(`<h2 class="dialog-title">분류 변경</h2><p class="helper">할 일이 속한 목록입니다. 진행 상태와는 관계없어요.</p><form id="groupForm"><div class="field"><label for="groupSelect">분류</label><select id="groupSelect" class="input" name="group"><option value="미분류" ${t.group==='미분류'?'selected':''}>미분류</option>${state.groups.map(g=>`<option ${g===t.group?'selected':''} value="${esc(g)}">${esc(g)}</option>`).join('')}</select></div><div class="modal-actions"><button type="button" class="btn soft" data-action="closeModal">취소</button><button type="submit" class="btn dark">적용</button></div></form>`)}
 function modalDate(t,kind,origin){dateContext={id:t.id,kind,origin:origin||'detail'};openModal(`<h2 class="dialog-title">${kind==='due'?'마감일':'다시 볼 날'}</h2><p class="helper">${kind==='due'?'반드시 끝내야 하는 날짜예요.':'이 할 일이 다시 오늘 목록에 나타날 날짜예요.'}</p><form id="dateForm"><div class="field"><label for="dateValue">날짜</label><input id="dateValue" class="input" name="date" type="date" value="${t[kind]||datePlus(0)}"></div><div class="modal-actions"><button type="button" class="btn soft" data-action="clearDate">날짜 없음</button><button class="btn dark" type="submit">적용</button></div></form>`,null)}
