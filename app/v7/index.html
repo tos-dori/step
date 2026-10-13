@@ -118,8 +118,15 @@ const store='step_v7_live_v1';
 const makeTask=(id,title,group,offset,detail={},mode='idle')=>({id,title,group,review:offset===null?'':datePlus(offset),due:detail.dueOffset==null?'':datePlus(detail.dueOffset),memo:detail.memo||'',cue:detail.cue||'',nextDraft:'',phase:mode,doneSteps:detail.doneSteps||0,total:detail.total||1,checks:detail.checks||[false,false,false],done:false});
 const initial=()=>({tasks:[],groups:[],activeId:null});
 let state;try{const raw=JSON.parse(localStorage.getItem(store));state=raw&&Array.isArray(raw.tasks)&&Array.isArray(raw.groups)?raw:initial()}catch{state=initial()};
-let tab='today',view='empty',selected=null,modal='',dateContext=null,reviewIds=[],reviewI=0,prevView='detail',lastView=null,toastT=null,undoState=null,editing=false,scrollPos={today:0,all:0},timerOn=false,timerRemain=1500,timerAt=0,adding=false,dateEdit=null,showNote=false;
+let tab='today',view='empty',selected=null,modal='',dateContext=null,reviewIds=[],reviewI=0,prevView='detail',lastView=null,toastT=null,undoState=null,editing=false,scrollPos={today:0,all:0},timerOn=false,timerRemain=1500,timerAt=0,timerDuration=1500,timerEditing=false,adding=false,dateEdit=null,showNote=false;
 const task=id=>state.tasks.find(t=>t.id===id),active=()=>task(state.activeId),isReady=t=>t?.doneSteps>=t?.total;
+const timerKey="step_v7_timer_v1";
+try{const x=JSON.parse(localStorage.getItem(timerKey)||"null");if(x&&Number.isFinite(x.duration)&&x.duration>0){timerDuration=Math.min(10800,x.duration);timerRemain=Math.max(0,Math.min(timerDuration,Number(x.remain)||0));timerOn=!!x.running;timerAt=Number(x.ends)||0}}catch{}
+function timerSave(){try{localStorage.setItem(timerKey,JSON.stringify({duration:timerDuration,remain:timerRemain,running:timerOn,ends:timerAt}))}catch{}}
+function timerLeft(){return timerOn?Math.max(0,Math.ceil((timerAt-Date.now())/1000)):timerRemain}
+function stopTimer(){if(timerOn){timerRemain=timerLeft();timerOn=false;timerAt=0;timerSave()}}
+function stepControl(t){const n=number(t),min=Math.max(1,t.doneSteps+1);return '<div class="step-count" role="group" aria-label="Step 개수"><button data-action="stepMinus" aria-label="Step 줄이기" '+(t.total>min?'':'disabled')+'>−</button><strong>'+n+'</strong><button data-action="stepPlus" aria-label="Step 늘리기">+</button></div>'}
+
 function save(){
   const serialized=JSON.stringify(state);
   try{localStorage.setItem(store,serialized)}catch(e){alert('이 기기에 데이터를 저장하지 못했습니다. 저장 공간을 확인하세요.');throw e}
@@ -199,8 +206,9 @@ function dateRow(t,key){
 }
 function detail(t){
  if(!t)return '<div class="empty-pane"><button class="btn" data-action="add" aria-label="추가">+</button></div>';
- return navHTML('할 일',true)+'<div class="detail-heading"><button class="detail-check" data-action="completeTask" aria-label="할 일 완료"><span></span></button>'+inlineField(t,'title')+'</div>'+
- '<div class="detail-group">'+(t.phase==='idle'?'':phase(t))+(t.doneSteps?' · '+number(t):'')+'</div>'+
+ return navHTML('할 일',true)+
+ '<div class="detail-heading"><button class="detail-check" data-action="completeTask" aria-label="할 일 완료"><span></span></button>'+inlineField(t,'title')+'</div>'+
+ '<div class="detail-progress">'+(t.phase!=='idle'?'<span class="state-label">'+phase(t)+'</span>':'')+stepControl(t)+'</div>'+
  '<section class="detail-area"><strong class="field-title">메모</strong>'+inlineField(t,'memo')+'</section>'+
  (t.cue?'<section class="detail-area"><strong class="field-title">이어할 곳</strong>'+inlineField(t,'cue')+'</section>':'')+
  '<section class="detail-area">'+dateRow(t,'review')+dateRow(t,'due')+
@@ -208,23 +216,25 @@ function detail(t){
  '<div class="action-bar"><button class="btn primary wide icon-main" data-action="start" data-id="'+esc(t.id)+'" aria-label="'+esc(t.title)+' 시작 또는 재개">▶</button></div>';
 }
 function run(t){
- const labels=['시작','진행','정리'],next=t.checks.findIndex(v=>!v);
- return navHTML('Step')+'<div class="run-state"><span>'+number(t)+'</span></div>'+
- '<h1 class="run-title">'+esc(t.title)+'</h1>'+
- (t.cue?'<div class="run-cue"><p>'+esc(t.cue)+'</p></div>':'')+
- '<div class="run-card">'+labels.map((name,i)=>'<button class="step-check '+(t.checks[i]?'done':i===next?'current':'')+'" data-action="check" data-index="'+i+'" aria-label="'+name+' '+(t.checks[i]?'체크 취소':'체크')+'"><span class="num">'+(t.checks[i]?'✓':i+1)+'</span><span>'+name+'</span></button>').join('')+'</div>'+
- '<div class="run-note">'+(showNote||t.nextDraft?'<textarea id="cueInput" class="input area" placeholder="다음에 이어서 할 부분" aria-label="다음에 이어서 할 부분">'+esc(t.nextDraft||'')+'</textarea>':
- '<button class="quiet note-trigger" data-action="noteToggle" aria-label="이어할 곳 메모">✎</button>')+'</div>'+
- '<div class="timer"><span class="timer-val" id="timeText">25:00</span><button data-action="timer" aria-label="'+(timerOn?'타이머 일시정지':'타이머 시작')+'">'+(timerOn?'Ⅱ':'▶')+'</button></div>'+
- '<div class="run-footer"><button class="btn primary wide icon-main" data-action="stepFinish" aria-label="이번 Step 마침">✓</button>'+
- '<div class="bar-actions"><button class="btn soft icon-secondary" data-action="pause" aria-label="중단">Ⅱ</button><button class="btn soft icon-secondary" data-action="blocked" aria-label="막힘">⋯</button></div></div>';
+ const next=t.checks.findIndex(v=>!v);
+ return navHTML('Step')+
+ '<div class="run-heading"><h1 class="run-title">'+esc(t.title)+'</h1>'+stepControl(t)+'</div>'+
+ (t.cue?'<div class="run-cue">'+esc(t.cue)+'</div>':'')+
+ '<div class="step-tokens" role="group" aria-label="Step 진행 체크">'+[1,2,3].map((n,i)=>'<button class="step-check '+(t.checks[i]?'done':i===next?'current':'')+'" data-action="check" data-index="'+i+'" aria-label="'+n+' '+(t.checks[i]?'체크 취소':'체크')+'"><span class="num">'+(t.checks[i]?'✓':n)+'</span></button>').join('')+'</div>'+
+ '<div class="run-note">'+(showNote||t.nextDraft?'<textarea id="cueInput" class="input area" placeholder="이어할 부분" aria-label="이어할 부분">'+esc(t.nextDraft||'')+'</textarea>':'<button class="note-trigger" data-action="noteToggle" aria-label="이어할 곳 메모">✎</button>')+'</div>'+
+ '<section class="timer-card" aria-label="타이머"><div class="timer-top"><span class="timer-label">타이머</span>'+
+ (timerEditing?'<div class="timer-edit"><input id="timerMinutes" type="number" min="1" max="180" inputmode="numeric" value="'+Math.ceil(timerDuration/60)+'" aria-label="분"><span>분</span><button data-action="timerApply" aria-label="확정">✓</button><button data-action="timerCancel" aria-label="취소">×</button></div>':'<button class="timer-val" data-action="timerEdit" aria-label="타이머 시간 변경"><span id="timeText"></span></button>')+
+ '</div><div class="timer-line"><div id="timerBar"></div></div><div class="timer-buttons"><button data-action="timerReset" aria-label="타이머 초기화">↺</button>'+
+ '<button class="timer-toggle" data-action="timer" aria-label="'+(timerOn?'타이머 일시정지':'타이머 시작')+'">'+(timerOn?'Ⅱ':'▶')+'</button></div></section>'+
+ '<div class="run-footer"><button class="btn primary wide icon-main" data-action="stepFinish" aria-label="이번 Step 완료">✓</button>'+
+ '<div class="run-exit"><button class="btn soft" data-action="pause" aria-label="중단하고 목록으로 돌아가기">Ⅱ <span>중단</span></button>'+
+ '<button class="btn soft" data-action="close" aria-label="화면 닫기">× <span>닫기</span></button></div></div>';
 }
 function result(t){
- return navHTML('Step')+
- '<h1 class="result-title">'+(isReady(t)?'할 일 완료?':'')+'</h1>'+
- '<div class="result-actions">'+(isReady(t)?
- '<button class="btn primary wide icon-main" data-action="completeTask" aria-label="할 일 완료">✓</button><button class="btn wide icon-secondary" data-action="moreStep" aria-label="Step 추가하고 계속">▶</button>':
- '<button class="btn primary wide icon-main" data-action="continue" aria-label="계속">▶</button><button class="btn wide icon-secondary" data-action="pause" aria-label="중단">Ⅱ</button>')+'</div>';
+ return navHTML('Step')+'<div class="result-content"><h1 class="result-title">'+(isReady(t)?'할 일 완료?':'')+'</h1>'+
+ '<div class="result-actions">'+(isReady(t)?'<button class="btn primary wide" data-action="completeTask" aria-label="할 일 완료">✓ <span>완료</span></button><button class="btn wide" data-action="moreStep" aria-label="Step 추가">+ <span>Step</span></button>':
+ '<button class="btn primary wide" data-action="continue" aria-label="계속">▶</button>')+
+ '<button class="btn wide" data-action="close" aria-label="닫기">×</button></div></div>';
 }
 function review(){const t=task(reviewIds[reviewI]);if(!t)return `${navHTML('지난 일정 확인')}<h1 class="review-title">정리가 끝났어요.</h1>`;return `${navHTML('지난 일정 확인')}<p class="kicker">${reviewI+1} / ${reviewIds.length}</p><h1 class="review-title">언제 다시 볼까요?</h1><div class="review-task">${esc(t.title)}</div>${t.cue?`<div class="next-cue"><div class="field-title">다음 시작점</div><p>${esc(t.cue)}</p></div>`:''}<div class="choice-grid"><button data-action="reviewChoice" data-when="0">오늘</button><button data-action="reviewChoice" data-when="1">내일</button><button data-action="date" data-id="${esc(t.id)}" data-origin="review" data-kind="review">날짜 선택</button><button data-action="reviewChoice" data-when="none">날짜 없이 두기</button></div>`}
 function doneList(){const arr=state.tasks.filter(t=>t.done);return `${navHTML('끝낸 일')}<h1 class="detail-title">끝낸 일</h1><div class="completed-rows">${arr.map(t=>`<div class="completed-item"><span>✓</span><strong>${esc(t.title)}</strong><button data-action="restore" data-id="${esc(t.id)}">되돌리기</button></div>`).join('')||'<p class="helper">완료한 일이 아직 없어요.</p>'}</div>`}
