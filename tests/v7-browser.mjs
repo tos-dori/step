@@ -39,7 +39,7 @@ if(!await page.locator('.timer-card .timer-val').count())throw Error('Timer pane
 await page.locator('[data-action="timerEdit"]').click();
 await page.locator('#timerMinutes').fill('12');
 await page.locator('[data-action="timerApply"]').click();
-if(!await page.locator('#timeText').getByText('12:00').count())throw Error('Timer duration not applied');
+if((await page.locator('#timeText').textContent())!=='12:00')throw Error('Timer duration not applied');
 await page.locator('.timer-card [data-action="timer"]').click();
 const timerRunning=await page.evaluate(()=>JSON.parse(localStorage.getItem('step_v7_timer_v1')).running);
 if(!timerRunning)throw Error('Timer state not persisted');
