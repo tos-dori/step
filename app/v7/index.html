@@ -268,12 +268,17 @@ function afterStep(){
   t.phase=isReady(t)?'final':'paused';
   if(t.phase==='paused')state.activeId=null;
  },'');
- timerOn=false;showNote=false;
+ stopTimer();showNote=false;
  if(t.phase==='final')navigate('result');
  else closeView();
 }
 function finish(){const t=(view==='run'||view==='result')?active():task(selected);if(!t||t.done)return;if(t.phase==='running'&&t.doneSteps<t.total&&!confirm('진행 중이던 할 일을 완료할까요?'))return;transact(()=>{t.done=true;t.phase='done';if(state.activeId===t.id)state.activeId=null},'할 일을 완료했어요.',true);navigate('completed')}
-function updateTimer(){const p=$('#timeText');if(p){let left=timerOn?Math.max(0,Math.ceil((timerAt-Date.now())/1000)):timerRemain;p.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');if(timerOn&&left===0){timerOn=false;timerRemain=1500;notify('타이머가 끝났어요.')}}}
+function updateTimer(){
+ const left=timerLeft(),p=$('#timeText'),bar=$('#timerBar');
+ if(p)p.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
+ if(bar)bar.style.width=(timerDuration?Math.max(0,Math.min(100,left/timerDuration*100)):0)+'%';
+ if(timerOn&&left===0){timerOn=false;timerRemain=0;timerAt=0;timerSave();const b=$('[data-action="timer"]');if(b){b.textContent='▶';b.setAttribute('aria-label','타이머 시작')}notify('타이머 종료')}
+}
 function actions(action,btn){const id=btn?.dataset.id,t=task(id),a=active();switch(action){
 case 'add':
  adding=true;renderList();
@@ -310,14 +315,34 @@ case 'dateRemove':{
 }
 case 'noteToggle':
  showNote=true;renderWork();requestAnimationFrame(()=>$('#cueInput')?.focus({preventScroll:true}));return;
-case 'closeModal':closeModal();return;case 'close':closeView();return;case 'back':if(view==='run'||view==='result')navigate('detail',state.activeId);else closeView();return;
+case 'closeModal':closeModal();return;
+case 'close':if(view==='run')saveCue();closeView();return;
+case 'back':if(view==='run')saveCue();if(view==='run'||view==='result')navigate('detail',state.activeId);else closeView();return;
+case 'stepPlus':{
+ const x=(view==='run'?a:task(selected));if(!x||x.done||x.total>=99)return;
+ transact(()=>{x.total+=1;if(x.phase==='final'&&x.doneSteps<x.total)x.phase='paused'},'');return;
+}
+case 'stepMinus':{
+ const x=(view==='run'?a:task(selected));if(!x||x.done||x.total<=Math.max(1,x.doneSteps+1))return;
+ transact(()=>{x.total-=1},'');return;
+}
+case 'timerEdit':stopTimer();timerEditing=true;renderWork();requestAnimationFrame(()=>$('#timerMinutes')?.focus({preventScroll:true}));return;
+case 'timerCancel':timerEditing=false;renderWork();return;
+case 'timerApply':{
+ const mins=Number($('#timerMinutes')?.value);
+ if(!Number.isFinite(mins)||mins<1||mins>180)return;
+ timerDuration=Math.round(mins)*60;timerRemain=timerDuration;timerOn=false;timerAt=0;timerEditing=false;timerSave();renderWork();return;
+}
+case 'timerReset':timerOn=false;timerAt=0;timerRemain=timerDuration;timerSave();updateTimer();return;
 case 'open':navigate('detail',id);return;case 'start':start(id);return;case 'resume':if(a)start(a.id);return;case 'quickDone':if(!t)return;transact(()=>{t.done=true},'할 일을 완료했어요.',true);return;
 case 'edit':modalEdit(task(selected));return;case 'editGroup':modalGroup(task(selected));return;
 case 'check':if(!a)return;transact(()=>{const i=Number(btn.dataset.index);a.checks[i]=!a.checks[i]},'');return;
 case 'timer':
- if(timerOn){timerRemain=Math.max(0,Math.ceil((timerAt-Date.now())/1000));timerOn=false}else{timerAt=Date.now()+timerRemain*1000;timerOn=true}
- btn.textContent=timerOn?'Ⅱ':'▶';btn.setAttribute('aria-label',timerOn?'타이머 일시정지':'타이머 시작');updateTimer();return;
-case 'pause':saveCue();if(a)transact(()=>{a.phase='paused'},'');timerOn=false;showNote=false;closeView();return;
+ if(timerOn)stopTimer();
+ else{if(timerRemain===0)timerRemain=timerDuration;timerAt=Date.now()+timerRemain*1000;timerOn=true;timerSave()}
+ btn.textContent=timerOn?'Ⅱ':'▶';btn.setAttribute('aria-label',timerOn?'타이머 일시정지':'타이머 시작');
+ updateTimer();return;
+case 'pause':saveCue();if(a)transact(()=>{a.phase='paused'},'');stopTimer();showNote=false;closeView();return;
 case 'blocked':saveCue();if(a)openModal(`<h2 class="dialog-title">막힌 지점 남기기</h2><p class="helper">다시 시도할 때 무엇부터 확인할지 적어두세요.</p><form id="blockedForm"><div class="field"><label for="blockedCue">다음에 확인할 것</label><textarea id="blockedCue" class="input area" name="cue">${esc(a.cue)}</textarea></div><div class="modal-actions"><button type="button" class="btn soft" data-action="closeModal">취소</button><button type="submit" name="decision" value="pause" class="btn dark">기록하고 중단</button></div><button class="quiet wide" type="button" data-action="blockedContinue">기록하고 계속하기</button></form>`,'#blockedCue');return;
 case 'blockedContinue':if(a)transact(()=>{a.cue=$('#blockedCue')?.value.trim()||'';a.nextDraft='';a.phase='running'},'기록했어요.');closeModal();navigate('run');return;
 case 'stepFinish':afterStep();return;case 'continue':if(a)transact(()=>{a.phase='running'},'');navigate('run');return;
@@ -369,8 +394,17 @@ if(f.id==='renameGroupForm'){const i=Number(f.dataset.index),name=state.groups[i
 if(f.id==='dateForm'){chooseDate(String(fd.get('date')||''));return}
 if(f.id==='blockedForm'){const t=active();if(t)transact(()=>{t.cue=String(fd.get('cue')||'').trim();t.nextDraft='';t.phase='paused'},'막힌 지점을 남겼어요.');closeModal();navigate('empty');return}});
 $('#workContent').addEventListener('input',e=>{if(e.target.id==='cueInput'){const a=active();if(a){a.nextDraft=e.target.value;save()}}});
-function resize(){const v=window.visualViewport;document.documentElement.style.setProperty('--visible-height',(v?.height||window.innerHeight)+'px');if(!isMobile())$('#rail').classList.remove('mobile-hidden');else $('#rail').classList.toggle('mobile-hidden',view!=='empty');$('#workspace').classList.toggle('mobile-visible',isMobile()&&view!=='empty')}
-window.visualViewport?.addEventListener('resize',resize);window.addEventListener('resize',resize);window.addEventListener('pageshow',()=>{resize();render()});
+function resize(){
+ if(!isMobile())$('#rail').classList.remove('mobile-hidden');
+ else $('#rail').classList.toggle('mobile-hidden',view!=='empty');
+ $('#workspace').classList.toggle('mobile-visible',isMobile()&&view!=='empty');
+}
+window.visualViewport?.addEventListener('resize',()=>{
+ // The keyboard changes the visible area, not the application's root dimensions.
+ // Keep the focused field in its own scroll region; never resize #app.
+ const el=document.activeElement;
+ if(el?.matches('input,textarea,select'))requestAnimationFrame(()=>el.scrollIntoView({block:'nearest',inline:'nearest'}));
+});window.addEventListener('resize',resize);window.addEventListener('pageshow',()=>{resize();render()});
 let touchX=0,touchY=0;document.addEventListener('touchstart',e=>{if(e.touches.length===1){touchX=e.touches[0].clientX;touchY=e.touches[0].clientY}},{passive:true});document.addEventListener('touchmove',e=>{if(!e.cancelable||e.touches.length!==1)return;const dy=e.touches[0].clientY-touchY,dx=e.touches[0].clientX-touchX;if(Math.abs(dy)<5||Math.abs(dx)>Math.abs(dy))return;if(e.target.closest('input,textarea,select,[contenteditable]'))return;const sc=e.target.closest('.list-scroll,.work-scroll,.dialog');if(!sc){if(!e.target.closest('input,textarea,select'))e.preventDefault();return}if(dy>0&&sc.scrollTop<=0||dy<0&&sc.scrollTop+sc.clientHeight>=sc.scrollHeight-1)e.preventDefault()},{passive:false});
 window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#modal').hidden)closeModal();else if(adding){adding=false;renderList()}else closeView()}});
 setInterval(()=>{if(timerOn)updateTimer()},1000);
