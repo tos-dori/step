@@ -17,7 +17,6 @@ const values=await page.evaluate(()=>({task:window.StepV7App.getState().tasks[0]
 if(values.task.title!=="기존 할 일"||values.task.cue!=="3번 문제부터"||!values.task.checks[0])throw Error("Legacy V6 import lost fields: "+JSON.stringify(values));
 if(values.overflow||values.scroll!=="none")throw Error("Bad mobile layout: "+JSON.stringify(values));
 await page.locator(".now-card").click();
-await page.locator('[data-action="start"]').first().click();
 if(!await page.locator('[data-action="stepFinish"]').count())throw Error("Run page missing Step finish action");
 await page.locator('[data-action="pause"]').click();
 await page.locator(".now-card").click();
