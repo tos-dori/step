@@ -54,6 +54,8 @@ jobs:
           test -f app/v7/index.html
           test -f app/v7/sync.js
           test -f tests/v7-browser.mjs
+          test -f app/board/index.html
+          test -f tests/board-browser.mjs
           test "$(grep -R -l 'step_live_v1' src | wc -l | tr -d ' ')" -eq 1
           grep -q 'window.StepSyncApp' src/bridge.js
           grep -q 'window.StepSyncBridge' src/sync/firebase.js
@@ -71,6 +73,7 @@ jobs:
           node --check app/v6/app.js
           node --check tests/v6-browser.mjs
           node --check tests/v7-browser.mjs
+          node --check tests/board-browser.mjs
           python3 -m json.tool site.webmanifest >/dev/null
           python3 -m json.tool firebase.json >/dev/null
 
@@ -98,6 +101,7 @@ jobs:
           STEP_URL=http://127.0.0.1:4174/legacy/ node tests/experience-browser.mjs 2>&1 | tee /tmp/step-experience.log
           STEP_URL=http://127.0.0.1:4174/ node tests/v6-browser.mjs 2>&1 | tee /tmp/step-v6-browser.log
           STEP_URL=http://127.0.0.1:4174/ node tests/v7-browser.mjs 2>&1 | tee /tmp/step-v7-browser.log
+          STEP_URL=http://127.0.0.1:4174/ node tests/board-browser.mjs 2>&1 | tee /tmp/step-board-browser.log
 
       - name: Upload smoke diagnostics
         if: always()
@@ -114,5 +118,6 @@ jobs:
             /tmp/step-http.log
             /tmp/step-v6-browser.log
             /tmp/step-v7-browser.log
+            /tmp/step-board-browser.log
             /tmp/step-v0660-smoke.png
           if-no-files-found: ignore
