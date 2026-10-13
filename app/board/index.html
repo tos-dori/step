@@ -306,12 +306,13 @@ function startTimer(){
  updateClock();
 }
 function updateClock(){
- const node=document.querySelector('.note.selected');if(!node)return;
- const clock=node.querySelector('.clock'),fill=node.querySelector('#timerFill'),play=node.querySelector('[data-act="timeToggle"]');
- const l=timeLeft();if(clock)clock.textContent=clockText(l);if(fill)fill.style.width=Math.max(0,Math.min(100,100*l/timer.seconds))+'%';
- if(play){play.textContent=timer.running?'Ⅱ':'▶';play.setAttribute('aria-label',timer.running?'일시정지':'시작')}
+ const l=timeLeft();
  if(timer.running&&l===0){timer.running=false;timer.left=0;timer.ends=0;timerSave();flash('타이머 종료')}
  updateMiniTimer();
+ const node=document.querySelector('.note.selected');if(!node)return;
+ const clock=node.querySelector('.clock'),fill=node.querySelector('#timerFill'),play=node.querySelector('[data-act="timeToggle"]');
+ if(clock)clock.textContent=clockText(l);if(fill)fill.style.width=Math.max(0,Math.min(100,100*l/timer.seconds))+'%';
+ if(play){play.textContent=timer.running?'Ⅱ':'▶';play.setAttribute('aria-label',timer.running?'일시정지':'시작')}
 }
 function handle(act,button){
  // Resolve any active text edit before switching actions or changing tasks.
