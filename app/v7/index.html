@@ -327,7 +327,7 @@ function navigate(v,id){if(isMobile()&&view==='empty')scrollPos[tab]=$('#listScr
 function closeView(){if(isMobile()){view='empty';render();requestAnimationFrame(()=>$('#listScroll').scrollTop=scrollPos[tab]||0)}else{view='empty';render(false)}}
 function start(id){
  const t=task(id);if(!t||t.done)return;
- if(state.activeId&&state.activeId!==id){saveCue();stopTimer()}
+ if(state.activeId&&state.activeId!==id){saveCue();stopTimer();timerRemain=timerDuration;timerAt=0;timerSave()}
  transact(()=>{
   const prev=active();
   if(prev&&prev.id!==id&&prev.phase==='running')prev.phase='paused';
@@ -356,7 +356,7 @@ function afterStep(){
   t.phase=isReady(t)?'final':'paused';
   if(t.phase==='paused')state.activeId=null;
  },'');
- stopTimer();showNote=false;
+ stopTimer();timerRemain=timerDuration;timerAt=0;timerSave();showNote=false;
  if(t.phase==='final')navigate('result');
  else closeView();
 }
