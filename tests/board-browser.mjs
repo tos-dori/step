@@ -20,6 +20,11 @@ if(original.title!=='기존 할 일'||original.memo!=='원래 메모'||original.
 await page.locator('.note-open').first().click();
 if(!await page.locator('.note.selected').count())throw Error('Selected task not visually expanded');
 if(!await page.locator('.clock').count())throw Error('Focus timer missing from board');
+if((await page.locator('.goal-input').inputValue())!=='3번 문제부터')throw Error('Original resume cue missing from focus card');
+await page.locator('.goal-input').fill('5번 연습문제까지');
+await page.locator('.goal-keys [data-act="editSave"]').click();
+if((await page.evaluate(()=>window.StepV7App.getState().tasks[0].cue))!=='5번 연습문제까지')throw Error('Step goal edit lost');
+
 if(await page.locator('#board').count()!==1)throw Error('Board is not one view');
 await page.locator('.selected-title').fill('운영체제 정리');
 await page.locator('.selected-title').press('Tab');
